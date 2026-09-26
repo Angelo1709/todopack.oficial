@@ -70,7 +70,8 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
       groupKey: products.groupKey,
       imageUrl: products.imageUrl,
       active: products.active,
-      groupSize: sql<number>`(select count(*)::int from products p2 where p2.group_key = ${products.groupKey})`,
+      // Columna calificada a mano: sin "products." Postgres la resolvería contra p2 y contaría todo.
+      groupSize: sql<number>`(select count(*)::int from products p2 where p2.group_key = "products"."group_key" and p2.active)`,
     })
     .from(products)
     .where(where)

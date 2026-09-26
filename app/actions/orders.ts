@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { orders, orderItems, products, type Order } from "@/lib/db/schema"
+import { orders, orderItems, type Order } from "@/lib/db/schema"
 import { getSessionUser, requireUser } from "@/lib/session"
 import {
   initialStatus,
@@ -16,6 +16,8 @@ import { revalidatePath } from "next/cache"
 import { randomBytes } from "node:crypto"
 import { isIsoDate, todayAR } from "@/lib/dates"
 import { isOrderToken, MAX_REMEMBERED_ORDERS } from "@/lib/guest-orders"
+import { loadArticlesForProducts, type Article } from "@/lib/catalog"
+import { MAX_UNITS, priceFor, stepUnits } from "@/lib/pricing"
 
 type CheckoutItem = { id: number; quantity: number }
 
@@ -112,7 +114,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
   if (!isDeliverySlot(input.deliverySlot)) return fail("Elegí la franja de entrega", "deliverySlot")
   if (!isPaymentMethod(input.paymentMethod)) return fail("Elegí el medio de pago", "paymentMethod")
 
-  // Normalizar cantidades y descartar lo inválido.
+  // Normalizar cantidades (unidades por artículo) y descartar lo inválido.
   const cleaned = new Map<number, number>()
   for (const it of input.items) {
     const id = Number(it?.id)
@@ -120,19 +122,14 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     if (!Number.isInteger(id) || id <= 0) continue
     if (!Number.isInteger(qty) || qty <= 0) continue
     cleaned.set(id, (cleaned.get(id) ?? 0) + qty)
-    if (cleaned.get(id)! > 999) return fail("Cantidad demasiado grande por producto (máx. 999)", "items")
   }
   if (cleaned.size === 0) return fail("Tu carrito está vacío", "items")
 
   const ids = [...cleaned.keys()]
-  // Precios recalculados desde la base: nunca confiar en los del cliente.
-  const rows = await db
-    .select()
-    .from(products)
-    .where(and(inArray(products.id, ids), eq(products.active, true)))
-  const byId = new Map(rows.map((p) => [p.id, p]))
+  // Presentaciones y precios desde la base: nunca confiar en los del cliente.
+  const articles = await loadArticlesForProducts(ids)
 
-  const unavailableIds = ids.filter((id) => !byId.has(id))
+  const unavailableIds = ids.filter((id) => !articles.has(id))
   if (unavailableIds.length) {
     return {
       ok: false,
@@ -145,13 +142,30 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     }
   }
 
+  // Dos ítems del carrito pueden ser el mismo artículo (ej. carritos guardados antes de agrupar).
+  const unitsByArticle = new Map<string, { article: Article; units: number }>()
+  for (const id of ids) {
+    const article = articles.get(id)!
+    const entry = unitsByArticle.get(article.key) ?? { article, units: 0 }
+    entry.units += cleaned.get(id)!
+    unitsByArticle.set(article.key, entry)
+  }
+
+  // Precio por tramos: se cobra la combinación más barata de presentaciones y se guarda desglosada
+  // ("1 × PACK X6" + "1 × UNIDAD"), que es lo que se arma en el depósito.
   let total = 0
-  const lineItems = ids.map((id) => {
-    const p = byId.get(id)!
-    const quantity = cleaned.get(id)!
-    total += p.price * quantity
-    return { productId: p.id, name: p.name, price: p.price, packSize: p.packSize, quantity }
-  })
+  const lineItems: { productId: number; name: string; price: number; packSize: number; quantity: number }[] = []
+  for (const { article, units } of unitsByArticle.values()) {
+    if (units > MAX_UNITS) return fail(`Cantidad demasiado grande de ${article.name} (máx. ${MAX_UNITS} u.)`, "items")
+    const breakdown = priceFor(article.tiers, units)
+    if (!breakdown) {
+      return fail(`${article.name} se vende de a ${stepUnits(article.tiers)} unidades: revisá la cantidad`, "items")
+    }
+    total += breakdown.total
+    for (const { tier, count } of breakdown.lines) {
+      lineItems.push({ productId: tier.productId, name: tier.name, price: tier.price, packSize: tier.packSize, quantity: count })
+    }
+  }
 
   const [order] = await db
     .insert(orders)

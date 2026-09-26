@@ -1,60 +1,14 @@
 import { db } from "@/lib/db"
 import { products } from "@/lib/db/schema"
-import { and, asc, eq, ilike, inArray, sql } from "drizzle-orm"
+import { and, eq, ilike, sql } from "drizzle-orm"
 import { SiteHeader } from "@/components/site-header"
 import { Storefront } from "@/components/storefront/storefront"
-import type { StoreArticle, StoreVariant } from "@/components/storefront/product-card"
 import { CATEGORY_ORDER } from "@/lib/categorize"
-import { packSavingsPercent, parsePresentation, presentationLabel, unitPrice } from "@/lib/pack"
+import { articleKey, loadArticles } from "@/lib/catalog"
 
 export const dynamic = "force-dynamic"
 
 const PAGE_SIZE = 24
-
-// Un artículo = productos con el mismo group_key (presentaciones); sin grupo, el producto va solo.
-const articleKey = sql<string>`coalesce(${products.groupKey}, 'id:' || ${products.id})`
-
-type VariantRow = {
-  id: number
-  name: string
-  price: number
-  category: string
-  imageUrl: string | null
-  packSize: number
-  key: string
-}
-
-function buildArticle(key: string, rows: VariantRow[]): StoreArticle {
-  const sorted = [...rows].sort((a, b) => a.packSize - b.packSize || a.price - b.price)
-  const single = sorted.find((v) => v.packSize === 1)
-  const variants: StoreVariant[] = sorted.map((v) => ({
-    id: v.id,
-    name: v.name,
-    price: v.price,
-    category: v.category,
-    imageUrl: v.imageUrl,
-    packSize: v.packSize,
-    label: presentationLabel(v.name, v.packSize),
-    unitPrice: unitPrice(v.price, v.packSize),
-    savingsPercent: single && v.packSize > 1 ? packSavingsPercent(v.price, v.packSize, single.price) : 0,
-  }))
-  // Dos presentaciones con la misma etiqueta (grupo armado a mano): se distinguen por nombre.
-  const labels = variants.map((v) => v.label)
-  for (const v of variants) {
-    if (labels.filter((l) => l === v.label).length > 1) v.label = parsePresentation(v.name).baseName
-  }
-  const first = sorted[0]
-  // El nombre se muestra sin "PACK X6" solo si el pack de la base coincide con lo que dice el nombre
-  // (un producto sin clasificar tiene pack_size 1 aunque diga "CAJA X12": ahí va el nombre completo).
-  const parsed = parsePresentation(first.name)
-  return {
-    key,
-    baseName: parsed.packSize === first.packSize ? parsed.baseName : first.name,
-    category: first.category,
-    imageUrl: sorted.find((v) => v.imageUrl)?.imageUrl ?? null,
-    variants,
-  }
-}
 
 export default async function HomePage({
   searchParams,
@@ -94,26 +48,8 @@ export default async function HomePage({
       ).map((r) => r.key)
     : []
 
-  // ...y todas sus presentaciones activas.
-  const variantRows: VariantRow[] = pageKeys.length
-    ? await db
-        .select({
-          id: products.id,
-          name: products.name,
-          price: products.price,
-          category: products.category,
-          imageUrl: products.imageUrl,
-          packSize: products.packSize,
-          key: articleKey,
-        })
-        .from(products)
-        .where(and(eq(products.active, true), inArray(articleKey, pageKeys)))
-        .orderBy(asc(products.packSize), asc(products.price))
-    : []
-
-  const byKey = new Map<string, VariantRow[]>()
-  for (const row of variantRows) byKey.set(row.key, [...(byKey.get(row.key) ?? []), row])
-  const articles = pageKeys.filter((k) => byKey.has(k)).map((k) => buildArticle(k, byKey.get(k)!))
+  // ...con todas sus presentaciones activas (tramos de precio).
+  const articles = await loadArticles(pageKeys)
 
   const present = new Set(categoryRows.map((r) => r.category))
   const categories = CATEGORY_ORDER.filter((c) => present.has(c))
