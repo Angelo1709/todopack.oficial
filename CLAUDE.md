@@ -13,7 +13,7 @@ Tienda online de la distribuidora TODO PACK (bebidas, almacén, limpieza, descar
 - **PostgreSQL** con **Drizzle ORM** (`lib/db/`), driver `pg`.
 - **Better Auth** (email + contraseña) en `lib/auth.ts`; ruta `app/api/auth/[...all]`. La cuenta es opcional para comprar.
 - Imágenes de productos: se guarda la URL (`lib/storage.ts`); Vercel Blob solo si hay `BLOB_READ_WRITE_TOKEN`.
-- Deploy: **Railway** (`railway.json`: build `pnpm build`, pre-deploy `pnpm db:migrate`, healthcheck `/api/health`).
+- Deploy: **Railway** (`railway.json`: build `pnpm build`, start `pnpm start` = migraciones + `next start`, healthcheck `/api/health`). El `preDeployCommand` de Railway no se ejecutaba: por eso las migraciones corren al arrancar.
 - Gestor de paquetes: **pnpm** (versión fijada en `packageManager`; si no está instalado: `npx pnpm@12.3.4 ...`). Node 24.
 
 ## Comandos

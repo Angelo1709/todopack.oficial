@@ -1,5 +1,6 @@
 // Aplica en orden las migraciones SQL de lib/db/migrations/ que todavía no corrieron.
-// Uso: DATABASE_URL=... node scripts/migrate.mjs   (en Railway corre como preDeployCommand)
+// Uso: DATABASE_URL=... node scripts/migrate.mjs
+// Corre también al arrancar (`pnpm start`), antes de `next start`.
 import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import pg from "pg"
@@ -14,7 +15,11 @@ if (!process.env.DATABASE_URL) {
 const client = new pg.Client({ connectionString: process.env.DATABASE_URL })
 await client.connect()
 
+// Lock para que dos instancias arrancando a la vez no apliquen las mismas migraciones.
+const LOCK_ID = 4815162342
+
 try {
+  await client.query("SELECT pg_advisory_lock($1)", [LOCK_ID])
   await client.query(`
     CREATE TABLE IF NOT EXISTS schema_migrations (
       name text PRIMARY KEY,
@@ -45,5 +50,6 @@ try {
   }
   console.log(count ? `${count} migración(es) aplicada(s).` : "Base de datos al día.")
 } finally {
+  await client.query("SELECT pg_advisory_unlock($1)", [LOCK_ID]).catch(() => {})
   await client.end()
 }

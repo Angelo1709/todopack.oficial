@@ -5,8 +5,7 @@ La app es un servicio Node (Next.js) + una base PostgreSQL de Railway. `railway.
 | Paso | Comando | Qué hace |
 |---|---|---|
 | Build | `pnpm build` | compila Next.js (falla si hay errores de tipos) |
-| Pre-deploy | `pnpm db:migrate` | aplica las migraciones pendientes de `lib/db/migrations/` |
-| Start | `pnpm start` | `next start`, escucha en el `PORT` que asigna Railway |
+| Start | `pnpm start` | aplica las migraciones pendientes (con lock) y levanta `next start` en el `PORT` de Railway |
 | Healthcheck | `GET /api/health` | responde 200 si la base contesta |
 
 ## 1. Crear el proyecto (una sola vez)
