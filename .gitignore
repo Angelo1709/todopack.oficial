@@ -33,3 +33,6 @@ next-env.d.ts
 
 # base Postgres local embebida (pnpm db:local)
 /.pglite
+
+# worktrees de agentes de Claude Code
+/.claude/worktrees/

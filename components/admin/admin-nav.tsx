@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ClipboardList, Package, Settings } from "lucide-react"
+import { ClipboardList, Package, Settings, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
@@ -11,13 +11,22 @@ const LINKS = [
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ]
 
-export function AdminNav({ pendingTransfers = 0 }: { pendingTransfers?: number }) {
+const USERS_LINK = { href: "/admin/usuarios", label: "Usuarios", icon: Users }
+
+export function AdminNav({
+  pendingTransfers = 0,
+  showUsers = false,
+}: {
+  pendingTransfers?: number
+  showUsers?: boolean
+}) {
   const pathname = usePathname()
+  const links = showUsers ? [...LINKS, USERS_LINK] : LINKS
 
   return (
     <nav className="border-b border-border bg-card">
       <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4">
-        {LINKS.map((l) => {
+        {links.map((l) => {
           const active = l.href === "/admin" ? pathname === "/admin" : pathname.startsWith(l.href)
           return (
             <Link

@@ -16,7 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, Package, ShieldCheck, User as UserIcon } from "lucide-react"
+import { LogOut, Package, ReceiptText, ShieldCheck, User as UserIcon } from "lucide-react"
+import { isAdminRole } from "@/lib/roles"
 
 export function SiteHeader() {
   const { data: session, isPending } = useSession()
@@ -39,7 +40,7 @@ export function SiteHeader() {
             alt="TodoPack Alcorta"
             width={40}
             height={40}
-            className="rounded-full ring-1 ring-primary/40"
+            className="size-10 rounded-full ring-1 ring-primary/40"
           />
           <div className="hidden sm:block leading-tight">
             <span className="block font-serif text-lg font-bold">TodoPack Alcorta</span>
@@ -51,7 +52,7 @@ export function SiteHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           <CartSheet>
-            <Button variant="secondary" className="relative gap-2">
+            <Button variant="secondary" className="relative gap-2" aria-label="Carrito">
               <Package className="size-4" />
               <span className="hidden sm:inline">Carrito</span>
               {count > 0 && (
@@ -78,9 +79,9 @@ export function SiteHeader() {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem render={<Link href="/mis-pedidos" />}>
-                  <Package className="size-4" /> Mis pedidos
+                  <ReceiptText className="size-4" /> Mis pedidos
                 </DropdownMenuItem>
-                {user.role === "admin" && (
+                {isAdminRole(user.role) && (
                   <DropdownMenuItem render={<Link href="/admin" />}>
                     <ShieldCheck className="size-4" /> Panel admin
                   </DropdownMenuItem>
@@ -92,9 +93,22 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button render={<Link href="/sign-in" />} nativeButton={false} variant="default">
-              Ingresar
-            </Button>
+            <>
+              {/* Sin cuenta también se ven los pedidos hechos desde este navegador. */}
+              <Button
+                render={<Link href="/mis-pedidos" />}
+                nativeButton={false}
+                variant="ghost"
+                aria-label="Mis pedidos"
+                className="gap-2 text-sidebar-foreground"
+              >
+                <ReceiptText className="size-4" />
+                <span className="hidden sm:inline">Mis pedidos</span>
+              </Button>
+              <Button render={<Link href="/sign-in" />} nativeButton={false} variant="default">
+                Ingresar
+              </Button>
+            </>
           )}
         </div>
       </div>
