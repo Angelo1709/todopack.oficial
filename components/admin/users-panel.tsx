@@ -131,18 +131,22 @@ function NewUserDialog() {
     const email = String(fd.get("email") || "").trim().toLowerCase()
     startTransition(async () => {
       try {
-        await createUser({
+        const res = await createUser({
           name: String(fd.get("name") || ""),
           email,
           phone: String(fd.get("phone") || ""),
           password,
           role,
         })
+        if (!res.ok) {
+          toast.error(res.error)
+          return
+        }
         toast.success("Usuario creado")
         setCreated({ email, password })
         router.refresh()
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "No se pudo crear el usuario")
+      } catch {
+        toast.error("No se pudo crear el usuario")
       }
     })
   }
@@ -251,11 +255,15 @@ function ResetPasswordDialog({ user }: { user: UserRow }) {
     e.preventDefault()
     startTransition(async () => {
       try {
-        await resetUserPassword(user.id, password)
+        const res = await resetUserPassword(user.id, password)
+        if (!res.ok) {
+          toast.error(res.error)
+          return
+        }
         toast.success("Contraseña actualizada")
         setDone(true)
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "No se pudo cambiar la contraseña")
+      } catch {
+        toast.error("No se pudo cambiar la contraseña")
       }
     })
   }
@@ -314,11 +322,15 @@ export function UsersPanel({ users, currentUserId }: { users: UserRow[]; current
   function changeRole(u: UserRow, role: AssignableRole) {
     startTransition(async () => {
       try {
-        await setUserRole(u.id, role)
+        const res = await setUserRole(u.id, role)
+        if (!res.ok) {
+          toast.error(res.error)
+          return
+        }
         toast.success(role === "admin" ? `${u.name} ahora es administrador` : `${u.name} ahora es cliente`)
         router.refresh()
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "No se pudo cambiar el rol")
+      } catch {
+        toast.error("No se pudo cambiar el rol")
       }
     })
   }
