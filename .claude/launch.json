@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "todopack-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["pnpm@12.3.4", "dev"],
+      "port": 3000
+    }
+  ]
+}

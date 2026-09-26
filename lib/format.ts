@@ -5,3 +5,8 @@ export function formatPrice(pesos: number) {
     maximumFractionDigits: 0,
   }).format(pesos)
 }
+
+/** Número de pedido visible: 201 -> "00201". */
+export function formatOrderNumber(id: number) {
+  return String(id).padStart(5, "0")
+}

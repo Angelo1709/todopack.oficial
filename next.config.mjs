@@ -1,13 +1,9 @@
-import { withEve } from "eve/next"
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
+    // Las imágenes de productos son URLs externas de cualquier dominio.
     unoptimized: true,
   },
 }
 
-export default withEve(nextConfig)
+export default nextConfig

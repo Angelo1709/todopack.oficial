@@ -30,3 +30,6 @@ next-env.d.ts
 
 # local Claude Code settings
 .claude/settings.local.json
+
+# base Postgres local embebida (pnpm db:local)
+/.pglite

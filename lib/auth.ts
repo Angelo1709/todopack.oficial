@@ -1,15 +1,22 @@
 import { betterAuth } from "better-auth"
 import { pool } from "@/lib/db"
 
+// URL pública: BETTER_AUTH_URL o, en Railway, el dominio que asigna la plataforma.
+const baseURL =
+  process.env.BETTER_AUTH_URL ??
+  (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : undefined)
+
+// Emails que quedan como admin al registrarse (separados por coma).
+const adminEmails = new Set(
+  (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+)
+
 export const auth = betterAuth({
   database: pool,
-  baseURL:
-    process.env.BETTER_AUTH_URL ??
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : process.env.V0_RUNTIME_URL),
+  baseURL,
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
@@ -21,37 +28,22 @@ export const auth = betterAuth({
       address: { type: "string", required: false, input: true },
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          if (!adminEmails.has(user.email.toLowerCase())) return
+          return { data: { ...user, role: "admin" } }
+        },
+      },
+    },
+  },
   trustedOrigins: [
-    ...(process.env.NODE_ENV === "development"
-      ? [
-          "http://localhost:3000",
-          ...(process.env.V0_RUNTIME_URL ? [process.env.V0_RUNTIME_URL] : []),
-          ...(process.env.V0_DEV_APP_URL ? [process.env.V0_DEV_APP_URL] : []),
-          ...(process.env.V0_BUILD_URL ? [process.env.V0_BUILD_URL] : []),
-          ...(process.env.V0_SANDBOX_URL ? [process.env.V0_SANDBOX_URL] : []),
-        ]
-      : []),
-    ...(process.env.NODE_ENV === "production"
-      ? [
-          ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
-          ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
-            ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
-            : []),
-        ]
-      : []),
+    ...(baseURL ? [baseURL] : []),
+    ...(process.env.NODE_ENV === "development" ? ["http://localhost:3000"] : []),
   ],
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
   },
-  ...(process.env.NODE_ENV === "development"
-    ? {
-        advanced: {
-          defaultCookieAttributes: {
-            sameSite: "none" as const,
-            secure: true,
-          },
-        },
-      }
-    : {}),
 })

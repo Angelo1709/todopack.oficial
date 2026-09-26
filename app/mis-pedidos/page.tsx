@@ -3,10 +3,18 @@ import Link from "next/link"
 import { getSessionUser } from "@/lib/session"
 import { getMyOrders } from "@/app/actions/orders"
 import { SiteHeader } from "@/components/site-header"
-import { formatPrice } from "@/lib/format"
+import { formatOrderNumber, formatPrice } from "@/lib/format"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PAYMENT_STATUS_LABEL, ORDER_STATUS_LABEL, statusVariant } from "@/lib/order-labels"
+import {
+  DELIVERY_SLOT_LABEL,
+  ORDER_STATUS_LABEL,
+  PAYMENT_METHOD_LABEL,
+  statusVariant,
+  type DeliverySlot,
+  type OrderStatus,
+  type PaymentMethod,
+} from "@/lib/order-status"
 import { Package } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -42,16 +50,18 @@ export default async function MyOrdersPage() {
               <li key={o.id} className="rounded-xl border border-border bg-card p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="font-semibold">Pedido #{o.id}</p>
+                    <p className="font-semibold">Pedido #{formatOrderNumber(o.id)}</p>
                     <p className="text-sm text-muted-foreground">
-                      Entrega: {formatDate(o.deliveryDate)}
+                      Entrega: {formatDate(o.deliveryDate)} ·{" "}
+                      {DELIVERY_SLOT_LABEL[o.deliverySlot as DeliverySlot] ?? o.deliverySlot}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={statusVariant(o.status)}>{ORDER_STATUS_LABEL[o.status] ?? o.status}</Badge>
+                    <Badge variant={statusVariant(o.status as OrderStatus)}>
+                      {ORDER_STATUS_LABEL[o.status as OrderStatus] ?? o.status}
+                    </Badge>
                     <Badge variant="outline">
-                      {o.paymentMethod === "efectivo" ? "Efectivo" : "Transferencia"} ·{" "}
-                      {PAYMENT_STATUS_LABEL[o.paymentStatus] ?? o.paymentStatus}
+                      {PAYMENT_METHOD_LABEL[o.paymentMethod as PaymentMethod] ?? o.paymentMethod}
                     </Badge>
                   </div>
                 </div>

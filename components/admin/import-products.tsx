@@ -3,7 +3,7 @@
 import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { read, utils } from "xlsx"
-import { importProducts, type ImportRow } from "@/app/actions/admin"
+import { importProducts, type ImportRow } from "@/app/actions/catalog"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

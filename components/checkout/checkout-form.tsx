@@ -51,8 +51,8 @@ export function CheckoutForm({
         phone: String(fd.get("phone") || ""),
         address: String(fd.get("address") || ""),
         deliveryDate: String(fd.get("deliveryDate") || ""),
+        deliverySlot: "mediodia",
         paymentMethod: method,
-        paymentProofUrl: String(fd.get("paymentProofUrl") || ""),
         notes: String(fd.get("notes") || ""),
       })
       clear()

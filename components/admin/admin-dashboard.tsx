@@ -2,30 +2,22 @@
 
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
-import { formatPrice } from "@/lib/format"
-import { importMissingProductImages, updatePaymentStatus, updateOrderStatus } from "@/app/actions/admin"
-import { ImportProducts } from "@/components/admin/import-products"
+import { formatOrderNumber, formatPrice } from "@/lib/format"
+import { updateOrderStatus } from "@/app/actions/admin-orders"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { PAYMENT_STATUS_LABEL, ORDER_STATUS_LABEL, statusVariant } from "@/lib/order-labels"
-import {
-  Banknote,
-  Landmark,
-  MapPin,
-  Phone,
-  Package,
-  DollarSign,
-  ClipboardCheck,
-  ChevronDown,
-  ExternalLink,
-} from "lucide-react"
+  DELIVERY_SLOT_LABEL,
+  ORDER_STATUS_LABEL,
+  nextStatuses,
+  statusVariant,
+  transitionLabel,
+  type DeliverySlot,
+  type OrderStatus,
+  type PaymentMethod,
+} from "@/lib/order-status"
+import { Banknote, Landmark, MapPin, Phone, Package, DollarSign, ClipboardCheck, Clock } from "lucide-react"
 import { toast } from "sonner"
 
 type OrderItem = { id: number; name: string; price: number; quantity: number }
@@ -35,9 +27,8 @@ type Order = {
   phone: string
   address: string
   deliveryDate: string
+  deliverySlot: string
   paymentMethod: string
-  paymentStatus: string
-  paymentProofUrl: string | null
   status: string
   total: number
   notes: string | null
@@ -66,45 +57,14 @@ export function AdminDashboard({
     router.push(`/admin?date=${value}`)
   }
 
-  function runPayment(id: number, status: "pendiente" | "pagado" | "rechazado") {
-    startTransition(async () => {
-      try {
-        await updatePaymentStatus(id, status)
-        toast.success("Pago actualizado")
-        router.refresh()
-      } catch {
-        toast.error("No se pudo actualizar el pago")
-      }
-    })
-  }
-
-  function importImages() {
-    startTransition(async () => {
-      try {
-        const result = await importMissingProductImages(20)
-        if (result.imported.length) {
-          toast.success(`Se cargaron ${result.imported.length} imágenes`)
-        } else {
-          toast.info("No se encontraron nuevas imágenes en este lote")
-        }
-        if (result.notFound.length) {
-          toast.warning(`${result.notFound.length} productos requieren búsqueda manual`)
-        }
-        router.refresh()
-      } catch {
-        toast.error("No se pudo importar imágenes")
-      }
-    })
-  }
-
-  function runStatus(id: number, status: "nuevo" | "en_camino" | "entregado" | "cancelado") {
+  function runStatus(id: number, status: OrderStatus) {
     startTransition(async () => {
       try {
         await updateOrderStatus(id, status)
         toast.success("Estado actualizado")
         router.refresh()
-      } catch {
-        toast.error("No se pudo actualizar el estado")
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "No se pudo actualizar el estado")
       }
     })
   }
@@ -124,10 +84,6 @@ export function AdminDashboard({
           <p className="text-sm text-muted-foreground">Gestioná las entregas y los pagos del día.</p>
         </div>
         <div className="flex items-end gap-3">
-          <ImportProducts />
-          <Button variant="outline" onClick={importImages} disabled={pending}>
-            Buscar imágenes
-          </Button>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="date" className="text-xs font-medium text-muted-foreground">
               Recorrido del día
@@ -174,7 +130,12 @@ export function AdminDashboard({
                   </span>
                   <div>
                     <p className="font-semibold">
-                      {o.customerName} <span className="text-muted-foreground">· #{o.id}</span>
+                      {o.customerName}{" "}
+                      <span className="text-muted-foreground">· #{formatOrderNumber(o.id)}</span>
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Clock className="size-3.5" />
+                      {DELIVERY_SLOT_LABEL[o.deliverySlot as DeliverySlot] ?? o.deliverySlot}
                     </p>
                     <a
                       href={`https://maps.google.com/?q=${encodeURIComponent(o.address)}`}
@@ -203,17 +164,6 @@ export function AdminDashboard({
                       )}
                       {o.paymentMethod === "efectivo" ? "Efectivo" : "Transferencia"}
                     </Badge>
-                    <Badge
-                      variant={
-                        o.paymentStatus === "pagado"
-                          ? "default"
-                          : o.paymentStatus === "rechazado"
-                            ? "destructive"
-                            : "outline"
-                      }
-                    >
-                      {PAYMENT_STATUS_LABEL[o.paymentStatus] ?? o.paymentStatus}
-                    </Badge>
                   </div>
                 </div>
               </div>
@@ -233,57 +183,22 @@ export function AdminDashboard({
               )}
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Badge variant={statusVariant(o.status)}>
-                  {ORDER_STATUS_LABEL[o.status] ?? o.status}
+                <Badge variant={statusVariant(o.status as OrderStatus)}>
+                  {ORDER_STATUS_LABEL[o.status as OrderStatus] ?? o.status}
                 </Badge>
 
                 <div className="ml-auto flex flex-wrap gap-2">
-                  {o.paymentProofUrl && (
+                  {nextStatuses(o.paymentMethod as PaymentMethod, o.status as OrderStatus).map((to) => (
                     <Button
-                      render={<a href={o.paymentProofUrl} target="_blank" rel="noreferrer" />}
-                      nativeButton={false}
-                      variant="outline"
+                      key={to}
                       size="sm"
-                    >
-                      <ExternalLink className="size-3.5" /> Comprobante
-                    </Button>
-                  )}
-
-                  {o.paymentMethod === "transferencia" && o.paymentStatus !== "pagado" && (
-                    <Button size="sm" disabled={pending} onClick={() => runPayment(o.id, "pagado")}>
-                      Validar pago
-                    </Button>
-                  )}
-                  {o.paymentMethod === "transferencia" && o.paymentStatus === "pendiente" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
+                      variant={to === "cancelado" ? "outline" : "default"}
                       disabled={pending}
-                      onClick={() => runPayment(o.id, "rechazado")}
+                      onClick={() => runStatus(o.id, to)}
                     >
-                      Rechazar
+                      {transitionLabel(o.paymentMethod as PaymentMethod, to)}
                     </Button>
-                  )}
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={<Button size="sm" variant="secondary" disabled={pending} />}
-                    >
-                      Estado <ChevronDown className="size-3.5" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => runStatus(o.id, "nuevo")}>Nuevo</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => runStatus(o.id, "en_camino")}>
-                        En camino
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => runStatus(o.id, "entregado")}>
-                        Entregado
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => runStatus(o.id, "cancelado")}>
-                        Cancelado
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  ))}
                 </div>
               </div>
             </li>

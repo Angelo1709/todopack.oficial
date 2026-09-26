@@ -122,7 +122,8 @@ export function Storefront({
               Siguiente
             </button>
           </nav>
-        )}
+          )}
+        </>
       )}
     </div>
   )

@@ -1,7 +1,4 @@
-import { redirect } from "next/navigation"
-import { getSessionUser } from "@/lib/session"
-import { getOrdersByDate, getDeliverySummary } from "@/app/actions/admin"
-import { SiteHeader } from "@/components/site-header"
+import { getOrdersByDate, getDeliverySummary } from "@/app/actions/admin-orders"
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
 
 export const dynamic = "force-dynamic"
@@ -16,10 +13,6 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ date?: string }>
 }) {
-  const user = await getSessionUser()
-  if (!user) redirect("/sign-in")
-  if (user.role !== "admin") redirect("/")
-
   const { date } = await searchParams
   const selectedDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : todayStr()
 
@@ -28,10 +21,5 @@ export default async function AdminPage({
     getDeliverySummary(selectedDate),
   ])
 
-  return (
-    <main className="min-h-dvh bg-background">
-      <SiteHeader />
-      <AdminDashboard date={selectedDate} orders={orders} summary={summary} />
-    </main>
-  )
+  return <AdminDashboard date={selectedDate} orders={orders} summary={summary} />
 }

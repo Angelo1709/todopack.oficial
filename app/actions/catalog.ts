@@ -1,69 +1,12 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { orders, orderItems, products } from "@/lib/db/schema"
-import { put } from "@vercel/blob"
+import { products } from "@/lib/db/schema"
 import { requireAdmin } from "@/lib/session"
 import { categorize } from "@/lib/categorize"
-import { and, desc, eq, sql } from "drizzle-orm"
+import { persistImage } from "@/lib/storage"
+import { and, eq, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
-
-export async function getOrdersByDate(dateStr: string) {
-  await requireAdmin()
-  const rows = await db
-    .select()
-    .from(orders)
-    .where(eq(orders.deliveryDate, dateStr))
-    .orderBy(desc(orders.createdAt))
-
-  const withItems = await Promise.all(
-    rows.map(async (o) => {
-      const items = await db.select().from(orderItems).where(eq(orderItems.orderId, o.id))
-      return { ...o, items }
-    }),
-  )
-  return withItems
-}
-
-export async function getDeliverySummary(dateStr: string) {
-  await requireAdmin()
-  const [row] = await db
-    .select({
-      totalOrders: sql<number>`count(*)::int`,
-      totalRevenue: sql<number>`coalesce(sum(${orders.total}), 0)::int`,
-      cashPending: sql<number>`coalesce(sum(case when ${orders.paymentMethod} = 'efectivo' then ${orders.total} else 0 end), 0)::int`,
-      transferPending: sql<number>`count(*) filter (where ${orders.paymentMethod} = 'transferencia' and ${orders.paymentStatus} = 'pendiente')::int`,
-    })
-    .from(orders)
-    .where(eq(orders.deliveryDate, dateStr))
-  return row
-}
-
-export async function updatePaymentStatus(
-  orderId: number,
-  status: "pendiente" | "pagado" | "rechazado",
-) {
-  await requireAdmin()
-  await db.update(orders).set({ paymentStatus: status }).where(eq(orders.id, orderId))
-  revalidatePath("/admin")
-}
-
-export async function updateOrderStatus(
-  orderId: number,
-  status: "nuevo" | "en_camino" | "entregado" | "cancelado",
-) {
-  await requireAdmin()
-  const patch: Record<string, unknown> = { status }
-  // Cash orders are considered paid once delivered.
-  if (status === "entregado") {
-    const [o] = await db.select().from(orders).where(eq(orders.id, orderId))
-    if (o && o.paymentMethod === "efectivo" && o.paymentStatus === "pendiente") {
-      patch.paymentStatus = "pagado"
-    }
-  }
-  await db.update(orders).set(patch).where(eq(orders.id, orderId))
-  revalidatePath("/admin")
-}
 
 export type ImportRow = { name: string; price: number }
 
@@ -121,7 +64,7 @@ async function findProductImage(name: string) {
     page_size: "5",
     search_terms: name,
     fields: "product_name,image_front_url,image_url",
-  })
+  }).toString()
   const offResponse = await fetch(offUrl, { headers: imageHeaders, cache: "no-store" })
   if (offResponse.ok) {
     const data = await offResponse.json()
@@ -143,7 +86,7 @@ async function findProductImage(name: string) {
     iiurlwidth: "900",
     format: "json",
     origin: "*",
-  })
+  }).toString()
   const commonsResponse = await fetch(commonsUrl, { headers: imageHeaders, cache: "no-store" })
   if (!commonsResponse.ok) return null
   const data = await commonsResponse.json()
@@ -183,20 +126,10 @@ export async function importMissingProductImages(batchSize = 20) {
         notFound.push(product)
         continue
       }
-      const response = await fetch(sourceUrl, { headers: imageHeaders, cache: "no-store" })
-      const contentType = response.headers.get("content-type") ?? ""
-      if (!response.ok || !contentType.startsWith("image/")) {
-        notFound.push(product)
-        continue
-      }
-      const blob = await put(`products/${product.id}-${product.name.slice(0, 70)}`, await response.arrayBuffer(), {
-        access: "public",
-        contentType,
-        addRandomSuffix: true,
-      })
+      const imageUrl = await persistImage(sourceUrl, `${product.id}-${product.name}`)
       await db
         .update(products)
-        .set({ imageUrl: blob.url, updatedAt: new Date() })
+        .set({ imageUrl, updatedAt: new Date() })
         .where(and(eq(products.id, product.id), sql`${products.imageUrl} IS NULL`))
       imported.push(product)
     } catch {
