@@ -6,6 +6,7 @@ import { AdminDashboard } from "@/components/admin/admin-dashboard"
 import { parseAdminFilters } from "@/lib/admin-orders-utils"
 import { todayAR } from "@/lib/dates"
 import { getSessionUser } from "@/lib/session"
+import { getRouteConfig } from "@/lib/settings"
 
 export const dynamic = "force-dynamic"
 
@@ -26,10 +27,19 @@ export default async function AdminPage({
   const today = todayAR()
   const filters = parseAdminFilters(await searchParams, today)
 
-  const [orders, pendingTransfers] = await Promise.all([
+  const [orders, pendingTransfers, routeConfig] = await Promise.all([
     getAdminOrdersForDate(filters.date),
     getPendingTransfers(),
+    filters.vista === "recorrido" ? getRouteConfig() : null,
   ])
 
-  return <AdminDashboard filters={filters} today={today} orders={orders} pendingTransfers={pendingTransfers} />
+  return (
+    <AdminDashboard
+      filters={filters}
+      today={today}
+      orders={orders}
+      pendingTransfers={pendingTransfers}
+      routeConfig={routeConfig}
+    />
+  )
 }

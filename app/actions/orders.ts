@@ -13,11 +13,13 @@ import {
 } from "@/lib/order-status"
 import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { after } from "next/server"
 import { randomBytes } from "node:crypto"
 import { isIsoDate, todayAR } from "@/lib/dates"
 import { isOrderToken, MAX_REMEMBERED_ORDERS } from "@/lib/guest-orders"
 import { loadArticlesForProducts, type Article } from "@/lib/catalog"
 import { MAX_UNITS, priceFor, stepUnits } from "@/lib/pricing"
+import { locateOrder } from "@/lib/order-location"
 
 type CheckoutItem = { id: number; quantity: number }
 
@@ -186,6 +188,15 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     .returning({ id: orders.id, publicToken: orders.publicToken })
 
   await db.insert(orderItems).values(lineItems.map((li) => ({ ...li, orderId: order.id })))
+
+  // Ubicar la dirección en el mapa para el recorrido, sin demorar la respuesta al cliente.
+  after(async () => {
+    try {
+      await locateOrder(order.id)
+    } catch (err) {
+      console.error(`[pedido ${order.id}] no se pudo ubicar la dirección`, err)
+    }
+  })
 
   revalidatePath("/mis-pedidos")
   revalidatePath("/admin")

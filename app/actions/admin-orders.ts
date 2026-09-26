@@ -20,6 +20,7 @@ import {
   type OrderStatusResult,
   type PendingTransfer,
 } from "@/lib/admin-orders-utils"
+import { isLocationStatus } from "@/lib/route"
 import { and, asc, count, eq, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
@@ -58,6 +59,8 @@ export async function getAdminOrdersForDate(date: string): Promise<AdminOrder[]>
     status: o.status as OrderStatus,
     total: o.total,
     notes: o.notes,
+    location: o.lat !== null && o.lng !== null ? { lat: o.lat, lng: o.lng } : null,
+    locationStatus: isLocationStatus(o.locationStatus) ? o.locationStatus : null,
     createdLabel: createdLabel(o.createdAt, o.deliveryDate),
     items: itemsByOrder.get(o.id) ?? [],
   }))

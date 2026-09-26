@@ -1,6 +1,8 @@
 import "server-only"
+import { inArray } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { settings } from "@/lib/db/schema"
+import { isRouteEnd, isRoutePlace, parseLatLng, type RouteConfig } from "@/lib/route"
 
 // Valores por defecto hasta que el admin los cargue en /admin/configuracion.
 export const SETTINGS_DEFAULTS = {
@@ -22,4 +24,45 @@ export async function getSettings(): Promise<Settings> {
     if (row.key in SETTINGS_DEFAULTS) result[row.key as SettingKey] = row.value
   }
   return result
+}
+
+// ---- Recorrido de reparto (se guarda aparte: tiene su propio formulario en /admin/configuracion) ----
+
+// Ubicaciones como "lat,lng" (formatLatLng); vacías hasta que el admin las carga.
+export const ROUTE_SETTINGS_DEFAULTS = {
+  routeCity: "Alcorta, Santa Fe",
+  localAddress: "",
+  localLocation: "",
+  depotAddress: "",
+  depotLocation: "",
+  routeStart: "deposito",
+  routeEnd: "deposito",
+} as const
+
+export type RouteSettingKey = keyof typeof ROUTE_SETTINGS_DEFAULTS
+export type RouteSettingsValues = Record<RouteSettingKey, string>
+
+export const ROUTE_SETTING_KEYS = Object.keys(ROUTE_SETTINGS_DEFAULTS) as RouteSettingKey[]
+
+export async function getRouteSettings(): Promise<RouteSettingsValues> {
+  const rows = await db.select().from(settings).where(inArray(settings.key, ROUTE_SETTING_KEYS))
+  const result: RouteSettingsValues = { ...ROUTE_SETTINGS_DEFAULTS }
+  for (const row of rows) result[row.key as RouteSettingKey] = row.value
+  return result
+}
+
+function routeConfigFrom(values: RouteSettingsValues): RouteConfig {
+  return {
+    city: values.routeCity.trim(),
+    places: {
+      local: { address: values.localAddress.trim(), location: parseLatLng(values.localLocation) },
+      deposito: { address: values.depotAddress.trim(), location: parseLatLng(values.depotLocation) },
+    },
+    start: isRoutePlace(values.routeStart) ? values.routeStart : ROUTE_SETTINGS_DEFAULTS.routeStart,
+    end: isRouteEnd(values.routeEnd) ? values.routeEnd : ROUTE_SETTINGS_DEFAULTS.routeEnd,
+  }
+}
+
+export async function getRouteConfig(): Promise<RouteConfig> {
+  return routeConfigFrom(await getRouteSettings())
 }
