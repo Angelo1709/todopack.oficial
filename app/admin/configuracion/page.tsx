@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { isAdminRole } from "@/lib/roles"
 import { SettingsForm } from "@/components/admin/settings-form"
 import { getSessionUser } from "@/lib/session"
 import { getSettings } from "@/lib/settings"
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 export default async function AdminSettingsPage() {
   const user = await getSessionUser()
   if (!user) redirect("/sign-in")
-  if (user.role !== "admin") redirect("/")
+  if (!isAdminRole(user.role)) redirect("/")
 
   const settings = await getSettings()
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { isAdminRole } from "@/lib/roles"
 import { getAdminOrdersForDate, getPendingTransfers } from "@/app/actions/admin-orders"
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
 import { parseAdminFilters } from "@/lib/admin-orders-utils"
@@ -20,7 +21,7 @@ export default async function AdminPage({
   // El layout no frena el render de la página: se chequea acá también (además de requireAdmin en los datos).
   const user = await getSessionUser()
   if (!user) redirect("/sign-in")
-  if (user.role !== "admin") redirect("/")
+  if (!isAdminRole(user.role)) redirect("/")
 
   const today = todayAR()
   const filters = parseAdminFilters(await searchParams, today)
