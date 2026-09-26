@@ -1,210 +1,193 @@
-"use client"
-
-import { useRouter } from "next/navigation"
-import { useTransition } from "react"
-import { formatOrderNumber, formatPrice } from "@/lib/format"
-import { updateOrderStatus } from "@/app/actions/admin-orders"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { OrdersDateNav } from "@/components/admin/orders-date-nav"
+import { OrdersFilterChips, OrdersViewSwitch } from "@/components/admin/orders-filters"
+import { OrdersList } from "@/components/admin/orders-list"
+import { OrdersLoadingSheet } from "@/components/admin/orders-loading-sheet"
+import { OrdersPendingTransfers } from "@/components/admin/orders-pending-transfers"
 import {
-  DELIVERY_SLOT_LABEL,
-  ORDER_STATUS_LABEL,
-  nextStatuses,
-  statusVariant,
-  transitionLabel,
-  type DeliverySlot,
-  type OrderStatus,
-  type PaymentMethod,
-} from "@/lib/order-status"
-import { Banknote, Landmark, MapPin, Phone, Package, DollarSign, ClipboardCheck, Clock } from "lucide-react"
-import { toast } from "sonner"
+  STATUS_FILTERS,
+  STATUS_FILTER_LABEL,
+  adminOrdersHref,
+  consolidateLoad,
+  countBySlot,
+  longDateAR,
+  matchesStatusFilter,
+  relativeDayLabel,
+  summarizeOrders,
+  type AdminFilters,
+  type AdminOrder,
+  type PendingTransfer,
+  type SlotFilter,
+} from "@/lib/admin-orders-utils"
+import { formatPrice } from "@/lib/format"
+import { DELIVERY_SLOTS, DELIVERY_SLOT_LABEL } from "@/lib/order-status"
+import { Banknote, CalendarDays, ClipboardList, Clock, DollarSign, Landmark, Package, Truck } from "lucide-react"
 
-type OrderItem = { id: number; name: string; price: number; quantity: number }
-type Order = {
-  id: number
-  customerName: string
-  phone: string
-  address: string
-  deliveryDate: string
-  deliverySlot: string
-  paymentMethod: string
-  status: string
-  total: number
-  notes: string | null
-  items: OrderItem[]
-}
-type Summary = {
-  totalOrders: number
-  totalRevenue: number
-  cashPending: number
-  transferPending: number
-}
+const SLOT_FILTERS: SlotFilter[] = ["todas", ...DELIVERY_SLOTS]
 
 export function AdminDashboard({
-  date,
+  filters,
+  today,
   orders,
-  summary,
+  pendingTransfers,
 }: {
-  date: string
-  orders: Order[]
-  summary: Summary
+  filters: AdminFilters
+  today: string
+  /** Todos los pedidos de la fecha elegida (cualquier franja y estado). */
+  orders: AdminOrder[]
+  pendingTransfers: PendingTransfer[]
 }) {
-  const router = useRouter()
-  const [pending, startTransition] = useTransition()
-
-  function changeDate(value: string) {
-    router.push(`/admin?date=${value}`)
-  }
-
-  function runStatus(id: number, status: OrderStatus) {
-    startTransition(async () => {
-      try {
-        await updateOrderStatus(id, status)
-        toast.success("Estado actualizado")
-        router.refresh()
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "No se pudo actualizar el estado")
-      }
-    })
-  }
+  const scoped = filters.slot === "todas" ? orders : orders.filter((o) => o.deliverySlot === filters.slot)
+  const visible = scoped.filter((o) => matchesStatusFilter(filters.estado, o.paymentMethod, o.status))
+  const summary = summarizeOrders(scoped)
+  const slotCounts = countBySlot(orders)
+  const slots = filters.slot === "todas" ? [...DELIVERY_SLOTS] : [filters.slot]
+  const dateLabel = longDateAR(filters.date)
+  const relative = relativeDayLabel(filters.date, today)
+  const slotLabel = filters.slot === "todas" ? "Mediodía y noche" : DELIVERY_SLOT_LABEL[filters.slot]
 
   const stats = [
-    { label: "Pedidos del día", value: summary.totalOrders, icon: Package },
-    { label: "Facturación", value: formatPrice(summary.totalRevenue), icon: DollarSign },
-    { label: "A cobrar (efectivo)", value: formatPrice(summary.cashPending), icon: Banknote },
-    { label: "Transferencias a validar", value: summary.transferPending, icon: ClipboardCheck },
+    { label: "Pedidos", value: String(summary.orders), icon: Package },
+    { label: "Facturación", value: formatPrice(summary.revenue), icon: DollarSign },
+    {
+      label: "Efectivo a cobrar",
+      value: formatPrice(summary.cashPending),
+      icon: Banknote,
+      hint: `${summary.cashPendingOrders} ${summary.cashPendingOrders === 1 ? "pedido" : "pedidos"}`,
+    },
+    { label: "Transferencias por validar", value: String(summary.transfersPending), icon: Landmark },
   ]
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-serif text-2xl font-bold">Panel de pedidos</h1>
-          <p className="text-sm text-muted-foreground">Gestioná las entregas y los pagos del día.</p>
-        </div>
-        <div className="flex items-end gap-3">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="date" className="text-xs font-medium text-muted-foreground">
-              Recorrido del día
-            </label>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => changeDate(e.target.value)}
-              className="w-44"
-            />
+    <div className="mx-auto max-w-6xl px-4 py-6 print:max-w-none print:p-0">
+      <div className="flex flex-col gap-6 print:hidden">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-serif text-2xl font-bold">Panel de pedidos</h1>
+            <p className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+              <CalendarDays className="size-4 text-muted-foreground" />
+              <span className="inline-block font-semibold first-letter:uppercase">{dateLabel}</span>
+              {relative && <Badge variant="secondary">{relative}</Badge>}
+            </p>
           </div>
+          <OrdersDateNav filters={filters} today={today} />
         </div>
-      </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <s.icon className="size-4" />
-              <span className="text-xs">{s.label}</span>
+        <OrdersPendingTransfers transfers={pendingTransfers} today={today} />
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <s.icon className="size-4 shrink-0" />
+                <span className="text-xs leading-tight">{s.label}</span>
+              </div>
+              <p className="mt-2 text-xl font-bold tabular-nums">{s.value}</p>
+              {s.hint && <p className="text-xs text-muted-foreground tabular-nums">{s.hint}</p>}
             </div>
-            <p className="mt-2 text-xl font-bold tabular-nums">{s.value}</p>
+          ))}
+          <div className="col-span-2 rounded-xl border border-border bg-card p-4 lg:col-span-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="size-4 shrink-0" />
+              <span className="text-xs leading-tight">Por franja (todo el día)</span>
+            </div>
+            <p className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              {DELIVERY_SLOTS.map((slot) => (
+                <span key={slot} className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-bold tabular-nums">{slotCounts[slot]}</span>
+                  <span className="text-xs text-muted-foreground">{DELIVERY_SLOT_LABEL[slot]}</span>
+                </span>
+              ))}
+            </p>
           </div>
-        ))}
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <OrdersViewSwitch
+            tabs={[
+              {
+                href: adminOrdersHref(filters, { vista: "pedidos" }),
+                label: `Pedidos (${visible.length})`,
+                icon: ClipboardList,
+                active: filters.vista === "pedidos",
+              },
+              {
+                href: adminOrdersHref(filters, { vista: "carga" }),
+                label: "Carga del día",
+                icon: Truck,
+                active: filters.vista === "carga",
+              },
+            ]}
+          />
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-6">
+            <OrdersFilterChips
+              label="Franja"
+              chips={SLOT_FILTERS.map((slot) => ({
+                href: adminOrdersHref(filters, { slot }),
+                label: slot === "todas" ? "Todas" : DELIVERY_SLOT_LABEL[slot],
+                active: filters.slot === slot,
+              }))}
+            />
+            {filters.vista === "pedidos" && (
+              <OrdersFilterChips
+                label="Estado"
+                chips={STATUS_FILTERS.map((estado) => ({
+                  href: adminOrdersHref(filters, { estado }),
+                  label: STATUS_FILTER_LABEL[estado],
+                  active: filters.estado === estado,
+                  count: scoped.filter((o) => matchesStatusFilter(estado, o.paymentMethod, o.status)).length,
+                }))}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
-      <h2 className="mb-3 mt-8 font-serif text-lg font-bold">
-        Recorrido de entregas ({orders.length})
-      </h2>
-
-      {orders.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border py-16 text-center text-muted-foreground">
-          No hay pedidos para esta fecha.
-        </div>
-      ) : (
-        <ol className="flex flex-col gap-4">
-          {orders.map((o, idx) => (
-            <li key={o.id} className="rounded-xl border border-border bg-card p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex gap-3">
-                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                    {idx + 1}
-                  </span>
-                  <div>
-                    <p className="font-semibold">
-                      {o.customerName}{" "}
-                      <span className="text-muted-foreground">· #{formatOrderNumber(o.id)}</span>
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Clock className="size-3.5" />
-                      {DELIVERY_SLOT_LABEL[o.deliverySlot as DeliverySlot] ?? o.deliverySlot}
-                    </p>
-                    <a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(o.address)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-                    >
-                      <MapPin className="size-3.5" /> {o.address}
-                    </a>
-                    <a
-                      href={`tel:${o.phone}`}
-                      className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-                    >
-                      <Phone className="size-3.5" /> {o.phone}
-                    </a>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className="text-lg font-bold tabular-nums">{formatPrice(o.total)}</span>
-                  <div className="flex flex-wrap items-center justify-end gap-2">
-                    <Badge variant={o.paymentMethod === "efectivo" ? "outline" : "secondary"} className="gap-1">
-                      {o.paymentMethod === "efectivo" ? (
-                        <Banknote className="size-3" />
-                      ) : (
-                        <Landmark className="size-3" />
-                      )}
-                      {o.paymentMethod === "efectivo" ? "Efectivo" : "Transferencia"}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-y border-border py-2 text-sm text-muted-foreground">
-                {o.items.map((it) => (
-                  <li key={it.id}>
-                    <span className="font-medium text-foreground">{it.quantity}×</span> {it.name}
-                  </li>
-                ))}
-              </ul>
-
-              {o.notes && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">Nota:</span> {o.notes}
-                </p>
-              )}
-
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Badge variant={statusVariant(o.status as OrderStatus)}>
-                  {ORDER_STATUS_LABEL[o.status as OrderStatus] ?? o.status}
-                </Badge>
-
-                <div className="ml-auto flex flex-wrap gap-2">
-                  {nextStatuses(o.paymentMethod as PaymentMethod, o.status as OrderStatus).map((to) => (
-                    <Button
-                      key={to}
-                      size="sm"
-                      variant={to === "cancelado" ? "outline" : "default"}
-                      disabled={pending}
-                      onClick={() => runStatus(o.id, to)}
-                    >
-                      {transitionLabel(o.paymentMethod as PaymentMethod, to)}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
-      )}
+      <div className="mt-6 print:mt-0">
+        {filters.vista === "carga" ? (
+          <OrdersLoadingSheet
+            lines={consolidateLoad(scoped)}
+            dateLabel={dateLabel}
+            slotLabel={slotLabel}
+            ordersCount={summary.orders}
+          />
+        ) : visible.length > 0 ? (
+          <OrdersList orders={visible} slots={slots} estado={filters.estado} />
+        ) : (
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border px-4 py-16 text-center text-muted-foreground">
+            <ClipboardList className="size-10 opacity-30" />
+            {orders.length === 0 ? (
+              <>
+                <p>No hay pedidos para {relative ? relative.toLowerCase() : "esta fecha"}.</p>
+                {filters.date !== today && (
+                  <Button
+                    variant="outline"
+                    className="mt-2"
+                    render={<Link href={adminOrdersHref(filters, { date: null })} scroll={false} />}
+                    nativeButton={false}
+                  >
+                    Ver los de hoy
+                  </Button>
+                )}
+              </>
+            ) : (
+              <>
+                <p>No hay pedidos con estos filtros.</p>
+                <Button
+                  variant="outline"
+                  className="mt-2"
+                  render={<Link href={adminOrdersHref(filters, { slot: "todas", estado: "todos" })} scroll={false} />}
+                  nativeButton={false}
+                >
+                  Ver todos los del día
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

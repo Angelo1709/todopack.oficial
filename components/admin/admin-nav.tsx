@@ -11,7 +11,7 @@ const LINKS = [
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ]
 
-export function AdminNav() {
+export function AdminNav({ pendingTransfers = 0 }: { pendingTransfers?: number }) {
   const pathname = usePathname()
 
   return (
@@ -31,6 +31,15 @@ export function AdminNav() {
               )}
             >
               <l.icon className="size-4" /> {l.label}
+              {l.href === "/admin" && pendingTransfers > 0 && (
+                <span
+                  className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground tabular-nums"
+                  title={`${pendingTransfers} ${pendingTransfers === 1 ? "transferencia" : "transferencias"} por validar`}
+                >
+                  {pendingTransfers > 99 ? "99+" : pendingTransfers}
+                  <span className="sr-only"> por validar</span>
+                </span>
+              )}
             </Link>
           )
         })}
