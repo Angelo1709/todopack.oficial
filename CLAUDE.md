@@ -40,7 +40,7 @@ node scripts/gen-seed-sql.mjs                  # genera data/seed-N.sql
 node scripts/import-product-images.mjs         # busca imágenes en Wikimedia (IMAGE_BATCH=n)
 ```
 
-No hay tests ni drizzle-kit. **Migraciones:** SQL a mano en `lib/db/migrations/NNNN_descripcion.sql` (orden alfabético, se registran en `schema_migrations`). Todo cambio en `lib/db/schema.ts` lleva su migración nueva; nunca editar una migración ya aplicada.
+No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alfabético, se registran en `schema_migrations` y corren al arrancar (`pnpm start`). `NNNN_descripcion.sql` para esquema; `NNNN_descripcion.mjs` para migraciones de datos (exporta `default async (client) => {}`, puede importar `lib/*.ts`). Todo cambio en `lib/db/schema.ts` lleva su migración nueva; nunca editar una migración ya aplicada.
 
 ## Estructura
 

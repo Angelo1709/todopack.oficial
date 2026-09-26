@@ -1,8 +1,13 @@
-// Aplica en orden las migraciones SQL de lib/db/migrations/ que todavía no corrieron.
+// Aplica en orden las migraciones de lib/db/migrations/ que todavía no corrieron.
 // Uso: DATABASE_URL=... node scripts/migrate.mjs
 // Corre también al arrancar (`pnpm start`), antes de `next start`.
+//
+// - NNNN_nombre.sql: SQL plano.
+// - NNNN_nombre.mjs: migración de datos; exporta `default async (client) => {}` y puede importar lib/*.ts.
+// Cada una corre en su transacción.
 import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
+import { pathToFileURL } from "node:url"
 import pg from "pg"
 
 const dir = join(import.meta.dirname, "..", "lib", "db", "migrations")
@@ -29,17 +34,21 @@ try {
   const { rows } = await client.query("SELECT name FROM schema_migrations")
   const applied = new Set(rows.map((r) => r.name))
   const files = readdirSync(dir)
-    .filter((f) => f.endsWith(".sql"))
+    .filter((f) => f.endsWith(".sql") || f.endsWith(".mjs"))
     .sort()
 
   let count = 0
   for (const file of files) {
     if (applied.has(file)) continue
-    const sql = readFileSync(join(dir, file), "utf8")
     console.log(`Aplicando ${file}...`)
     await client.query("BEGIN")
     try {
-      await client.query(sql)
+      if (file.endsWith(".mjs")) {
+        const { default: migrate } = await import(pathToFileURL(join(dir, file)).href)
+        await migrate(client)
+      } else {
+        await client.query(readFileSync(join(dir, file), "utf8"))
+      }
       await client.query("INSERT INTO schema_migrations (name) VALUES ($1)", [file])
       await client.query("COMMIT")
       count++
