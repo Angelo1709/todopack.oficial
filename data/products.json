@@ -2,3411 +2,4775 @@
   {
     "name": "7UP 1.5 LT DESCARTABLE PACK X6",
     "price": 15000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "7up 1.5l"
   },
   {
     "name": "9 DE ORO AGRIDULCE 200G",
     "price": 1100,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "9 de oro agridulce 200g"
   },
   {
     "name": "9 DE ORO AZUCARADAS 210G UNIDAD",
     "price": 1100,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "9 de oro azucaradas 210g"
   },
   {
     "name": "9 DE ORO CLASICO 200G",
     "price": 1100,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "9 de oro clasico 200g"
   },
   {
-    "name": "ACEITE NATURA 3L  BIDON UNIDAD",
+    "name": "ACEITE NATURA 3L BIDON UNIDAD",
     "price": 14500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "aceite natura 3l bidon"
   },
   {
     "name": "ACEITE NATURA 900ML CAJA X15",
     "price": 60000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 15,
+    "groupKey": "aceite natura 900ml"
   },
   {
     "name": "ACEITUNA VERDE DESCAROZADAS 150GR UNIDAD",
     "price": 1650,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "aceituna verde descarozadas 150g"
   },
   {
     "name": "ACEITUNA VERDE DESCAROZADAS 80G UNIDAD",
     "price": 850,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "aceituna verde descarozadas 80g"
   },
   {
     "name": "ACEITUNA VERDE ENTERA 180GR UNIDAD",
     "price": 1650,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "aceituna verde entera 180g"
   },
   {
     "name": "ACEITUNA VERDE RODAJAS 150GR UNIDAD",
     "price": 1650,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "aceituna verde rodajas 150g"
   },
   {
     "name": "AGUA MINERAL MANAOS 600ML PACK X12",
     "price": 5600,
-    "category": "Gaseosas"
+    "category": "Aguas",
+    "packSize": 12,
+    "groupKey": "agua mineral manaos 600ml"
   },
   {
     "name": "ALAMBRADO MALBEC 750ML UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "alambrado malbec"
   },
   {
     "name": "ALAMBRADO MALBEC ESTUCHE UNIDAD",
     "price": 10500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "alambrado malbec estuche"
   },
   {
     "name": "ALAMOS MALBEC 750 UNIDAD",
     "price": 6900,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "alamos malbec 750"
   },
   {
     "name": "ALF GOAT 75GR UNIDAD",
     "price": 1450,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alf goat 75g"
   },
   {
     "name": "ALFAJOR AGUILA BROWNIE MINITORTA 71.5GR",
     "price": 1450,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor aguila brownie minitorta 71.5g"
   },
   {
     "name": "ALFAJOR AGUILA CLASICA MINITORTA 69GR UNIDAD",
     "price": 1450,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor aguila clasica minitorta 69g"
   },
   {
     "name": "ALFAJOR BLANCO Y NEGRO TRIPLE 73.5GR UNIDAD",
     "price": 1450,
-    "category": "Vinos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor blanco y negro triple 73.5g"
   },
   {
     "name": "ALFAJOR BLOCK TRIPLE 60GR UNIDAD",
     "price": 1450,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor block triple 60g"
   },
   {
     "name": "ALFAJOR BON O BON TRIPLE BLANCO 60GR UNIDAD",
     "price": 1450,
-    "category": "Vinos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor bon o bon triple blanco 60g"
   },
   {
     "name": "ALFAJOR BON O BON TRIPLE CHOCOLATE 60GR UNIDAD",
     "price": 1450,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor bon o bon triple chocolate 60g"
   },
   {
     "name": "ALFAJOR BYN BLANCO 73.5GR UNIDAD",
     "price": 1450,
-    "category": "Vinos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor byn blanco 73.5g"
   },
   {
     "name": "ALFAJOR CHOCOTORTA TRIPLE 71.5GR UNIDAD",
     "price": 1450,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor chocotorta triple 71.5g"
   },
   {
     "name": "ALFAJOR MINITORTA COCO UNIDAD",
     "price": 1450,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor minitorta coco"
   },
   {
     "name": "ALFAJOR MINITORTA DARK UNIDAD",
     "price": 1450,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor minitorta dark"
   },
   {
     "name": "ALFAJOR TOFI TRIPLE BLANCO 73GR UNIDAD",
     "price": 1450,
-    "category": "Vinos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "alfajor tofi triple blanco 73g"
   },
   {
     "name": "AMARGO OBRERO 950ML UNIDAD",
     "price": 4200,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "amargo obrero 950ml"
   },
   {
     "name": "ANGELICA ZAPATA MALBEC 750ML UNIDAD",
     "price": 30000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "angelica zapata malbec"
   },
   {
     "name": "APEROL 750CC UNIDAD",
     "price": 11600,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "aperol"
   },
   {
     "name": "ARCOR KIOSCO EN CASA 246GR SURTIDOS",
     "price": 9500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "arcor kiosco en casa 246g surtidos"
   },
   {
     "name": "ARCOR SELECCION 228.6GRS BOM EN CASA",
     "price": 9500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "arcor seleccion 228.6g bom en casa"
   },
   {
     "name": "ARCOR TOMATE PERITA 400GR UNIDAD",
     "price": 1400,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "arcor tomate perita 400g"
   },
   {
     "name": "ATUN DESMEN ACEITE 170GR UNIDAD",
     "price": 1100,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "atun desmen aceite 170g"
   },
   {
     "name": "ATUN DESMEN NATURAL 170GR UNIDAD",
     "price": 1100,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "atun desmen natural 170g"
   },
   {
-    "name": "AYUDIN LAVANDINA  2L PUREZA TRIPLE PODER",
+    "name": "AYUDIN LAVANDINA 2L PUREZA TRIPLE PODER",
     "price": 2800,
-    "category": "Almacén"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina 2l pureza triple poder"
   },
   {
     "name": "AYUDIN LAVANDINA 2L LAVANDA TRIPLE PODER",
     "price": 2800,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina 2l lavanda triple poder"
   },
   {
     "name": "AYUDIN LAVANDINA 2L ORIGINAL UNIDAD",
     "price": 2300,
-    "category": "Aperitivos y Licores"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina 2l original"
   },
   {
     "name": "AYUDIN LAVANDINA GEL CITRICA 700ML UNIDAD",
     "price": 3000,
-    "category": "Jugos e Isotónicas"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina gel citrica 700ml"
   },
   {
     "name": "AYUDIN LAVANDINA GEL MENTA 700ML UNIDAD",
     "price": 3000,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina gel menta 700ml"
   },
   {
     "name": "AYUDIN LAVANDINA GEL ORIGINAL 700ML UNIDAD",
     "price": 3000,
-    "category": "Aperitivos y Licores"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina gel original 700ml"
   },
   {
     "name": "AYUDIN LAVANDINA ORIGINAL 1L UNIDAD",
     "price": 1150,
-    "category": "Aperitivos y Licores"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina original 1l"
   },
   {
     "name": "AYUDIN LAVANDINA PUREZA 1L TRIPLE ACCION",
     "price": 1300,
-    "category": "Almacén"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin lavandina pureza 1l triple accion"
   },
   {
     "name": "AYUDIN LIMP COCINA PODER ACTIVO 450CC",
     "price": 1700,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "ayudin limp cocina poder activo 450ml"
   },
   {
     "name": "AZUCAR CLASE A 1KG PACK X10",
     "price": 11300,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "azucar clase a 1kg"
   },
   {
     "name": "BAGGIO 1L MULTIFRUTA X8",
     "price": 14500,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 8,
+    "groupKey": "baggio 1l multifruta"
   },
   {
     "name": "BAGGIO DURAZNO 1L X8",
     "price": 14500,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 8,
+    "groupKey": "baggio durazno 1l"
   },
   {
     "name": "BAGGIO MULTIFRUTA X200ML CAJA X18",
     "price": 10100,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 18,
+    "groupKey": "baggio multifruta 200ml"
   },
   {
     "name": "BAGGIO NARANJA 1L X8",
     "price": 14500,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 8,
+    "groupKey": "baggio naranja 1l"
   },
   {
     "name": "BAILEYS SALTED CARAMEL 750CC UNIDAD",
     "price": 34000,
-    "category": "Almacén"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "baileys salted caramel"
   },
   {
     "name": "BAILEYS TRISH CREAM 750ML",
     "price": 33000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "baileys trish cream"
   },
   {
     "name": "BALBO VINO TINTO 1.125L CAJA X6",
     "price": 15000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "balbo tinto 1.125l"
   },
   {
     "name": "BEEFEATER 700ML",
     "price": 31000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "beefeater 700ml"
   },
   {
     "name": "BLEM LIMON ACERO METAL 360CC UNIDAD",
     "price": 5200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "blem limon acero metal 360ml"
   },
   {
     "name": "BOLITAS CROCANTES x 800G UNIDAD",
     "price": 3700,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bolitas crocantes 800g"
   },
   {
     "name": "BOLS LICOR CAFE 700CC UNIDAD",
     "price": 5000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "bols licor cafe 700ml"
   },
   {
     "name": "BOLS LICOR CAFE COÑAC 700CC UNIDAD",
     "price": 5000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "bols licor cafe conac 700ml"
   },
   {
     "name": "BOLSON FAMILIAR NUMERO 1",
     "price": 100000,
-    "category": "Otros"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "bolson familiar numero 1"
   },
   {
     "name": "BOLSON FAMILIAR NUMERO 2",
     "price": 85000,
-    "category": "Otros"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "bolson familiar numero 2"
   },
   {
     "name": "BOMBAY SAPPHIRE 750ML",
     "price": 37000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "bombay sapphire"
   },
   {
     "name": "BON O BON BOMBONES AGUILA 15GR X18U",
     "price": 9500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bon o bon bombones aguila 15g x18u"
   },
   {
     "name": "BON O BON BOMBONES COOKIE Y CREAM 15GR X18U",
     "price": 9500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bon o bon bombones cookie y cream 15g x18u"
   },
   {
     "name": "BON O BON BOMBONES CHOCOLINAS 15GR X18U",
     "price": 9500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bon o bon bombones chocolinas 15g x18u"
   },
   {
     "name": "BON O BON BOMBONES SURTIDOS 255GR",
     "price": 9500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bon o bon bombones surtidos 255g"
   },
   {
     "name": "BON O BON BOMBONES X30 15GR NEGRO",
     "price": 13000,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bon o bon bombones x30 15g negro"
   },
   {
     "name": "BON O BON BOMBONES X30U 15GR BLANCO",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bon o bon bombones x30u 15g blanco"
   },
   {
     "name": "BONAFIDE CEREAL BAÑO DE LECHE 80GR UNIDAD",
     "price": 1600,
-    "category": "Lácteos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bonafide cereal bano de leche 80g"
   },
   {
     "name": "BONAFIDE MANI BAÑO LECHE 80GR UNIDAD",
     "price": 1500,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bonafide mani bano leche 80g"
   },
   {
     "name": "BONAFIDE PAN DULCE C/CHIPS 400GR UNIDAD",
     "price": 4300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bonafide pan dulce c/chips 400g"
   },
   {
     "name": "BONAFIDE PAN DULCE C/FRUTAS 400GR UNIDAD",
     "price": 4300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "bonafide pan dulce c/frutas 400g"
   },
   {
     "name": "BRAHMA CERVEZA CAJON 1L RETORNABLE X12",
     "price": 38000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 12,
+    "groupKey": "brahma cerveza 1l retornable"
   },
   {
     "name": "BRIGHTON GIN 700ML UNIDAD",
     "price": 13000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "brighton gin 700ml"
   },
   {
     "name": "CAFE BRASIL CABRALES 250GR UNIDAD",
     "price": 15000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe brasil cabrales 250g"
   },
   {
     "name": "CAFE COLOMBIA CABRALES 250GR UNIDAD",
     "price": 15000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe colombia cabrales 250g"
   },
   {
     "name": "CAFE LA PLANTA INSTANTANEO 170GR UNIDAD",
     "price": 10500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe la planta instantaneo 170g"
   },
   {
     "name": "CAFE LA PLANTA TORRADO 250GR UNIDAD",
     "price": 5400,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe la planta torrado 250g"
   },
   {
     "name": "CAFE LA PLANTA TORRADO 500GR UNIDAD",
     "price": 10500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe la planta torrado 500g"
   },
   {
     "name": "CAFE LA VIRGINIA CLAS PACK AHORRO 170G",
     "price": 6700,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe la virginia clas pack ahorro 170g"
   },
   {
     "name": "CAFE LA VIRGINIA SUAVE PACK AHORRO 170G",
     "price": 6700,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe la virginia suave pack ahorro 170g"
   },
   {
     "name": "CAFE NESCAFE DOLCA ORIGINAL 100G",
     "price": 7000,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe nescafe dolca original 100g"
   },
   {
     "name": "CAFE NESCAFE DOLCA PACK AHORRO 170",
     "price": 9500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "cafe nescafe dolca pack ahorro 170"
   },
   {
     "name": "CAJA LAS PERDICES CHAMP + COPA",
     "price": 50000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "caja las perdices champ + copa"
   },
   {
     "name": "CAJA LAS PERDICES RESERVA + COPA",
     "price": 50000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "caja las perdices reserva + copa"
   },
   {
     "name": "CAJA LAS PERDICES TINA+COPA",
     "price": 50000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "caja las perdices tina+copa"
   },
   {
     "name": "CAJA LAS PERDICES X 3 (MALB/BONAR/C.SAUV)",
     "price": 27000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 3,
+    "groupKey": "las perdices malb/bonar/c sauv"
   },
   {
     "name": "CALDO KNORR GALLINA 6U",
     "price": 11500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "caldo knorr gallina 6u"
   },
   {
     "name": "CALLIA CHAMPAGNE BRUT NATURE 750ML UNIDAD",
     "price": 5200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "callia champagne brut nature"
   },
   {
     "name": "CAMPARI 750ML UNIDAD",
     "price": 11600,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "campari"
   },
   {
     "name": "CAÑA PIRAGUA 950CC UNIDAD",
     "price": 6500,
-    "category": "Aguas"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "cana piragua 950ml"
   },
   {
     "name": "CAÑONCITOS JAMON x 600G UNIDAD",
     "price": 2400,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "canoncitos jamon 600g"
   },
   {
     "name": "CARPANO ROSSO 950ML UNIDAD",
     "price": 7500,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "carpano rosso 950ml"
   },
   {
     "name": "CASA BOHER VINO CAB FRANC 750ML UNIDAD",
     "price": 10500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "casa boher cab franc"
   },
   {
     "name": "CASA BOHER VINO MALBEC 750CC UNIDAD",
     "price": 10500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "casa boher malbec"
   },
   {
-    "name": "CASCARONES BARBACOA  x 200G UNIDAD",
+    "name": "CASCARONES BARBACOA x 200G UNIDAD",
     "price": 2300,
-    "category": "Aperitivos y Licores"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cascarones barbacoa 200g"
   },
   {
     "name": "CASCARONES BARBACOA x 400G UNIDAD",
     "price": 4400,
-    "category": "Aperitivos y Licores"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cascarones barbacoa 400g"
   },
   {
     "name": "CASSONI FERNET COLA 1L PACK X6",
     "price": 6000,
-    "category": "Gaseosas"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "cassoni fernet cola 1l"
   },
   {
     "name": "CATALPA MALBEC VINO 750 ML UNIDAD",
     "price": 14500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "catalpa malbec"
   },
   {
     "name": "CAZALIS 950CC UNIDAD",
     "price": 6500,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "cazalis 950ml"
   },
   {
     "name": "CELUSAL SAL FINA 500GR PACK X30",
     "price": 34500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 30,
+    "groupKey": "celusal sal fina 500g"
   },
   {
     "name": "CELUSAL SAL FINA ESTUCHE 500GR UNIDAD",
     "price": 1300,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "celusal sal fina estuche 500g"
   },
   {
     "name": "CELUSAL SAL GRUESA 500GR PACK X30",
     "price": 30000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 30,
+    "groupKey": "celusal sal gruesa 500g"
   },
   {
     "name": "CELUSAL SAL GRUESA 500GR UNIDAD",
     "price": 1100,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "celusal sal gruesa 500g"
   },
   {
     "name": "CELUSAL SAL PARRILLERA 500GR UNIDAD",
     "price": 1200,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "celusal sal parrillera 500g"
   },
   {
     "name": "CELLIER AGUA 2L PACK X6",
     "price": 5300,
-    "category": "Aguas"
+    "category": "Aguas",
+    "packSize": 6,
+    "groupKey": "cellier agua 2l"
   },
   {
     "name": "CELLIER AGUA 600ML PACK X12",
     "price": 5200,
-    "category": "Aguas"
+    "category": "Aguas",
+    "packSize": 12,
+    "groupKey": "cellier agua 600ml"
   },
   {
     "name": "CERVEZA MARADONA 1L X6",
     "price": 19000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "cerveza maradona 1l"
   },
   {
     "name": "CERVEZA MARADONA UNIDAD",
     "price": 3500,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 1,
+    "groupKey": "cerveza maradona"
   },
   {
     "name": "CINZANO ROSSO 1L UNIDAD",
     "price": 8200,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "cinzano rosso 1l"
   },
   {
-    "name": "CLIGHT  LIMONADA ARANDANO JUGO EN POLVO  X20SOBRES",
+    "name": "CLIGHT LIMONADA ARANDANO JUGO EN POLVO X20SOBRES",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 1,
+    "groupKey": "clight limonada arandano jugo en polvo x20sobres"
   },
   {
     "name": "CLIGHT LIMO/ROSA JUGO EN POLVO X20 SOBRES",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 1,
+    "groupKey": "clight limo/rosa jugo en polvo x20 sobres"
   },
   {
     "name": "CLIGHT LIMONADA JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "clight limonada jugo en polvo"
   },
   {
     "name": "CLIGHT MANZANA VERDE JUGO EN POLVO X20 SOBRES",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 1,
+    "groupKey": "clight manzana verde jugo en polvo x20 sobres"
   },
   {
     "name": "CLIGHT NARANJA DULCE JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "clight naranja dulce jugo en polvo"
   },
   {
     "name": "CLIGHT NARANJA JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "clight naranja jugo en polvo"
   },
   {
     "name": "CLIGHT NARANJA MANGO JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "clight naranja mango jugo en polvo"
   },
   {
-    "name": "COCA COLA 2.25L  PACK X6",
+    "name": "COCA COLA 2.25L PACK X6",
     "price": 31000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "coca cola 2.25l"
   },
   {
     "name": "COCA COLA 500 ML PACK X12",
     "price": 20500,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 12,
+    "groupKey": "coca cola 500ml"
   },
   {
     "name": "COCA COLA CAJON RETORN 2L X8",
     "price": 27500,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 8,
+    "groupKey": "coca cola retornable 2l"
   },
   {
     "name": "COCA COLA DESCART 1.5 LTS PACK X8",
     "price": 30000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 8,
+    "groupKey": "coca cola 1.5l"
   },
   {
     "name": "COCA COLA ZERO 1.5L PACK X8",
     "price": 30000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 8,
+    "groupKey": "coca cola zero 1.5l"
   },
   {
     "name": "CONITOS x 600G UNIDAD",
     "price": 7800,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "conitos 600g"
   },
   {
     "name": "CONSERVADORA CORONA 15LITROS",
     "price": 200000,
-    "category": "Cervezas"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "conservadora corona 15l"
   },
   {
     "name": "CONTRAVIENTO VINO 750CC UNIDAD",
     "price": 4000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "contraviento"
   },
   {
     "name": "COPA CHAMPAGNE",
     "price": 3500,
-    "category": "Vinos"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "copa champagne"
   },
   {
     "name": "COPA VINO",
     "price": 3500,
-    "category": "Vinos"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "copa"
   },
   {
     "name": "COPS BATATAS 90GR UNIDAD",
     "price": 1700,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cops batatas 90g"
   },
   {
     "name": "COPS MANI JAMON 180GR UNIDAD",
     "price": 1700,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cops mani jamon 180g"
   },
   {
     "name": "COPS MANI PELADO 180GR UNIDAD",
     "price": 1500,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cops mani pelado 180g"
   },
   {
     "name": "COPS MANI PIZZA 180GR UNIDAD",
     "price": 1700,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cops mani pizza 180g"
   },
   {
     "name": "COPS PALITOS FRITOS 85GR UNIDAD",
     "price": 1200,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cops palitos fritos 85g"
   },
   {
     "name": "COPS TUTUCA 130GR UNIDAD",
     "price": 1200,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "cops tutuca 130g"
   },
   {
     "name": "COQUITAS GALLETITA 177GR UNIDAD",
     "price": 1500,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "coquitas galletita 177g"
   },
   {
     "name": "CORDERO C/ PIEL DE LOBO CABERN CAJA X6",
     "price": 24000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "cordero c/piel de lobo cabern"
   },
   {
     "name": "CORDERO C/PIEL DE LOBO BLANCO DULCE CAJA X6",
     "price": 24000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "cordero c/piel de lobo blanco dulce"
   },
   {
     "name": "CORDERO C/PIEL DE LOBO MALBEC CAJA X6",
     "price": 24000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "cordero c/piel de lobo malbec"
   },
   {
     "name": "CORDERO C/PIEL DE LOBO ROSE CAJA X6",
     "price": 24000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "cordero c/piel de lobo rose"
   },
   {
-    "name": "CORONA  LATA 473 PACK X6",
+    "name": "CORONA LATA 473 PACK X6",
     "price": 15000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "corona lata 473"
   },
   {
     "name": "CORONA 330CC CAJA X24",
     "price": 63000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 24,
+    "groupKey": "corona 330ml"
   },
   {
     "name": "CORONA 710ML X12",
     "price": 56000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 12,
+    "groupKey": "corona 710ml"
   },
   {
     "name": "COSECHA TARDIA 750CC BLANCO UNIDAD",
     "price": 4800,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "cosecha tardia blanco"
   },
   {
     "name": "COSECHA TARDIA TINTO DULCE 750CC",
     "price": 4800,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "cosecha tardia tinto dulce"
   },
   {
     "name": "COSTA DEL SOL ACEITE 1.5L CAJA X12",
     "price": 67800,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 12,
+    "groupKey": "costa del sol aceite 1.5l"
   },
   {
     "name": "COSTA DEL SOL ACEITE 5L CAJA X4",
     "price": 74000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 4,
+    "groupKey": "costa del sol aceite 5l"
   },
   {
     "name": "COSTA DEL SOL ACEITE 900ML CAJA X15",
     "price": 50000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 15,
+    "groupKey": "costa del sol aceite 900ml"
   },
   {
     "name": "COSTA DEL SOL JUGO DE LIMON X12",
     "price": 17300,
-    "category": "Jugos e Isotónicas"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "costa del sol jugo de limon x12"
   },
   {
     "name": "COSTA DEL SOL MAYONESA 250CC CAJA X12",
     "price": 10500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 12,
+    "groupKey": "costa del sol mayonesa 250ml"
   },
   {
     "name": "COSTA DEL SOL MAYONESA 2900CC CAJA X4",
     "price": 35700,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 4,
+    "groupKey": "costa del sol mayonesa 2900ml"
   },
   {
     "name": "COSTA DEL SOL MAYONESA 500CC CAJA X12",
     "price": 20800,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 12,
+    "groupKey": "costa del sol mayonesa 500ml"
   },
   {
     "name": "COSTA DEL SOL ROCIO VEGETAL 120GR PACK X6",
     "price": 19400,
-    "category": "Descartables y Packaging"
+    "category": "Almacén",
+    "packSize": 6,
+    "groupKey": "costa del sol rocio vegetal 120g"
   },
   {
     "name": "COSTA DEL SOL VINAGRE 1LT X8",
     "price": 8600,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 8,
+    "groupKey": "costa del sol vinagre 1l"
   },
   {
     "name": "COSTA DEL SOL VINAGRE 5LT PACK X2",
     "price": 8900,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 2,
+    "groupKey": "costa del sol vinagre 5l"
   },
   {
     "name": "COSTA DEL SOL VINAGRE 5LT UNIDAD",
     "price": 4700,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "costa del sol vinagre 5l"
   },
   {
     "name": "CRIOLLITAS MAS 169GR UNIDAD",
     "price": 1100,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "criollitas mas 169g"
   },
   {
     "name": "CUARTO DOMINIO CHENTO MALBEC 750ML UNIDAD",
     "price": 12000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "cuarto dominio chento malbec"
   },
   {
     "name": "CUARTO DOMINIO TOLENTINO MALBEC 750ML UNIDAD",
     "price": 8000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "cuarto dominio tolentino malbec"
   },
   {
     "name": "CUESTA DEL MADERO CLASICO MB 750 CC UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "cuesta del madero clasico mb"
   },
   {
-    "name": "CUNNINGTON COLA 1.5L  PACK X6",
+    "name": "CUNNINGTON COLA 1.5L PACK X6",
     "price": 7000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "cunnington cola 1.5l"
   },
   {
-    "name": "CUNNINGTON INDIAN CLASSIC 1.5L  PACK X6",
+    "name": "CUNNINGTON INDIAN CLASSIC 1.5L PACK X6",
     "price": 7000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "cunnington indian classic 1.5l"
   },
   {
     "name": "CUNNINGTON LIGHT POMELO 1.5L PACK X6",
     "price": 7000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "cunnington light pomelo 1.5l"
   },
   {
     "name": "CUNNINGTON LIMA LIMON 1.5L X6",
     "price": 7000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "cunnington lima limon 1.5l"
   },
   {
     "name": "CUNNINGTON POMELO 1.5L PACK X6",
     "price": 7000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "cunnington pomelo 1.5l"
   },
   {
     "name": "CUSENIER PETACA 200ML CAFE COÑAC UNIDAD",
     "price": 2400,
-    "category": "Almacén"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "cusenier petaca 200ml cafe conac"
   },
   {
     "name": "CYNAR 70 NEGRO UNIDAD",
     "price": 11000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "cynar 70 negro"
   },
   {
     "name": "CYNAR 750ML UNIDAD",
     "price": 10000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "cynar"
   },
   {
     "name": "CHAC CHAC VINO 750CC MALBEC UNIDAD",
     "price": 7700,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "chac chac malbec"
   },
   {
     "name": "CHANDON EXTRA BRUT 187ML UNIDAD",
     "price": 4700,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "chandon extra brut 187ml"
   },
   {
     "name": "CHANDON EXTRA BRUT UNIDAD",
     "price": 17500,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "chandon extra brut"
   },
   {
     "name": "CHANDON ROSADO UNIDAD",
     "price": 17500,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "chandon rosado"
   },
   {
     "name": "CHIVAS REGAL 12YO 1L UNIDAD",
     "price": 66000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "chivas regal 12yo 1l"
   },
   {
     "name": "CHIZITO QUESO x 300G UNIDAD",
     "price": 2000,
-    "category": "Lácteos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "chizito queso 300g"
   },
   {
     "name": "CHIZITO QUESO x 700G UNIDAD",
     "price": 3500,
-    "category": "Lácteos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "chizito queso 700g"
   },
   {
     "name": "CHOCOLATE COFLER BLOCK 110GR X12U",
     "price": 46000,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "chocolate cofler block 110g x12u"
   },
   {
     "name": "CHOCOLATE COFLER BLOCK 38GR X20U",
     "price": 31000,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "chocolate cofler block 38g x20u"
   },
   {
     "name": "CHOCOLINAS 250GR UNIDAD",
     "price": 2300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "chocolinas 250g"
   },
   {
     "name": "DESO AMB GLADE AERO FLORAL TROPICAL 360CC UNIDAD",
     "price": 3200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb glade aero floral tropical 360ml"
   },
   {
     "name": "DESO AMB GLADE AERO LAVANDA 360CC UNIDAD",
     "price": 3200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb glade aero lavanda 360ml"
   },
   {
     "name": "DESO AMB GLADE AERO LIMON 360CC UNIDAD",
     "price": 3200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb glade aero limon 360ml"
   },
   {
     "name": "DESO AMB GLADE AERO PARAISO AZUL 360CC UNID",
     "price": 3200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb glade aero paraiso azul 360ml"
   },
   {
     "name": "DESO AMB GLADE AERO PLACER FLO Y FR 255ML UNIDAD",
     "price": 3200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb glade aero placer flo y fr 255ml"
   },
   {
     "name": "DESO AMB GLADE AERO POTPOURRI 360CC UNIDAD",
     "price": 3200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb glade aero potpourri 360ml"
   },
   {
     "name": "DESO AMB GLADE AERO VAINILLA 360CC UNIDAD",
     "price": 3200,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb glade aero vainilla 360ml"
   },
   {
     "name": "DESO AMB POETT ALEG DIA 360CC UNIDAD",
     "price": 3000,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb poett aleg dia 360ml"
   },
   {
     "name": "DESO AMB POETT DESP ENERGIA 360CC UNIDAD",
     "price": 3000,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb poett desp energia 360ml"
   },
   {
     "name": "DESO AMB POETT ESPIRIT PLAY 360CC UNIDAD",
     "price": 3000,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb poett espirit play 360ml"
   },
   {
     "name": "DESO AMB POETT MUS PRIMAVERA 360CC UNIDAD",
     "price": 3000,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb poett mus primavera 360ml"
   },
   {
     "name": "DESO AMB POETT SOLO P/TI 360CC UNIDAD",
     "price": 3000,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "deso amb poett solo p/ti 360ml"
   },
   {
     "name": "DILEMA BLANCO DULCE 750CC UNIDAD",
     "price": 3500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "dilema blanco dulce"
   },
   {
     "name": "DILEMA MALBEC 750CC UNIDAD",
     "price": 3500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "dilema malbec"
   },
   {
     "name": "DON DAVID MALBEC 750ML UNIDAD",
     "price": 6600,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "don david malbec"
   },
   {
     "name": "DON JOSE TOMATE TRITURADO BOTELLA 1KG PACK X8",
     "price": 10700,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 8,
+    "groupKey": "don jose tomate triturado botella 1kg"
   },
   {
     "name": "DON SATUR AZUCARAD 200G UNIDAD",
     "price": 1250,
-    "category": "Almacén"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "don satur azucarad 200g"
   },
   {
     "name": "DON SATUR SALADOS 200G UNIDAD",
     "price": 1250,
-    "category": "Almacén"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "don satur salados 200g"
   },
   {
     "name": "DURIGUTTI RESERVA VINO MALBEC 750ML UNIDAD",
     "price": 16000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "durigutti reserva malbec"
   },
   {
     "name": "DV CATENA CABERNET MALBEC 750ML UNIDAD",
     "price": 14500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "dv catena cabernet malbec"
   },
   {
     "name": "DV CATENA MALBEC MALBEC 750ML UNIDAD",
     "price": 20500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "dv catena malbec malbec"
   },
   {
     "name": "EL DORADO YERBA 500GR PACK X20",
     "price": 20000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 20,
+    "groupKey": "el dorado yerba 500g"
   },
   {
     "name": "EL ENEMIGO MALBEC 750ML UNIDAD",
     "price": 20500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "el enemigo malbec"
   },
   {
     "name": "ELEGANTE PAPEL HIGIENICO 80METROS UNIDAD",
     "price": 4500,
-    "category": "Almacén"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "elegante papel higienico 80metros"
   },
   {
     "name": "ENCUENTRO VINO MALBEC 750ML UNI",
     "price": 12000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "encuentro malbec"
   },
   {
     "name": "ESCORIHURELA GASCON VINO MALBEC 750CC UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "escorihurela gascon malbec"
   },
   {
     "name": "ESTANCIA MDZ BLANCO DULCE CAJA X6",
     "price": 17400,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "estancia mdz blanco dulce"
   },
   {
     "name": "ESTANCIA MDZ BLANCO SECO CAJA X6",
     "price": 17400,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "estancia mdz blanco seco"
   },
   {
     "name": "ESTANCIA MDZ CABER MALBEC CAJA X6",
     "price": 17400,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "estancia mdz caber malbec"
   },
   {
     "name": "ESTANCIA MDZ CABER SAU CAJA X 6",
     "price": 17400,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "estancia mdz caber sau"
   },
   {
     "name": "ESTANCIA MDZ TINTO MALBEC CAJA X6",
     "price": 17400,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "estancia mdz tinto malbec"
   },
   {
     "name": "ESTUCHE EXPLORACION LAS PERDICES X4 BOTELLAS",
     "price": 65000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "estuche exploracion las perdices x4 botellas"
   },
   {
     "name": "ESTUCHE LAS PERDICES RESERVA MALBEC INDIVIDUAL",
     "price": 14000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "estuche las perdices reserva malbec individual"
   },
   {
     "name": "ESTUCHE RUTINI BIVARIETAL X3 BOTELLAS",
     "price": 80000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "estuche rutini bivarietal x3 botellas"
   },
   {
     "name": "FAMILIA GASCON ROBLE MALBEC 750ML UNIDAD",
     "price": 5300,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "familia gascon roble malbec"
   },
   {
     "name": "FAMILIA MOSSO MALBEC VINO 750ML UNIDAD",
     "price": 11500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "familia mosso malbec"
   },
   {
     "name": "FAMILIA MOSSO MALBEC-CABERNET VINO 750ML UNIDAD",
     "price": 11500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "familia mosso malbec cabernet"
   },
   {
-    "name": "FANTA 1.5L DESCARTABLE  X8",
+    "name": "FANTA 1.5L DESCARTABLE X8",
     "price": 30000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 8,
+    "groupKey": "fanta 1.5l"
   },
   {
     "name": "FANTA 500 ML PACK X12",
     "price": 20500,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 12,
+    "groupKey": "fanta 500ml"
   },
   {
     "name": "FANTASIA TURRON BAÑADO 80GR UNIDAD",
     "price": 650,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantasia turron banado 80g"
   },
   {
     "name": "FANTOCHE ALMENDRAS CHOCOLATE 80GR UNIDAD",
     "price": 3200,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche almendras chocolate 80g"
   },
   {
     "name": "FANTOCHE BUDIN CON CHIPS 200GR UNIDAD",
     "price": 2300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche budin con chips 200g"
   },
   {
     "name": "FANTOCHE BUDIN CON FRUTAS 200GR UNIDAD",
     "price": 2300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche budin con frutas 200g"
   },
   {
     "name": "FANTOCHE BUDIN MARMOLADO 200GR UNIDAD",
     "price": 2300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche budin marmolado 200g"
   },
   {
     "name": "FANTOCHE PAN DULCE CON CHIPS 400GR UNIDAD",
     "price": 4300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche pan dulce con chips 400g"
   },
   {
     "name": "FANTOCHE PAN DULCE CON FRUTAS 400GR UNIDAD",
     "price": 4300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche pan dulce con frutas 400g"
   },
   {
     "name": "FANTOCHE PAN DULCE MARMOLADO 400GR UNIDAD",
     "price": 4300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche pan dulce marmolado 400g"
   },
   {
     "name": "FANTOCHE PAN DULCE PESCADO RAUL 400GR UNIDAD",
     "price": 4600,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche pan dulce pescado raul 400g"
   },
   {
     "name": "FANTOCHE PASAS DE UVA 80GR UNIDAD",
     "price": 2150,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "fantoche pasas de uva 80g"
   },
   {
     "name": "FAVORITA HARINA 000 1KG PACK X15",
     "price": 12700,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 15,
+    "groupKey": "favorita harina 000 1kg"
   },
   {
     "name": "FEDERICO DE ALVEAR CHAMPAGNE DULCE UNIDAD",
     "price": 5000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "federico de alvear champagne dulce"
   },
   {
     "name": "FEDERICO DE ALVEAR CHAMPAGNE EXTRA BRUT 750 UNIDAD",
     "price": 5000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "federico de alvear champagne extra brut 750"
   },
   {
     "name": "FEDERICO DE ALVEAR CHAMPAGNE ROSADO DULCE UNIDAD",
     "price": 5000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "federico de alvear champagne rosado dulce"
   },
   {
     "name": "FEDERICO DE ALVEAR EXTRA DULCE UNIDAD",
     "price": 5000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "federico de alvear extra dulce"
   },
   {
     "name": "FERNET ANIVERSARIO 180 AÑOS 750CC",
     "price": 17600,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "fernet aniversario 180 anos"
   },
   {
     "name": "FERNET BRANCA 1 LT UNIDAD",
     "price": 21500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "fernet branca 1l"
   },
   {
     "name": "FERNET BRANCA 750 UNIDAD",
     "price": 16000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "fernet branca 750"
   },
   {
     "name": "FERNET MUNDIAL DORADO 750ML UNIDAD",
     "price": 18000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "fernet mundial dorado"
   },
   {
     "name": "FLINTSTONE VINO MALBEC 750CC UNIDAD",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "flintstone malbec"
   },
   {
     "name": "FOND DE CAVE MALBEC 750CC UNIDAD",
     "price": 6200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "fond de cave malbec"
   },
   {
     "name": "FOND DE CAVE RESERVA MALBEC 750CC UNIDAD",
     "price": 9000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "fond de cave reserva malbec"
   },
   {
     "name": "FORMIS GALLETITA CHOC/DULC 72GR UNIDAD",
     "price": 600,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "formis galletita choc/dulc 72g"
   },
   {
     "name": "FRANCISCO STOCCO VINO BLEND 750CC UNIDAD",
     "price": 12000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "francisco stocco blend"
   },
   {
     "name": "FRANCISCO STOCCO VINO MALBEC 750CC UNIDAD",
     "price": 12000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "francisco stocco malbec"
   },
   {
     "name": "FRAPERA CORONA PLATEADA",
     "price": 23000,
-    "category": "Cervezas"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "frapera corona plateada"
   },
   {
     "name": "FRAPERA STELLA BLANCA",
     "price": 23000,
-    "category": "Cervezas"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "frapera stella blanca"
   },
   {
     "name": "FRESH BAGGIO 1.5 LTS LIMONE PACK X6",
     "price": 7800,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "fresh baggio 1.5l limone"
   },
   {
     "name": "FRESH BAGGIO 1.5 LTS MANZANA PACK X6",
     "price": 7800,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "fresh baggio 1.5l manzana"
   },
   {
     "name": "FRESH BAGGIO 1.5 LTS MIX FRUTAL PACK X6",
     "price": 7800,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "fresh baggio 1.5l mix frutal"
   },
   {
     "name": "FRESH BAGGIO 1.5 LTS NARANJA PACK X6",
     "price": 7800,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "fresh baggio 1.5l naranja"
   },
   {
     "name": "FRESH BAGGIO 1.5 LTS POMELO PACK X6",
     "price": 7800,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "fresh baggio 1.5l pomelo"
   },
   {
     "name": "FUEGO BLANCO VINO MALBEC-SYRAH 750CC UNIDAD",
     "price": 10000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "fuego blanco malbec syrah"
   },
   {
     "name": "FUEGO NEGRO SAUVIGNON BLANC VINO 750ML UNIDAD",
     "price": 5200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "fuego negro sauvignon blanc"
   },
   {
     "name": "GALL ARCOR SURTIDO DIVERSION 400GR UNIDAD",
     "price": 2500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall arcor surtido diversion 400g"
   },
   {
     "name": "GALL CELOSAS 230GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall celosas 230g"
   },
   {
     "name": "GALL CELOSAS 350GR UNIDAD",
     "price": 2300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall celosas 350g"
   },
   {
     "name": "GALL PITUSAS 300GR CHOCOLATE",
     "price": 2000,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall pitusas 300g chocolate"
   },
   {
     "name": "GALL PITUSAS 300GR FRUTILLA UNIDAD",
     "price": 2000,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall pitusas 300g frutilla"
   },
   {
     "name": "GALL PITUSAS 300GR VAINILLA UNIDAD",
     "price": 2000,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall pitusas 300g vainilla"
   },
   {
     "name": "GALL SURTIDO BAGLEY 400GR UNIDAD",
     "price": 3300,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall surtido bagley 400g"
   },
   {
     "name": "GALL TEREPIN PEPAS 400GR UNIDAD",
     "price": 1700,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall terepin pepas 400g"
   },
   {
     "name": "GALL TRIO CHOCOLATINA 300GR UNIDAD",
     "price": 1900,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio chocolatina 300g"
   },
   {
     "name": "GALL TRIO CHOCOTRIO PEPAS 300GR UNIDAD",
     "price": 1900,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio chocotrio pepas 300g"
   },
   {
     "name": "GALL TRIO FROLITAS 300GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio frolitas 300g"
   },
   {
     "name": "GALL TRIO GLASY 300GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio glasy 300g"
   },
   {
     "name": "GALL TRIO PEPAS ALEMANAS 300GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio pepas alemanas 300g"
   },
   {
     "name": "GALL TRIO PEPAS C/MEMBRILLO 320GR UNIDAD",
     "price": 1400,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio pepas c/membrillo 320g"
   },
   {
     "name": "GALL TRIO PEPAS CON CHIPS 300GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio pepas con chips 300g"
   },
   {
     "name": "GALL TRIO TRICHOC 300GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "gall trio trichoc 300g"
   },
   {
     "name": "GALLETITA RUMBA 110GR UNIDAD",
     "price": 1500,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "galletita rumba 110g"
   },
   {
     "name": "GANCIA AMERICANO 950ML UNIDAD",
     "price": 7000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "gancia americano 950ml"
   },
   {
     "name": "GANCIA CERO LATA 473CC X6",
     "price": 10500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "gancia cero lata 473ml"
   },
   {
     "name": "GANCIA LATA C/ALCOHOL 473 X6",
     "price": 15000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "gancia lata c/alcohol 473"
   },
   {
     "name": "GARRAPIÑADA TORRONI 80GR UNIDAD",
     "price": 800,
-    "category": "Aperitivos y Licores"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "garrapinada torroni 80g"
   },
   {
-    "name": "GATORADE  AZUL  X500ML PACK X6",
+    "name": "GATORADE AZUL X500ML PACK X6",
     "price": 10500,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "gatorade azul 500ml"
   },
   {
-    "name": "GATORADE  MANZANA X500ML PACK X6",
+    "name": "GATORADE MANZANA X500ML PACK X6",
     "price": 10500,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "gatorade manzana 500ml"
   },
   {
     "name": "GATORADE FRUTAS TROPICALES 500ML PACK X6",
     "price": 10500,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "gatorade frutas tropicales 500ml"
   },
   {
     "name": "GATORADE NARANJA 500ML PACK X6",
     "price": 10500,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "gatorade naranja 500ml"
   },
   {
     "name": "GATORADE UVA 500ML PACK X6",
     "price": 10500,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 6,
+    "groupKey": "gatorade uva 500ml"
   },
   {
     "name": "GAUCHEZCO CLASICO MALBEC 750ML UNIDAD",
     "price": 6500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "gauchezco clasico malbec"
   },
   {
     "name": "GAUCHEZCO RESERVA MALBEC 750CC UNIDAD",
     "price": 9000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "gauchezco reserva malbec"
   },
   {
     "name": "GAUCHEZCO RESERVE CABERNET FRANC 750ML UNIDAD",
     "price": 9000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "gauchezco reserve cabernet franc"
   },
   {
     "name": "GEORGALOS GARRAPIÑADAS 80GR UNIDAD",
     "price": 1000,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "georgalos garrapinadas 80g"
   },
   {
     "name": "GEORGALOS MANI CON CHOCOLATE 80GR UNIDAD",
     "price": 1700,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "georgalos mani con chocolate 80g"
   },
   {
     "name": "GEORGALOS TURRON DE MANI CON MIEL 80GR UNIDAD",
     "price": 1000,
-    "category": "Aperitivos y Licores"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "georgalos turron de mani con miel 80g"
   },
   {
     "name": "GIN MERLE",
     "price": 8600,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "gin merle"
   },
   {
     "name": "GINEBRA LLAVE 700CC UNIDAD",
     "price": 7600,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "ginebra llave 700ml"
   },
   {
     "name": "GODET FLAN DULCE DE LECHE 25GR UNIDAD",
     "price": 750,
-    "category": "Lácteos"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "godet flan dulce de leche 25g"
   },
   {
     "name": "GODET FLAN VAINILLA 25GR UNIDAD",
     "price": 750,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "godet flan vainilla 25g"
   },
   {
     "name": "GODET GELATINA CEREZA 25GR UNIDAD",
     "price": 1000,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "godet gelatina cereza 25g"
   },
   {
     "name": "GODET GELATINA FRAMBUESA 25GR UNIDAD",
     "price": 1000,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "godet gelatina frambuesa 25g"
   },
   {
     "name": "GODET GELATINA FRUTILLA 25GR UNIDAD",
     "price": 1000,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "godet gelatina frutilla 25g"
   },
   {
     "name": "GODET POSTRE DULCE DE LECHE 60GR UNIDAD",
     "price": 1150,
-    "category": "Lácteos"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "godet postre dulce de leche 60g"
   },
   {
     "name": "GODET POSTRE VAINILLA 60GR UNIDAD",
     "price": 1150,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "godet postre vainilla 60g"
   },
   {
     "name": "GORDONS 700ML",
     "price": 13000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "gordons 700ml"
   },
   {
     "name": "GRABICH MANI CHOCOLATE BLANCO 700GR UNIDAD",
     "price": 11500,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "grabich mani chocolate blanco 700g"
   },
   {
     "name": "GRABICH MANI CHOCOLATE NEGRO 700GR UNIDAD",
     "price": 11500,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "grabich mani chocolate negro 700g"
   },
   {
     "name": "GRABICH MANI JAPONES 900GR UNIDAD",
     "price": 5700,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "grabich mani japones 900g"
   },
   {
     "name": "GRAN ALAMBRADO MALBEC 750ML UNIDAD",
     "price": 11000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "gran alambrado malbec"
   },
   {
     "name": "GRAN ENEMIGO GUALTALLARY CAB FRANC UNIDAD",
     "price": 45000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "gran enemigo gualtallary cab franc"
   },
   {
-    "name": "GRANBY JABON LIQ  ROSAS 800ML UNIDAD",
+    "name": "GRANBY JABON LIQ ROSAS 800ML UNIDAD",
     "price": 2300,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "granby jabon liq rosas 800ml"
   },
   {
     "name": "GRANBY JABON LIQ LIMON 3L UNIDAD",
     "price": 7500,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "granby jabon liq limon 3l"
   },
   {
     "name": "GRANBY JABON LIQ LIMON 800ML UNIDAD",
     "price": 2300,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "granby jabon liq limon 800ml"
   },
   {
     "name": "GRANBY JABON LIQ ROSAS MATIC 3L UNIDAD",
     "price": 7500,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "granby jabon liq rosas matic 3l"
   },
   {
     "name": "HEINEKEN CERVEZA LATA 710ML PACK X6",
     "price": 23000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "heineken cerveza lata 710ml"
   },
   {
     "name": "HELLMANNS MAYONESA 237G CAJA X24",
     "price": 33000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 24,
+    "groupKey": "hellmanns mayonesa 237g"
   },
   {
     "name": "HIGIENOL PAPEL HIGIENICO 80M PACK X10",
     "price": 40000,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 10,
+    "groupKey": "higienol papel higienico 80m"
   },
   {
     "name": "HOROSCOPO GALLETITA FANTOCHE 300GR UNIDAD",
     "price": 1850,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "horoscopo galletita fantoche 300g"
   },
   {
     "name": "HUARPE AGRELO MALBEC 2017 UNIDAD",
     "price": 16500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "huarpe agrelo malbec 2017"
   },
   {
     "name": "IGUANA CERVEZA 1L CAJON X12",
     "price": 31000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 12,
+    "groupKey": "iguana cerveza 1l"
   },
   {
-    "name": "J. WALKER  DOBLE BLACK 750CC UNIDAD",
+    "name": "J. WALKER DOBLE BLACK 750CC UNIDAD",
     "price": 66000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker doble black"
   },
   {
     "name": "J. WALKER BLACK 1000CC UNIDAD",
     "price": 68000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker black 1000ml"
   },
   {
     "name": "J. WALKER BLACK 750CC UNIDAD",
     "price": 58000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker black"
   },
   {
     "name": "J. WALKER GREEN 750CC UNIDAD",
     "price": 190000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker green"
   },
   {
     "name": "J. WALKER RED 1000CC UNIDAD",
     "price": 38000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker red 1000ml"
   },
   {
     "name": "J. WALKER RED 750CC UNIDAD",
     "price": 32000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker red"
   },
   {
     "name": "J. WALKER SWING 750CC UNIDAD",
     "price": 115000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker swing"
   },
   {
     "name": "J.WALKER GOLD RESERVA 750CC UNIDAD",
     "price": 102000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "j walker gold reserva"
   },
   {
     "name": "JAGGER 700CC UNIDAD",
     "price": 38000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "jagger 700ml"
   },
   {
     "name": "JIM BEAM BLACK WHISKY 750CC UNIDAD",
     "price": 87000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "jim beam black whisky"
   },
   {
     "name": "JIM BEAM BOURBON WHISKY 750CC UNIDAD",
     "price": 54000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "jim beam bourbon whisky"
   },
   {
     "name": "JIM BEAM HONEY WHISKY 750CC UNIDAD",
     "price": 54000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "jim beam honey whisky"
   },
   {
     "name": "JIM BEAM VAINILLA WHISKY 750CC UNIDAD",
     "price": 54000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "jim beam vainilla whisky"
   },
   {
     "name": "JYB WHISKY 750CC UNIDAD",
     "price": 26000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "jyb whisky"
   },
   {
     "name": "KILLKA CHARDONNAY 2023 750 ML UNIDAD",
     "price": 7300,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "killka chardonnay 2023"
   },
   {
     "name": "KILLKA MALBEC 750ML UNIDAD",
     "price": 7300,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "killka malbec"
   },
   {
     "name": "LA HOJA MATECOCIDO 25SAQ PACK X20",
     "price": 15900,
-    "category": "Descartables y Packaging"
+    "category": "Almacén",
+    "packSize": 20,
+    "groupKey": "la hoja matecocido 25saq"
   },
   {
     "name": "LA HOJA MATECOCIDO 25SAQ UNIDAD",
     "price": 900,
-    "category": "Otros"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la hoja matecocido 25saq"
   },
   {
     "name": "LA HOJA YERBA 500G PACK X10",
     "price": 11000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "la hoja yerba 500g"
   },
   {
     "name": "LA HOJA YERBA 500G UNIDAD",
     "price": 1150,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la hoja yerba 500g"
   },
   {
     "name": "LA HUERTA PURE DE TOMATE 530G CAJA X12",
     "price": 10600,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 12,
+    "groupKey": "la huerta pure de tomate 530g"
   },
   {
     "name": "LA HUERTA PURE DE TOMATE 530G UNIDAD",
     "price": 1000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la huerta pure de tomate 530g"
   },
   {
     "name": "LA LINDA VINO CHARDONNAY 750ML UNIDAD",
     "price": 9700,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la linda chardonnay"
   },
   {
     "name": "LA LINDA VINO MALBEC 750ML UNIDAD",
     "price": 9700,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la linda malbec"
   },
   {
-    "name": "LA MERCED YERBA BARBACUA  X6 500GR",
+    "name": "LA MERCED YERBA BARBACUA X6 500GR",
     "price": 25000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la merced yerba barbacua x6 500g"
   },
   {
     "name": "LA MERCED YERBA CAMPO 500GR X6",
     "price": 25000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la merced yerba campo 500g x6"
   },
   {
     "name": "LA MERCED YERBA CAMPO SUR 500GR X6",
     "price": 25000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la merced yerba campo sur 500g x6"
   },
   {
     "name": "LA PUERTA ALTA VINO BLANCO DULCE 750CC UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta alta blanco dulce"
   },
   {
     "name": "LA PUERTA ALTA VINO BONARDA 750CC UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta alta bonarda"
   },
   {
     "name": "LA PUERTA ALTA VINO CAB SAUVIGNON 750CC UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta alta cab sauvignon"
   },
   {
     "name": "LA PUERTA ALTA VINO MALBEC 750CC UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta alta malbec"
   },
   {
     "name": "LA PUERTA ALTA VINO MALBEC/BONARDA 750CC UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta alta malbec/bonarda"
   },
   {
     "name": "LA PUERTA CLASICO VINO CAB SAUVIGNON 750CC UNIDAD",
     "price": 6200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta clasico cab sauvignon"
   },
   {
     "name": "LA PUERTA CLASICO VINO MALBEC 750CC UNIDAD",
     "price": 6200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta clasico malbec"
   },
   {
     "name": "LA PUERTA CLASICO VINO SYRAH 750CC UNIDAD",
     "price": 6200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta clasico syrah"
   },
   {
     "name": "LA PUERTA CLASICO VINO TORRONTES 750CC UNIDAD",
     "price": 6200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta clasico torrontes"
   },
   {
     "name": "LA PUERTA GRAN RESERVA BONARDA 750CC CAJA X6",
     "price": 156000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "la puerta gran reserva bonarda"
   },
   {
     "name": "LA PUERTA GRAN RESERVA MALBEC 750CC CAJA X6",
     "price": 156000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "la puerta gran reserva malbec"
   },
   {
     "name": "LA PUERTA RESERVA VINO BONARDA 750CC UNIDAD",
     "price": 9900,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta reserva bonarda"
   },
   {
     "name": "LA PUERTA RESERVA VINO MALBEC 750CC UNIDAD",
     "price": 9900,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta reserva malbec"
   },
   {
     "name": "LA PUERTA RESERVA VINO PETIT VERDOT 750CC UNIDAD",
     "price": 9900,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "la puerta reserva petit verdot"
   },
   {
     "name": "LA QUESERA 40GR UNIDAD",
     "price": 750,
-    "category": "Otros"
+    "category": "Lácteos",
+    "packSize": 1,
+    "groupKey": "la quesera 40g"
   },
   {
     "name": "LA QUESERA DISPLEY X20 SOBRES 40G",
     "price": 14000,
-    "category": "Otros"
+    "category": "Lácteos",
+    "packSize": 20,
+    "groupKey": "la quesera 40g"
   },
   {
     "name": "LA SERENISIMA DDL CLASICO 250GR UNIDAD",
     "price": 2350,
-    "category": "Otros"
+    "category": "Lácteos",
+    "packSize": 1,
+    "groupKey": "la serenisima ddl clasico 250g"
   },
   {
     "name": "LA SERENISIMA DDL CLASICO 400G UNIDAD",
     "price": 3200,
-    "category": "Otros"
+    "category": "Lácteos",
+    "packSize": 1,
+    "groupKey": "la serenisima ddl clasico 400g"
   },
   {
     "name": "LA SERENISIMA DDL COLONIAL 250GR UNIDAD",
     "price": 2600,
-    "category": "Otros"
+    "category": "Lácteos",
+    "packSize": 1,
+    "groupKey": "la serenisima ddl colonial 250g"
   },
   {
     "name": "LA SERENISIMA DDL COLONIAL 400GR UNIDAD",
     "price": 3500,
-    "category": "Otros"
+    "category": "Lácteos",
+    "packSize": 1,
+    "groupKey": "la serenisima ddl colonial 400g"
   },
   {
     "name": "LA SERENISIMA DDL REPOSTERO 400GR UNIDAD",
     "price": 3700,
-    "category": "Otros"
+    "category": "Lácteos",
+    "packSize": 1,
+    "groupKey": "la serenisima ddl repostero 400g"
   },
   {
     "name": "LA SERENISIMA LECHE 0 LACTOSA 1L X6",
     "price": 15500,
-    "category": "Lácteos"
+    "category": "Lácteos",
+    "packSize": 6,
+    "groupKey": "la serenisima leche 0 lactosa 1l"
   },
   {
     "name": "LA SERENISIMA LECHE ENTERA 1L CAJA X12",
     "price": 30000,
-    "category": "Lácteos"
+    "category": "Lácteos",
+    "packSize": 12,
+    "groupKey": "la serenisima leche entera 1l"
   },
   {
     "name": "LA VIRGINIA CAFE SAQUITO X20",
     "price": 4700,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la virginia cafe saquito x20"
   },
   {
     "name": "LA VIRGINIA CAFE SAQUITO X20 PACK X10",
     "price": 45000,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "la virginia cafe saquito x20"
   },
   {
     "name": "LA VIRGINIA CAPPUCCINO 125GR UNIDAD",
     "price": 3300,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "la virginia cappuccino 125g"
   },
   {
     "name": "LAS PERDICES MALBEC BOTELLON 1500ML UNIDAD",
     "price": 14500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "las perdices malbec botellon 1500ml"
   },
   {
     "name": "LAS PERDICES RESERVA BOTELLON 1500ML UNIDAD",
     "price": 26500,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "las perdices reserva botellon 1500ml"
   },
   {
     "name": "LAS PERDICES RESERVA CHARDONNAY VINO 750ML",
     "price": 11700,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "las perdices reserva chardonnay"
   },
   {
     "name": "LAS PERDICES RESERVA MALBEC CAJA X6",
     "price": 68000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "las perdices reserva malbec"
   },
   {
     "name": "LAS PERDICES RESERVA MALBEC VINO 750ML UNIDAD",
     "price": 11700,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "las perdices reserva malbec"
   },
   {
     "name": "LECHE ANGELITA DESCREMADA PACK X12",
     "price": 22500,
-    "category": "Lácteos"
+    "category": "Lácteos",
+    "packSize": 12,
+    "groupKey": "leche angelita descremada"
   },
   {
     "name": "LECHE ANGELITA ENTERA PACK X12",
     "price": 22500,
-    "category": "Lácteos"
+    "category": "Lácteos",
+    "packSize": 12,
+    "groupKey": "leche angelita entera"
   },
   {
     "name": "LECHE LA SERENISIMA DES 1L CAJA X12",
     "price": 30000,
-    "category": "Lácteos"
+    "category": "Lácteos",
+    "packSize": 12,
+    "groupKey": "leche la serenisima des 1l"
   },
   {
     "name": "LECHE LA SERENISIMA ENTERA 1L CAJA",
     "price": 2800,
-    "category": "Lácteos"
+    "category": "Lácteos",
+    "packSize": 1,
+    "groupKey": "leche la serenisima entera 1l caja"
   },
   {
     "name": "LEGUI 750CC UNIDAD",
     "price": 4700,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "legui"
   },
   {
     "name": "LHERITIER MANI BAÑADO CHOCOLATE 80GR UNIDAD",
     "price": 1900,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "lheritier mani banado chocolate 80g"
   },
   {
     "name": "LHERITIER MANI CON CHOCOLATE 80GR UNIDAD",
     "price": 1900,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "lheritier mani con chocolate 80g"
   },
   {
     "name": "LIA BOMBONES SURTIDO ESPECIAL 223GR",
     "price": 5500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "lia bombones surtido especial 223g"
   },
   {
     "name": "LIA GALLETITA SURTIDO 400GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "lia galletita surtido 400g"
   },
   {
     "name": "LICOR CUSENIER 700CC CAFE COÑAC",
     "price": 8000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "licor cusenier 700ml cafe conac"
   },
   {
     "name": "LICOR CUSENIER 700CC CHOCOLATE",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "licor cusenier 700ml chocolate"
   },
   {
     "name": "LICOR CUSENIER 700CC DULCE D LECHE",
     "price": 8000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "licor cusenier 700ml dulce d leche"
   },
   {
     "name": "LICOR CUSENIER 700CC HUEVO",
     "price": 8000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "licor cusenier 700ml huevo"
   },
   {
     "name": "LICOR CUSENIER 700CC LIMONCELLO",
     "price": 8000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "licor cusenier 700ml limoncello"
   },
   {
     "name": "LIMP BAÑO AYUDIN GATILLO 500CC UNIDAD",
     "price": 3400,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp bano ayudin gatillo 500ml"
   },
   {
     "name": "LIMP LIQUIDO POETT ALEGRA DIA 900CC UNIDAD",
     "price": 1800,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido poett alegra dia 900ml"
   },
   {
     "name": "LIMP LIQUIDO POETT ESPIRITU PLAY 900ML UNIDAD",
     "price": 1800,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido poett espiritu play 900ml"
   },
   {
     "name": "LIMP LIQUIDO POETT SOLO PARA TI 900ML UNIDAD",
     "price": 1800,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido poett solo para ti 900ml"
   },
   {
     "name": "LIMP LIQUIDO PROCENEX BEBE 900ML UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido procenex bebe 900ml"
   },
   {
     "name": "LIMP LIQUIDO PROCENEX FLORES DEL JARDIN 900ML UN",
     "price": 1500,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido procenex flores del jardin 900ml"
   },
   {
     "name": "LIMP LIQUIDO PROCENEX LAVANDA 900ML UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido procenex lavanda 900ml"
   },
   {
     "name": "LIMP LIQUIDO PROCENEX LIMON 900ML UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido procenex limon 900ml"
   },
   {
     "name": "LIMP LIQUIDO PROCENEX MARINA 900ML UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido procenex marina 900ml"
   },
   {
     "name": "LIMP LIQUIDO PROCENEX PINO 900ML UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "limp liquido procenex pino 900ml"
   },
   {
     "name": "LOS INTOCABLES MALBEC 750ML",
     "price": 8500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "los intocables malbec"
   },
   {
     "name": "LOS PASOS VINO CHARDONNAY 750ML UNIDAD",
     "price": 4000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "los pasos chardonnay"
   },
   {
     "name": "LUIGI BOSCA VINO CHARDONNAY 750ML UNIDAD",
     "price": 17000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "luigi bosca chardonnay"
   },
   {
     "name": "LUIGI BOSCA VINO ROSE 750ML UNIDAD",
     "price": 17000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "luigi bosca rose"
   },
   {
     "name": "LYSOFORM DESIN ORIGINAL 360CC UNIDAD",
     "price": 3900,
-    "category": "Aperitivos y Licores"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "lysoform desin original 360ml"
   },
   {
     "name": "MAGISTRAL DETERGENTE 300ML LIMON",
     "price": 2000,
-    "category": "Almacén"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "magistral detergente 300ml limon"
   },
   {
-    "name": "MAIZ INFLADO DULCE  TUTUCA x 500G UNIDAD",
+    "name": "MAIZ INFLADO DULCE TUTUCA x 500G UNIDAD",
     "price": 3700,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "maiz inflado dulce tutuca 500g"
   },
   {
     "name": "MALAMADO VINO MALBEC 750ML UNIDAD",
     "price": 18000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "malamado malbec"
   },
   {
     "name": "MANA GALLETITA CHOCOLATADA 136GR UNIDAD",
     "price": 1000,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mana galletita chocolatada 136g"
   },
   {
     "name": "MANA RELLENA C/CHOCOLATE 152GR UNIDAD",
     "price": 1500,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mana rellena c/chocolate 152g"
   },
   {
     "name": "MANA RELLENA C/VAINILLA 152GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mana rellena c/vainilla 152g"
   },
   {
     "name": "MANA RELLENA LIMON 152GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mana rellena limon 152g"
   },
   {
     "name": "MANA RELLENA VAINI/FRU 152GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mana rellena vaini/fru 152g"
   },
   {
     "name": "MANAOS CITRUS 3L PACK X6",
     "price": 11000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "manaos citrus 3l"
   },
   {
     "name": "MANAOS COLA 3L PACK X6",
     "price": 11000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "manaos cola 3l"
   },
   {
     "name": "MANAOS LIMA LIMON 3L PACK X6",
     "price": 11000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "manaos lima limon 3l"
   },
   {
     "name": "MANAOS LIMON 3L PACK X6",
     "price": 11000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "manaos limon 3l"
   },
   {
     "name": "MANAOS NARANJA 3L PACK X6",
     "price": 11000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "manaos naranja 3l"
   },
   {
     "name": "MANAOS POMELO 3L PACK X6",
     "price": 11000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "manaos pomelo 3l"
   },
   {
-    "name": "MANI CROCANTE JAMON  x 1000G UNIDAD",
+    "name": "MANI CROCANTE JAMON x 1000G UNIDAD",
     "price": 6000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani crocante jamon 1000g"
   },
   {
     "name": "MANI CROCANTE PIZZA x 1000G UNIDAD",
     "price": 6000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani crocante pizza 1000g"
   },
   {
     "name": "MANI CROCANTE PROVEN x 1000G UNIDAD",
     "price": 6000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani crocante proven 1000g"
   },
   {
     "name": "MANI CROCANTE QUESO x 1000G UNIDAD",
     "price": 6000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani crocante queso 1000g"
   },
   {
     "name": "MANI CROCANTE SALAME 1000GR UNIDAD",
     "price": 6000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani crocante salame 1000g"
   },
   {
-    "name": "MANI S/PIEL FRITO SALA  x 1000G UNIDAD",
+    "name": "MANI S/PIEL FRITO SALA x 1000G UNIDAD",
     "price": 6000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani s/piel frito sala 1000g"
   },
   {
     "name": "MANI VAINA C/CAS 2K UNIDAD",
     "price": 12000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani vaina c/cas 2kg"
   },
   {
     "name": "MANI VAINA C/CAS x 500G UNIDAD",
     "price": 3600,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mani vaina c/cas 500g"
   },
   {
     "name": "MANTECOL CLASICO 111GR UNIDAD",
     "price": 2450,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mantecol clasico 111g"
   },
   {
     "name": "MAÑANITA YERBA 500GR PACK X10",
     "price": 20000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "mananita yerba 500g"
   },
   {
     "name": "MARIA CODORNIU BRUT NATURE VINO 750ML UNIDAD",
     "price": 9500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "maria codorniu brut nature"
   },
   {
     "name": "MARIA CODORNIU BRUT VINO 750ML UNIDAD",
     "price": 9500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "maria codorniu brut"
   },
   {
     "name": "MARIA CODORNIU DULCE VINO 750 ML UNIDAD",
     "price": 9500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "maria codorniu dulce"
   },
   {
     "name": "MARIA CODORNIU EXTRA BRUT VINO 750ML UNIDAD",
     "price": 9500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "maria codorniu extra brut"
   },
   {
     "name": "MARIA CODORNIU ROSAT VINO 750 ML UNIDAD",
     "price": 9500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "maria codorniu rosat"
   },
   {
-    "name": "MAYONESA NATURA  237GR CAJA X12",
+    "name": "MAYONESA NATURA 237GR CAJA X12",
     "price": 19000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 12,
+    "groupKey": "mayonesa natura 237g"
   },
   {
     "name": "MAYONESA NATURA 1 K CAJA X8",
     "price": 51000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 8,
+    "groupKey": "mayonesa natura 1kg"
   },
   {
     "name": "MEDIATARDE X3 315GR UNIDAD",
     "price": 1400,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mediatarde x3 315g"
   },
   {
     "name": "MENDEL VINO CABERNET FRANC UNIDAD",
     "price": 25000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "mendel cabernet franc"
   },
   {
     "name": "MINI PITUSAS 160GR CHOCOLATE UNIDAD",
     "price": 1200,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mini pitusas 160g chocolate"
   },
   {
     "name": "MINI PITUSAS 160GR FRUTILLA UNIDAD",
     "price": 1200,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mini pitusas 160g frutilla"
   },
   {
     "name": "MINI PITUSAS 160GR LIMON UNIDAD",
     "price": 1200,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mini pitusas 160g limon"
   },
   {
     "name": "MINI PITUSAS 160GR VAINILLA UNIDAD",
     "price": 1200,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mini pitusas 160g vainilla"
   },
   {
     "name": "MOGUL ANILLITOS GOMITAS 1KG UNIDAD",
     "price": 12500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mogul anillitos gomitas 1kg"
   },
   {
     "name": "MOGUL CONITOS GOMITAS 1KG UNIDAD",
     "price": 12500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mogul conitos gomitas 1kg"
   },
   {
     "name": "MOGUL DIENTES 500GR UNIDAD",
     "price": 7500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mogul dientes 500g"
   },
   {
     "name": "MOGUL EUCALIPTUS GOMITAS 1KG UNIDAD",
     "price": 12500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mogul eucaliptus gomitas 1kg"
   },
   {
     "name": "MOGUL JELLY BUTTONS GOMITAS 1KG UNIDAD",
     "price": 12500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mogul jelly buttons gomitas 1kg"
   },
   {
     "name": "MOGUL MORAS 500GR UNIDAD",
     "price": 7500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "mogul moras 500g"
   },
   {
     "name": "MORENITA CAFE SAQUITO X20 UNIDAD",
     "price": 4200,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "morenita cafe saquito x20"
   },
   {
     "name": "MORENITA CAFE TORRADO 250GR UNIDAD",
     "price": 5000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "morenita cafe torrado 250g"
   },
   {
     "name": "MORIXE HARINA 0000 1KG PACK X10",
     "price": 11000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "morixe harina 0000 1kg"
   },
   {
     "name": "MORTIMER ESPONJA ABRASIVA UNIDAD",
     "price": 1200,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "mortimer esponja abrasiva"
   },
   {
     "name": "MORTIMER ESPONJA ANTIBACTERIAL UNIDAD",
     "price": 1200,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "mortimer esponja antibacterial"
   },
   {
     "name": "MORTIMER LANA ACERO X12 UNIDADES",
     "price": 1200,
-    "category": "Jugos e Isotónicas"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "mortimer lana acero x12 unidades"
   },
   {
     "name": "MORTIMER PAÑO MULTIUSO AMARILLO X3",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "mortimer pano multiuso amarillo x3"
   },
   {
     "name": "MOSQUITA MUERTA BLACK 750CC",
     "price": 30000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "mosquita muerta black"
   },
   {
     "name": "MOSQUITA MUERTA BLACK MALBEC 750CC CAJA X3",
     "price": 90000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 3,
+    "groupKey": "mosquita muerta black malbec"
   },
   {
     "name": "MOSSO FINCA MALBEC VINO 750ML UNIDAD",
     "price": 7500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "mosso finca malbec"
   },
   {
     "name": "MUMM CHAMPAGNE DEMI SEC 750ML UNIDAD",
     "price": 10500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "mumm champagne demi sec"
   },
   {
     "name": "MUMM CHAMPAGNE EXTRA BRUT UNIDAD",
     "price": 11000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "mumm champagne extra brut"
   },
   {
     "name": "MUMM CHAMPAGNE LEGER 750ML UNIDAD",
     "price": 10500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "mumm champagne leger"
   },
   {
     "name": "NAMPE BLANCO CHARD 750 ML CAJA X6",
     "price": 20500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "nampe blanco chard"
   },
   {
     "name": "NAMPE VINO MALBEC TINTO CAJA X6",
     "price": 20500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "nampe malbec tinto"
   },
   {
     "name": "NATURA MAYONESA 500CC CAJA X12",
     "price": 38400,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 12,
+    "groupKey": "natura mayonesa 500ml"
   },
   {
     "name": "NEVARES BUDIN FANTASIA CHOCOLATE 180GR UNIDAD",
     "price": 1500,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "nevares budin fantasia chocolate 180g"
   },
   {
     "name": "NEVARES BUDIN FANTASIA LIMON 180GR UNIDAD",
     "price": 1500,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "nevares budin fantasia limon 180g"
   },
   {
     "name": "NICASIA VINO BASED WHITE BLEND 750ML UNIDAD",
     "price": 8600,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "nicasia based white blend"
   },
   {
     "name": "NICASIA VINO CABERNET FRANC 750ML UNIDAD",
     "price": 8600,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "nicasia cabernet franc"
   },
   {
     "name": "NICASIA VINO MALBEC 750ML UNIDAD",
     "price": 8600,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "nicasia malbec"
   },
   {
     "name": "NIETO SENETINER CHAMP. BRUT NATURE UNIDAD",
     "price": 13500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "nieto senetiner champ brut nature"
   },
   {
     "name": "NIETO SENETINER CHAMP. BRUT ROSE UNIDAD",
     "price": 13500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "nieto senetiner champ brut rose"
   },
   {
     "name": "NIETO SENETINER CHAMPAGNE EXTRA BRUT UNIDAD",
     "price": 13500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "nieto senetiner champagne extra brut"
   },
   {
     "name": "NORTON ALTURA MALBEC 750CC UNIDAD",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "norton altura malbec"
   },
   {
     "name": "NORTON CHAMPAGNE COSECHA ESPECIAL BRUT NATURE",
     "price": 11600,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "norton champagne cosecha especial brut nature"
   },
   {
     "name": "NORTON CHAMPAGNE DULCE 750ML UNIDAD",
     "price": 6000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "norton champagne dulce"
   },
   {
     "name": "NORTON CHAMPAGNE EXTRA BRUT 750ML UNIDAD",
     "price": 6000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "norton champagne extra brut"
   },
   {
     "name": "NORTON DOC MALBEC 750CC UNIDAD",
     "price": 8600,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "norton doc malbec"
   },
   {
     "name": "NORTON LIBRE MALBEC 750CC UNIDAD",
     "price": 6700,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "norton libre malbec"
   },
   {
     "name": "NORTON RESERVA MALBEC 750CC UNIDAD",
     "price": 7800,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "norton reserva malbec"
   },
   {
     "name": "NUGATON OBLEA 27GR BLACK UNIDAD",
     "price": 700,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "nugaton oblea 27g black"
   },
   {
     "name": "OLD PARR WHISKY 750ML",
     "price": 52000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "old parr whisky"
   },
   {
     "name": "OLD SMUGGLER 1L WHISKY UNIDAD",
     "price": 8400,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "old smuggler 1l whisky"
   },
   {
     "name": "OLD SMUGGLER 750CC WHISKY UNIDAD",
     "price": 7000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "old smuggler whisky"
   },
   {
     "name": "OLD SMUGGLER PETACA 200ML UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "old smuggler petaca 200ml"
   },
   {
     "name": "PADRILLOS MALBEC VINO 750ML UNIDAD",
     "price": 7000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "padrillos malbec"
   },
   {
-    "name": "PALITOS FRITOS  x 1000G UNIDAD",
+    "name": "PALITOS FRITOS x 1000G UNIDAD",
     "price": 5200,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "palitos fritos 1000g"
   },
   {
     "name": "PANCETITAS BACON x 400G UNIDAD",
     "price": 4800,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "pancetitas bacon 400g"
   },
   {
     "name": "PAPAS CORTE AMERICANO 90GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas corte americano 90g"
   },
   {
     "name": "PAPAS CREMA Y CEBOLLA 90GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas crema y cebolla 90g"
   },
   {
     "name": "PAPAS FRITAS x 400 g UNIDAD",
     "price": 7200,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas fritas 400g"
   },
   {
     "name": "PAPAS FRITAS x 800G UNIDAD",
     "price": 12000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas fritas 800g"
   },
   {
     "name": "PAPAS JAMON 90GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas jamon 90g"
   },
   {
     "name": "PAPAS KETCHUP 90GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas ketchup 90g"
   },
   {
     "name": "PAPAS LIMON 90GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas limon 90g"
   },
   {
     "name": "PAPAS MUZZARELLA 90GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas muzzarella 90g"
   },
   {
     "name": "PAPAS PAI x 500G UNIDAD",
     "price": 8300,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas pai 500g"
   },
   {
     "name": "PAPAS RUFLE x 800G UNIDAD",
     "price": 12000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "papas rufle 800g"
   },
   {
     "name": "PAPEL HIG HIGIENOL FRESH 30MX4 PACK12",
     "price": 19000,
-    "category": "Descartables y Packaging"
+    "category": "Limpieza",
+    "packSize": 12,
+    "groupKey": "papel hig higienol fresh 30mx4"
   },
   {
     "name": "PAPEL HIG. HIGIENOL FRESH 30MX4 UNIDAD",
     "price": 1800,
-    "category": "Descartables y Packaging"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "papel hig higienol fresh 30mx4"
   },
   {
     "name": "PARTRIDGE BOTELLON MALBEC 1500CC UNIDAD",
     "price": 9000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "partridge botellon malbec 1500ml"
   },
   {
     "name": "PARTRIDGE CHAMPAGNE EXTRA BRUT 750ML UNIDAD",
     "price": 6000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "partridge champagne extra brut"
   },
   {
     "name": "PARTRIDGE VINO CHARDONNAY 750ML UNIDAD",
     "price": 5100,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "partridge chardonnay"
   },
   {
     "name": "PARTRIDGE VINO MALBEC 750ML UNIDAD",
     "price": 5100,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "partridge malbec"
   },
   {
     "name": "PASO DE LOS TOROS POMELO 1.5L UNIDAD",
     "price": 2000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 1,
+    "groupKey": "paso de los toros pomelo 1.5l"
   },
   {
     "name": "PASO DE LOS TOROS POMELO 500ML PACK X6",
     "price": 5200,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "paso de los toros pomelo 500ml"
   },
   {
     "name": "PEPSI 1.5 LT PACK X 6",
     "price": 15000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "pepsi 1.5l"
   },
   {
     "name": "PERRO CALLEJERO BLEND DE MALBEC VINO UNIDAD",
     "price": 6200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "perro callejero blend de malbec"
   },
   {
     "name": "PERRO CALLEJERO VINO CHARDONNAY 750CC UNIDAD",
     "price": 6200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "perro callejero chardonnay"
   },
   {
     "name": "PIATTELLI ESTUCHE MALBEC UNIDAD",
     "price": 15000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "piattelli estuche malbec"
   },
   {
     "name": "PIATTELLI MENDOZA VINO MALBEC 750ML UN",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "piattelli mendoza malbec"
   },
   {
     "name": "PIATTELLI RESERVE TORRONTES SALTA 750ML UNI",
     "price": 13000,
-    "category": "Aperitivos y Licores"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "piattelli reserve torrontes salta"
   },
   {
     "name": "PIATTELLI SALTA MALBEC 750ML U",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "piattelli salta malbec"
   },
   {
     "name": "PISPI BLEND DE TINTAS VINO 750ML UNIDAD",
     "price": 8000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "pispi blend de tintas"
   },
   {
     "name": "PLAYADITO YERBA 1KG PACK X5",
     "price": 20500,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 5,
+    "groupKey": "playadito yerba 1kg"
   },
   {
     "name": "PLAYADITO YERBA 500GR PACK X10",
     "price": 22600,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "playadito yerba 500g"
   },
   {
     "name": "PLUSBELLE ACOND FRESCURA 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle acond frescura 1l"
   },
   {
     "name": "PLUSBELLE ACOND NUTRICION 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle acond nutricion 1l"
   },
   {
     "name": "PLUSBELLE ACOND PROTECCION 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle acond proteccion 1l"
   },
   {
     "name": "PLUSBELLE ACOND SUAVIDAD 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle acond suavidad 1l"
   },
   {
     "name": "PLUSBELLE SHAMP BRILLO 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle shamp brillo 1l"
   },
   {
     "name": "PLUSBELLE SHAMP FRESCURA 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle shamp frescura 1l"
   },
   {
     "name": "PLUSBELLE SHAMP NUTRICION 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle shamp nutricion 1l"
   },
   {
     "name": "PLUSBELLE SHAMP PROTECCION 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle shamp proteccion 1l"
   },
   {
     "name": "PLUSBELLE SHAMP SUAVIDAD 1L UNIDAD",
     "price": 3600,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "plusbelle shamp suavidad 1l"
   },
   {
     "name": "PORTILLO CABERNET SAUVINOG CAJA X6",
     "price": 30000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "portillo cabernet sauvinog"
   },
   {
     "name": "PORTILLO CHARDONAY CAJA X6",
     "price": 30000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "portillo chardonay"
   },
   {
     "name": "PORTILLO MALBEC CAJA X6",
     "price": 30000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "portillo malbec"
   },
   {
     "name": "PORTILLO ROSADO MALBEC CAJA X6",
     "price": 30000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "portillo rosado malbec"
   },
   {
     "name": "PORTILLO VINO CABERNET SAUVIGNON 750ML UNIDAD",
     "price": 5250,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "portillo cabernet sauvignon"
   },
   {
     "name": "PORTILLO VINO CHARDONNAY 750 ML UNIDAD",
     "price": 5250,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "portillo chardonnay"
   },
   {
     "name": "PORTILLO VINO MALBEC 750CC UNIDAD",
     "price": 5250,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "portillo malbec"
   },
   {
     "name": "PORTILLO VINO ROSADO MALBEC 750ML UNID",
     "price": 5250,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "portillo rosado malbec"
   },
   {
     "name": "PRESTOPRONTA POLENTA 490GR UNIDAD",
     "price": 1100,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "prestopronta polenta 490g"
   },
   {
     "name": "PROEMIO RESERVE VINO CABERNET FRANC 750ML UNIDAD",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "proemio reserve cabernet franc"
   },
   {
     "name": "PROEMIO RESERVE VINO MALBEC 750ML UNIDAD",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "proemio reserve malbec"
   },
   {
     "name": "PROEMIO VINO MALBEC 750ML UNIDAD",
     "price": 7800,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "proemio malbec"
   },
   {
     "name": "PROEMIO VINO PETIT VERDOT 750ML UNIDAD",
     "price": 13000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "proemio petit verdot"
   },
   {
     "name": "PROMO CUMPLE 1",
     "price": 100000,
-    "category": "Otros"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "promo cumple 1"
   },
   {
     "name": "PROMO CUMPLE 2",
     "price": 80000,
-    "category": "Otros"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "promo cumple 2"
   },
   {
     "name": "PUTRUELE",
     "price": 7400,
-    "category": "Otros"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "putruele"
   },
   {
     "name": "RAID AZUL MMM AERO 360ML UNIDAD",
     "price": 7000,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "raid azul mmm aero 360ml"
   },
   {
     "name": "REBELDE VINO 750CC UNIDAD",
     "price": 7000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "rebelde"
   },
   {
     "name": "REI VERDE YERBA CLASSICA 1KG UNIDAD",
     "price": 8000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "rei verde yerba classica 1kg"
   },
   {
     "name": "REI VERDE YERBA PREMIUM 1KG UNIDAD",
     "price": 11000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "rei verde yerba premium 1kg"
   },
   {
     "name": "REI VERDE YERBA PREMIUM 500GR UNIDAD",
     "price": 6000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "rei verde yerba premium 500g"
   },
   {
     "name": "REI VERDE YERBA TRADICIONAL 1KG UNIDAD",
     "price": 9000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "rei verde yerba tradicional 1kg"
   },
   {
     "name": "ROCKLETS MUNDIAL 20GR X24U",
     "price": 13000,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "rocklets mundial 20g x24u"
   },
   {
-    "name": "ROLLO COCINA SUSSEX  50P X 3 PACK X 10",
+    "name": "ROLLO COCINA SUSSEX 50P X 3 PACK X 10",
     "price": 20000,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 10,
+    "groupKey": "rollo cocina sussex 50p x 3"
   },
   {
     "name": "ROLLO COCINA SUSSEX UNIDAD",
     "price": 2300,
-    "category": "Limpieza"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "rollo cocina sussex"
   },
   {
     "name": "RUTINI CABERNET FRANCH / MALBEC 750ML UNIDAD",
     "price": 13900,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "rutini cabernet franch/malbec"
   },
   {
     "name": "RUTINI CHARDONNAY 750ML UNIDAD",
     "price": 20000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "rutini chardonnay"
   },
   {
     "name": "SAINT FELICIEN VINO MALBEC 750ML UNID",
     "price": 11000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "saint felicien malbec"
   },
   {
     "name": "SAINT FELICIEN VINO SYRAH 750ML UNIDAD",
     "price": 11000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "saint felicien syrah"
   },
   {
     "name": "SALADIX CROSS PIZZA 135GR UNIDAD",
     "price": 2000,
-    "category": "Almacén"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "saladix cross pizza 135g"
   },
   {
     "name": "SALADIX PAPAS FRITA CREMA Y CEBOLLA 72GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "saladix papas frita crema y cebolla 72g"
   },
   {
     "name": "SALADIX PAPAS FRITA CHEDDAR 72GR UNIDAD",
     "price": 2000,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "saladix papas frita cheddar 72g"
   },
   {
     "name": "SALADIX PAPAS FRITA ORIGINAL 80GR UNIDAD",
     "price": 2000,
-    "category": "Aperitivos y Licores"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "saladix papas frita original 80g"
   },
   {
     "name": "SANTA FE CERVEZA LATA 473CC PACK X6",
     "price": 10500,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "santa fe cerveza lata 473ml"
   },
   {
     "name": "SANTA FE LATA PILSEN 473CC PACK X6",
     "price": 11000,
-    "category": "Descartables y Packaging"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "santa fe lata pilsen 473ml"
   },
   {
     "name": "SANTA JULIA CABERNET SAUVIGNON 750CC UNIDAD",
     "price": 4200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia cabernet sauvignon"
   },
   {
     "name": "SANTA JULIA CHARDONNAY VINO 750ML UNIDAD",
     "price": 4200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia chardonnay"
   },
   {
     "name": "SANTA JULIA CHENNIN DULCE 750ML UNIDAD",
     "price": 6000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia chennin dulce"
   },
   {
     "name": "SANTA JULIA ESTUCHE 2 BOTELLAS UNIDAD",
     "price": 18000,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia estuche 2 botellas"
   },
   {
     "name": "SANTA JULIA ESTUCHE UNIDAD MALBEC",
     "price": 9000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia estuche malbec"
   },
   {
     "name": "SANTA JULIA LATA CHENNIN 269CC PACK X6",
     "price": 15000,
-    "category": "Descartables y Packaging"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "santa julia lata chennin 269ml"
   },
   {
     "name": "SANTA JULIA MALBEC CAJA X6",
     "price": 24000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "santa julia malbec"
   },
   {
     "name": "SANTA JULIA MALBEC+COPON UNIDAD",
     "price": 35000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia malbec+copon"
   },
   {
     "name": "SANTA JULIA RESERVA MALBEC 750ML UNIDAD",
     "price": 6000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia reserva malbec"
   },
   {
     "name": "SANTA JULIA SELECCION MALBEC 750ML UNIDAD",
     "price": 5600,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia seleccion malbec"
   },
   {
     "name": "SANTA JULIA TINTO DULCE 750ML UNIDAD",
     "price": 6500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "santa julia tinto dulce"
   },
   {
     "name": "SAPO DE OTRO POZO VINO MALBEC 750CC UNIDAD",
     "price": 9900,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "sapo de otro pozo malbec"
   },
   {
     "name": "SCHNEIDER CERVEZA 710CC PACK X6",
     "price": 15000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "schneider cerveza 710ml"
   },
   {
     "name": "SCHNEIDER LATA 473CC PACK X6",
     "price": 9900,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "schneider lata 473ml"
   },
   {
     "name": "SEDAL ACOND BALANCE 300ML UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "sedal acond balance 300ml"
   },
   {
     "name": "SEDAL ACOND CERAMIDAS 300ML UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "sedal acond ceramidas 300ml"
   },
   {
     "name": "SEDAL ACOND REST. INSTANT 300ML UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "sedal acond rest instant 300ml"
   },
   {
     "name": "SEDAL SHAMPOO BALANCE 300ML UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "sedal shampoo balance 300ml"
   },
   {
     "name": "SEDAL SHAMPOO CERAMIDAS 300ML UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "sedal shampoo ceramidas 300ml"
   },
   {
     "name": "SEDAL SHAMPOO REST. INSTAN 300ML UNIDAD",
     "price": 2900,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "sedal shampoo rest instan 300ml"
   },
   {
     "name": "SEXY FISH BLANC DE BLANCS 750CC UNIDAD",
     "price": 4200,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "sexy fish blanc de blancs"
   },
   {
     "name": "SEXY FISH MALBEC 750CC UNIDAD",
     "price": 4200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "sexy fish malbec"
   },
   {
     "name": "SHERIDANS 750CC UNIDAD",
     "price": 45000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "sheridans"
   },
   {
     "name": "SHOT CHOCOLATE 90GR CAJA X16",
     "price": 32000,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 16,
+    "groupKey": "shot chocolate 90g"
   },
   {
-    "name": "SKYY  VODKA COCO 750",
+    "name": "SKYY VODKA COCO 750",
     "price": 9500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy vodka coco 750"
   },
   {
     "name": "SKYY PASSION FRUIT 750ML UNIDAD",
     "price": 9500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy passion fruit"
   },
   {
     "name": "SKYY VODKA APRICOTT 750CC",
     "price": 9500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy vodka apricott"
   },
   {
     "name": "SKYY VODKA CLASICO 750CC",
     "price": 7800,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy vodka clasico"
   },
   {
     "name": "SKYY VODKA COSMIC 750CC",
     "price": 14000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy vodka cosmic"
   },
   {
     "name": "SKYY VODKA FRUIT 750ML UNIDAD",
     "price": 9500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy vodka fruit"
   },
   {
     "name": "SKYY VODKA PINNEAPPLE 750CC",
     "price": 9500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy vodka pinneapple"
   },
   {
     "name": "SKYY VODKA RASPBERRY 750CC",
     "price": 9500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "skyy vodka raspberry"
   },
   {
     "name": "SMIRNOF APPLE CAJA X 6",
     "price": 54000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "smirnof apple"
   },
   {
     "name": "SMIRNOF RASPBERRY CAJA X6",
     "price": 54000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "smirnof raspberry"
   },
   {
     "name": "SMIRNOF TAMARINDO CAJA X 6",
     "price": 54000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "smirnof tamarindo"
   },
   {
     "name": "SMIRNOF TROPICAL CAJA X 6",
     "price": 54000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "smirnof tropical"
   },
   {
     "name": "SMIRNOF WATERMELON CAJA X 6",
     "price": 54000,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "smirnof watermelon"
   },
   {
     "name": "SMIRNOFF CITRIC 700CC X6",
     "price": 54000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 6,
+    "groupKey": "smirnoff citric 700ml"
   },
   {
     "name": "SODA MANAOS X12",
     "price": 6200,
-    "category": "Gaseosas"
+    "category": "Aguas",
+    "packSize": 1,
+    "groupKey": "soda manaos x12"
   },
   {
-    "name": "SOL MAYOR ROLLO DE COCINA 40P PACK  X12",
+    "name": "SOL MAYOR ROLLO DE COCINA 40P PACK X12",
     "price": 16500,
-    "category": "Descartables y Packaging"
+    "category": "Limpieza",
+    "packSize": 12,
+    "groupKey": "sol mayor rollo de cocina 40p"
   },
   {
     "name": "SOL MAYOR ROLLO DE COCINA 40P UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Limpieza",
+    "packSize": 1,
+    "groupKey": "sol mayor rollo de cocina 40p"
   },
   {
     "name": "SOL PAMPEANO DEDALITO PACK X15",
     "price": 11900,
-    "category": "Descartables y Packaging"
+    "category": "Almacén",
+    "packSize": 15,
+    "groupKey": "sol pampeano dedalito"
   },
   {
     "name": "SOL PAMPEANO MOSTACHOL PACK X15",
     "price": 11900,
-    "category": "Descartables y Packaging"
+    "category": "Almacén",
+    "packSize": 15,
+    "groupKey": "sol pampeano mostachol"
   },
   {
     "name": "SOL PAMPEANO SPAGHETTI PACK X 20",
     "price": 15900,
-    "category": "Descartables y Packaging"
+    "category": "Almacén",
+    "packSize": 20,
+    "groupKey": "sol pampeano spaghetti"
   },
   {
     "name": "SOL PAMPEANO TALLARIN PACK X20",
     "price": 15900,
-    "category": "Descartables y Packaging"
+    "category": "Almacén",
+    "packSize": 20,
+    "groupKey": "sol pampeano tallarin"
   },
   {
     "name": "SOL PAMPEANO TIRABUZON PACK X15",
     "price": 11900,
-    "category": "Descartables y Packaging"
+    "category": "Almacén",
+    "packSize": 15,
+    "groupKey": "sol pampeano tirabuzon"
   },
   {
     "name": "SOLITAS ALFAJORCITO 300GR UNIDAD",
     "price": 3300,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "solitas alfajorcito 300g"
   },
   {
     "name": "SONRISAS FRAMBUESA 108GR UNIDAD",
     "price": 1500,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "sonrisas frambuesa 108g"
   },
   {
     "name": "SPEED 473ML PACK X12",
     "price": 28900,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 12,
+    "groupKey": "speed 473ml"
   },
   {
     "name": "SPRITE 1.5 LTS DESCARTABLE PACK X8",
     "price": 30000,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 8,
+    "groupKey": "sprite 1.5l"
   },
   {
     "name": "SPRITE 500 ML PACK X12",
     "price": 20500,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 12,
+    "groupKey": "sprite 500ml"
   },
   {
     "name": "SPRITE CAJON RETORNABLE 2L X8",
     "price": 27500,
-    "category": "Gaseosas"
+    "category": "Gaseosas",
+    "packSize": 8,
+    "groupKey": "sprite retornable 2l"
   },
   {
     "name": "STELLA CAJON 1L RETORNABLE X12",
     "price": 56000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 12,
+    "groupKey": "stella 1l retornable"
   },
   {
     "name": "STELLA LATA 473ML PACK X6",
     "price": 13000,
-    "category": "Cervezas"
+    "category": "Cervezas",
+    "packSize": 6,
+    "groupKey": "stella lata 473ml"
   },
   {
     "name": "TACCONI 1.5L BLANCO PACK X6",
     "price": 7400,
-    "category": "Vinos"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "tacconi 1.5l blanco"
   },
   {
     "name": "TACCONI 1.5L LIMON PACK X6",
     "price": 7400,
-    "category": "Descartables y Packaging"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "tacconi 1.5l limon"
   },
   {
     "name": "TACCONI 1.5L SERRANO PACK X6",
     "price": 7400,
-    "category": "Descartables y Packaging"
+    "category": "Gaseosas",
+    "packSize": 6,
+    "groupKey": "tacconi 1.5l serrano"
   },
   {
     "name": "TANG ANANA JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang anana jugo en polvo"
   },
   {
     "name": "TANG DURAZNO JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang durazno jugo en polvo"
   },
   {
     "name": "TANG FRUTILLA JUGO EN POLVO X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 1,
+    "groupKey": "tang frutilla jugo en polvo x20"
   },
   {
     "name": "TANG GALACTICO JUGO EN POLVO X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 1,
+    "groupKey": "tang galactico jugo en polvo x20"
   },
   {
     "name": "TANG LIMONADA DULCE JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang limonada dulce jugo en polvo"
   },
   {
     "name": "TANG MANZANA JUGO EN POLVO X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 1,
+    "groupKey": "tang manzana jugo en polvo x20"
   },
   {
     "name": "TANG MULTIFRUTA JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang multifruta jugo en polvo"
   },
   {
     "name": "TANG NARANJA DULCE JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang naranja dulce jugo en polvo"
   },
   {
     "name": "TANG NARANJA JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang naranja jugo en polvo"
   },
   {
     "name": "TANG NARANJA/BANANA JUGO EN POLVO X20",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 1,
+    "groupKey": "tang naranja/banana jugo en polvo x20"
   },
   {
     "name": "TANG NARANJA/DURAZNO JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang naranja/durazno jugo en polvo"
   },
   {
     "name": "TANG PERA JUGO EN POLVO CAJA X20",
     "price": 8000,
-    "category": "Jugos e Isotónicas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang pera jugo en polvo"
   },
   {
     "name": "TANG POMELO ROSADO JUGO EN POLVO CAJA X20 SOBRES",
     "price": 8000,
-    "category": "Gaseosas"
+    "category": "Jugos e Isotónicas",
+    "packSize": 20,
+    "groupKey": "tang pomelo rosado jugo en polvo"
   },
   {
     "name": "TARAGUI YERBA 500GR PACK X10",
     "price": 20000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "taragui yerba 500g"
   },
   {
     "name": "TIA MARIA CREAM 690CC UNIDAD",
     "price": 12500,
-    "category": "Otros"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "tia maria cream 690ml"
   },
   {
     "name": "TIA MARIA LICOR 690CC UNIDAD",
     "price": 9000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "tia maria licor 690ml"
   },
   {
     "name": "TIO NELIDO ALFAJOR MAICENA X15",
     "price": 3700,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "tio nelido alfajor maicena x15"
   },
   {
     "name": "TIO NELIDO ALFAJOR MAICENA X6",
     "price": 3700,
-    "category": "Snacks y Golosinas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "tio nelido alfajor maicena x6"
   },
   {
     "name": "TIO NELIDO PALMERITAS UNIDAD",
     "price": 2700,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "tio nelido palmeritas"
   },
   {
     "name": "TIO NELIDO PEPAS UNIDAD",
     "price": 2700,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "tio nelido pepas"
   },
   {
     "name": "TOCOÑATO PEPAS CON CHIPS 400GR UNIDAD",
     "price": 1400,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "toconato pepas con chips 400g"
   },
   {
     "name": "TONEL 14 VINO CHARDONNAY 750ML UNID",
     "price": 5000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "tonel 14 chardonnay"
   },
   {
     "name": "TONEL 22 VINO MALBEC 750ML UNIDAD",
     "price": 6000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "tonel 22 malbec"
   },
   {
     "name": "TONEL 46 MALBEC VINO 750 ML UNIDAD",
     "price": 11000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "tonel 46 malbec"
   },
   {
     "name": "TORO BOTELLON 1L PACK X6",
     "price": 15000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "toro botellon 1l"
   },
   {
     "name": "TORO CLASICO 3/4 BLANCO PACK X6",
     "price": 13700,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "toro clasico 3/4 blanco"
   },
   {
     "name": "TORO TETRA TINTO 1L PACK X12",
     "price": 22500,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 12,
+    "groupKey": "toro tetra tinto 1l"
   },
   {
     "name": "TORRONI TURRON MANI 70GR UNIDAD",
     "price": 700,
-    "category": "Aperitivos y Licores"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "torroni turron mani 70g"
   },
   {
     "name": "TOSTEX AVENA Y CHIPS DE CHOCOLATE UNIDAD",
     "price": 1900,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "tostex avena y chips de chocolate"
   },
   {
     "name": "TOSTEX AVENA Y PASAS UNIDAD",
     "price": 1900,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "tostex avena y pasas"
   },
   {
     "name": "TOSTEX CHIPS DULCE DE LECHE 300GR UNIDAD",
     "price": 1900,
-    "category": "Lácteos"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "tostex chips dulce de leche 300g"
   },
   {
     "name": "TRAPICHE RESERVA MALBEC 750ML UNIDAD",
     "price": 7100,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "trapiche reserva malbec"
   },
   {
     "name": "TRAVIATA KESITAS 96GR UNIDAD",
     "price": 900,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "traviata kesitas 96g"
   },
   {
     "name": "TRAVIATA PORTEÑITAS 96GR UNIDAD",
     "price": 900,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "traviata portenitas 96g"
   },
   {
     "name": "TRAVIATA REX 96GR UNIDAD",
     "price": 900,
-    "category": "Otros"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "traviata rex 96g"
   },
   {
     "name": "TRIESTINA PETACA CAFE COÑAC 200CC UNIDAD",
     "price": 1450,
-    "category": "Almacén"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "triestina petaca cafe conac 200ml"
   },
   {
     "name": "TRIESTINA PETACA CHOCOLATE 200CC UNIDAD",
     "price": 1450,
-    "category": "Gaseosas"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "triestina petaca chocolate 200ml"
   },
   {
     "name": "TRIESTINA PETACA DULCE DE LECHE 200CC UNIDAD",
     "price": 1450,
-    "category": "Lácteos"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "triestina petaca dulce de leche 200ml"
   },
   {
     "name": "TRIESTINA PETACA VODKA 200CC UNIDAD",
     "price": 1450,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "triestina petaca vodka 200ml"
   },
   {
     "name": "TRIESTINA PETACA WHISKY 200CC UNIDAD",
     "price": 1450,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "triestina petaca whisky 200ml"
   },
   {
     "name": "TRUMPETER MALBEC 750ML CAJA X6",
     "price": 42800,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "trumpeter malbec"
   },
   {
     "name": "TRUMPETER SAUV BLANC 750ML CAJA X6",
     "price": 42800,
-    "category": "Otros"
+    "category": "Vinos",
+    "packSize": 6,
+    "groupKey": "trumpeter sauv blanc"
   },
   {
     "name": "TURRON MISKY DE MANI 25GR UNIDAD",
     "price": 200,
-    "category": "Aperitivos y Licores"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "turron misky de mani 25g"
   },
   {
     "name": "UNION YERBA 500GR PACK X10",
     "price": 20000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 10,
+    "groupKey": "union yerba 500g"
   },
   {
     "name": "V ASUNCION AGUA MINERAL 1.5L PACK X6",
     "price": 4900,
-    "category": "Aguas"
+    "category": "Aguas",
+    "packSize": 6,
+    "groupKey": "v asuncion agua mineral 1.5l"
   },
   {
     "name": "V ASUNCION BIDON AGUA MINER PACK X2 5LTS",
     "price": 5200,
-    "category": "Aguas"
+    "category": "Aguas",
+    "packSize": 2,
+    "groupKey": "v asuncion bidon agua miner 5l"
   },
   {
     "name": "V ASUNCION SODA 2 LTS PACK X6",
     "price": 6800,
-    "category": "Aguas"
+    "category": "Aguas",
+    "packSize": 6,
+    "groupKey": "v asuncion soda 2l"
   },
   {
     "name": "VALENTIN LACRADO TINTO 750CC UNIDAD",
     "price": 3150,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "valentin lacrado tinto"
   },
   {
     "name": "VALENTIN LACRADO TORRONTES 750ML UNIDAD",
     "price": 3500,
-    "category": "Aperitivos y Licores"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "valentin lacrado torrontes"
   },
   {
     "name": "VASO FERNET",
     "price": 3500,
-    "category": "Aperitivos y Licores"
+    "category": "Otros",
+    "packSize": 1,
+    "groupKey": "vaso fernet"
   },
   {
     "name": "VILLAMANAOS AGUA MINERAL 600ML FRIA UNIDAD",
     "price": 700,
-    "category": "Gaseosas"
+    "category": "Aguas",
+    "packSize": 1,
+    "groupKey": "villamanaos agua mineral 600ml fria"
   },
   {
     "name": "VINO FABRE MONTMAYOU MALBEC UNIDAD 750 ML",
     "price": 7000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "fabre montmayou malbec"
   },
   {
     "name": "VINO FUEGO NEGRO CHARDONNAY 750ML UNIDAD",
     "price": 5200,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "fuego negro chardonnay"
   },
   {
     "name": "VINO RUE DE BONPLAND BLEND UNIDAD",
     "price": 3000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "rue de bonpland blend"
   },
   {
     "name": "VINO TRUMPETER RESERVE MALBEC 750 ML UNIDAD",
     "price": 10000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "trumpeter reserve malbec"
   },
   {
     "name": "VITTONE FERNET",
     "price": 6000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "vittone fernet"
   },
   {
     "name": "VIZZIO ALMENDRAS CON CHOCOLATE 80GR UNIDAD",
     "price": 3000,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "vizzio almendras con chocolate 80g"
   },
   {
     "name": "VIZZIO MANI CROCANTE CHOCOLATE 80GR UNIDAD",
     "price": 2350,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "vizzio mani crocante chocolate 80g"
   },
   {
     "name": "VIZZIO PASAS DE UVA CON CHOCOLATE 80GR UNIDAD",
     "price": 2350,
-    "category": "Gaseosas"
+    "category": "Snacks y Golosinas",
+    "packSize": 1,
+    "groupKey": "vizzio pasas de uva con chocolate 80g"
   },
   {
     "name": "VODKA 67 MANZANA VERDE 750CC UNIDAD",
     "price": 4900,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "vodka 67 manzana verde"
   },
   {
     "name": "VODKA 67 MELON 750 CC",
     "price": 4900,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "vodka 67 melon"
   },
   {
     "name": "VODKA 67 WATERMELON 750 CC",
     "price": 4900,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "vodka 67 watermelon"
   },
   {
     "name": "WHISKY BALLANTINES 1000CC UNIDAD",
     "price": 43500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky ballantines 1000ml"
   },
   {
     "name": "WHISKY BLENDERS AMERICANO 750CC UNIDAD",
     "price": 10500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky blenders americano"
   },
   {
     "name": "WHISKY BLENDERS HONEY 750CC UNIDAD",
     "price": 10300,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky blenders honey"
   },
   {
     "name": "WHISKY BLENDERS PRIDE 1000CC UNIDAD",
     "price": 11500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky blenders pride 1000ml"
   },
   {
     "name": "WHISKY BLENDERS PRIDE 750CC UNIDAD",
     "price": 9300,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky blenders pride"
   },
   {
     "name": "WHISKY CHIVAS 500CC 12 YEARS UNIDAD",
     "price": 42500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky chivas 500ml 12 years"
   },
   {
     "name": "WHISKY CHIVAS 700CC 12 YERAS UNIDAD",
     "price": 55000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky chivas 700ml 12 yeras"
   },
   {
     "name": "WHISKY JAMESON 1000CC UNIDAD",
     "price": 50000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky jameson 1000ml"
   },
   {
     "name": "WHISKY JAMESON 750CC UNIDAD",
     "price": 36500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky jameson"
   },
   {
     "name": "WHISKY MONKEY SHOULDER 700CC UNIDAD",
     "price": 50000,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky monkey shoulder 700ml"
   },
   {
     "name": "WHISKY PREMIUM 750ML UNIDAD",
     "price": 5200,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "whisky premium"
   },
   {
     "name": "WHITE HORSE WHISKY 750CC UNIDAD",
     "price": 18500,
-    "category": "Aperitivos y Licores"
+    "category": "Aperitivos y Licores",
+    "packSize": 1,
+    "groupKey": "white horse whisky"
   },
   {
     "name": "ZORRO SALVAJE VINO MALBEC 750CC UNIDAD",
     "price": 3800,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "zorro salvaje malbec"
   },
   {
     "name": "ZUCCARDI ESTUCHE SERIE A MALBEC + COPA",
     "price": 50000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "zuccardi estuche serie a malbec + copa"
   },
   {
     "name": "ZUCCARDI Q MALBEC C24 750ML UNIDAD",
     "price": 17000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "zuccardi q malbec c24"
   },
   {
     "name": "ZUCCARDI SERIE A CABERNET 750ML UNIDAD",
     "price": 11000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "zuccardi serie a cabernet"
   },
   {
     "name": "ZUCCARDI SERIE A MALBEC 750ML UNIDAD",
     "price": 11000,
-    "category": "Vinos"
+    "category": "Vinos",
+    "packSize": 1,
+    "groupKey": "zuccardi serie a malbec"
   },
   {
     "name": "ZUELO ACEITE OLIVA INTENSO 500ML UNIDAD",
     "price": 15000,
-    "category": "Almacén"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "zuelo aceite oliva intenso 500ml"
   },
   {
     "name": "ZUELO ACEITE OLIVA ORIGINAL 500ML UNIDAD",
     "price": 15000,
-    "category": "Aperitivos y Licores"
+    "category": "Almacén",
+    "packSize": 1,
+    "groupKey": "zuelo aceite oliva original 500ml"
   }
 ]
