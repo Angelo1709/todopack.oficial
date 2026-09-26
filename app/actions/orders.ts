@@ -7,6 +7,7 @@ import { initialStatus, isDeliverySlot, isPaymentMethod, type DeliverySlot, type
 import { and, desc, eq, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { randomBytes } from "node:crypto"
+import { isIsoDate, todayAR } from "@/lib/dates"
 
 type CheckoutItem = { id: number; quantity: number }
 
@@ -33,11 +34,8 @@ export async function createOrder(input: CheckoutInput) {
   if (!isDeliverySlot(input.deliverySlot)) throw new Error("Elegí la franja de entrega")
   if (!isPaymentMethod(input.paymentMethod)) throw new Error("Medio de pago inválido")
 
-  // Validate delivery date is today or future
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const chosen = new Date(input.deliveryDate + "T00:00:00")
-  if (Number.isNaN(chosen.getTime()) || chosen < today) {
+  // Fechas "yyyy-mm-dd" se comparan como texto; "hoy" es en hora argentina.
+  if (!isIsoDate(input.deliveryDate) || input.deliveryDate < todayAR()) {
     throw new Error("La fecha de entrega no puede ser en el pasado")
   }
 

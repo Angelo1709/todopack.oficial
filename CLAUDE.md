@@ -53,6 +53,7 @@ No hay tests ni drizzle-kit. **Migraciones:** SQL a mano en `lib/db/migrations/N
 - `lib/order-status.ts` — estados, franjas, medios de pago, etiquetas y transiciones permitidas. Único lugar donde se definen.
 - `lib/settings.ts` — `getSettings()` (WhatsApp, alias/CBU/titular) con valores por defecto.
 - `lib/whatsapp.ts` — normaliza teléfonos AR y arma links `wa.me` con mensaje.
+- `lib/dates.ts` — `todayAR()`, `addDays`, `formatDateAR`. El servidor corre en UTC: nunca calcular "hoy" con `new Date()` local.
 - `lib/categorize.ts` y `scripts/parse-products.mjs` — reglas de categorización por palabras clave. **Están duplicadas: si cambiás una, cambiá la otra.**
 - `lib/categories.ts` — slug e imagen de respaldo por categoría (`public/categories/*.png`).
 - `data/` — Excel de lista de precios y `products.json` generado.

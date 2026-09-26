@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/session"
 import { getMyOrders } from "@/app/actions/orders"
 import { SiteHeader } from "@/components/site-header"
 import { formatOrderNumber, formatPrice } from "@/lib/format"
+import { formatDateAR } from "@/lib/dates"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,14 +19,6 @@ import {
 import { Package } from "lucide-react"
 
 export const dynamic = "force-dynamic"
-
-function formatDate(d: string) {
-  return new Date(d + "T00:00:00").toLocaleDateString("es-AR", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  })
-}
 
 export default async function MyOrdersPage() {
   const user = await getSessionUser()
@@ -52,7 +45,7 @@ export default async function MyOrdersPage() {
                   <div>
                     <p className="font-semibold">Pedido #{formatOrderNumber(o.id)}</p>
                     <p className="text-sm text-muted-foreground">
-                      Entrega: {formatDate(o.deliveryDate)} ·{" "}
+                      Entrega: {formatDateAR(o.deliveryDate)} ·{" "}
                       {DELIVERY_SLOT_LABEL[o.deliverySlot as DeliverySlot] ?? o.deliverySlot}
                     </p>
                   </div>

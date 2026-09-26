@@ -13,16 +13,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Banknote, Landmark, Check, ArrowLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { todayAR } from "@/lib/dates"
 
 const BANK_INFO = {
   alias: "todopack.alcorta",
   cbu: "0000003100000000000000",
   titular: "TodoPack Alcorta",
-}
-
-function todayStr() {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
 export function CheckoutForm({
@@ -125,8 +121,8 @@ export function CheckoutForm({
                     id="deliveryDate"
                     name="deliveryDate"
                     type="date"
-                    min={todayStr()}
-                    defaultValue={todayStr()}
+                    min={todayAR()}
+                    defaultValue={todayAR()}
                     required
                   />
                 </div>
