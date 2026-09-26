@@ -16,9 +16,13 @@ function isAssignableRole(value: unknown): value is AssignableRole {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-function validatePassword(password: string) {
-  if (password.length < 8) throw new Error("La contraseña debe tener al menos 8 caracteres")
-  if (password.length > 128) throw new Error("La contraseña es demasiado larga")
+// Los errores esperados se devuelven (no se tiran): en producción Next oculta el mensaje de los throw.
+export type ActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string }
+
+function passwordError(password: string): string | null {
+  if (password.length < 8) return "La contraseña debe tener al menos 8 caracteres"
+  if (password.length > 128) return "La contraseña es demasiado larga"
+  return null
 }
 
 export async function listUsers() {
@@ -52,19 +56,20 @@ export type CreateUserInput = {
   role: AssignableRole
 }
 
-export async function createUser(input: CreateUserInput) {
+export async function createUser(input: CreateUserInput): Promise<ActionResult<{ id: string }>> {
   await requireSuperadmin()
 
   const name = input.name?.trim()
   const email = input.email?.trim().toLowerCase()
   const phone = input.phone?.trim() || undefined
-  if (!name) throw new Error("Falta el nombre")
-  if (!email || !EMAIL_RE.test(email)) throw new Error("El email no es válido")
-  validatePassword(input.password ?? "")
-  if (!isAssignableRole(input.role)) throw new Error("Rol inválido")
+  if (!name) return { ok: false, error: "Falta el nombre" }
+  if (!email || !EMAIL_RE.test(email)) return { ok: false, error: "El email no es válido" }
+  const pwError = passwordError(input.password ?? "")
+  if (pwError) return { ok: false, error: pwError }
+  if (!isAssignableRole(input.role)) return { ok: false, error: "Rol inválido" }
 
   const [existing] = await db.select({ id: user.id }).from(user).where(eq(user.email, email))
-  if (existing) throw new Error("Ya existe un usuario con ese email")
+  if (existing) return { ok: false, error: "Ya existe un usuario con ese email" }
 
   // Better Auth crea el usuario y su cuenta con la contraseña hasheada.
   const created = await auth.api.signUpEmail({
@@ -77,30 +82,32 @@ export async function createUser(input: CreateUserInput) {
   await db.delete(session).where(eq(session.userId, userId))
 
   revalidatePath("/admin/usuarios")
-  return { id: userId }
+  return { ok: true, id: userId }
 }
 
-export async function setUserRole(userId: string, role: AssignableRole) {
+export async function setUserRole(userId: string, role: AssignableRole): Promise<ActionResult> {
   const me = await requireSuperadmin()
-  if (!isAssignableRole(role)) throw new Error("Rol inválido")
-  if (userId === me.id) throw new Error("No podés cambiar tu propio rol")
+  if (!isAssignableRole(role)) return { ok: false, error: "Rol inválido" }
+  if (userId === me.id) return { ok: false, error: "No podés cambiar tu propio rol" }
 
   const [target] = await db.select({ role: user.role }).from(user).where(eq(user.id, userId))
-  if (!target) throw new Error("El usuario no existe")
-  if (target.role === "superadmin") throw new Error("No se puede cambiar el rol de un superadmin")
+  if (!target) return { ok: false, error: "El usuario no existe" }
+  if (target.role === "superadmin") return { ok: false, error: "No se puede cambiar el rol de un superadmin" }
 
   await db.update(user).set({ role, updatedAt: new Date() }).where(eq(user.id, userId))
   revalidatePath("/admin/usuarios")
+  return { ok: true }
 }
 
-export async function resetUserPassword(userId: string, password: string) {
+export async function resetUserPassword(userId: string, password: string): Promise<ActionResult> {
   const me = await requireSuperadmin()
-  validatePassword(password ?? "")
+  const pwError = passwordError(password ?? "")
+  if (pwError) return { ok: false, error: pwError }
 
   const [target] = await db.select({ role: user.role }).from(user).where(eq(user.id, userId))
-  if (!target) throw new Error("El usuario no existe")
+  if (!target) return { ok: false, error: "El usuario no existe" }
   if (target.role === "superadmin" && userId !== me.id) {
-    throw new Error("No se puede cambiar la contraseña de otro superadmin")
+    return { ok: false, error: "No se puede cambiar la contraseña de otro superadmin" }
   }
 
   const ctx = await auth.$context
@@ -110,8 +117,9 @@ export async function resetUserPassword(userId: string, password: string) {
     .set({ password: hash, updatedAt: new Date() })
     .where(and(eq(account.userId, userId), eq(account.providerId, "credential")))
     .returning({ id: account.id })
-  if (updated.length === 0) throw new Error("El usuario no tiene contraseña configurada")
+  if (updated.length === 0) return { ok: false, error: "El usuario no tiene contraseña configurada" }
 
   // Cierra las sesiones abiertas de ese usuario (salvo que sea uno mismo).
   if (userId !== me.id) await db.delete(session).where(eq(session.userId, userId))
+  return { ok: true }
 }
