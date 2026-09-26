@@ -3,6 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useCart } from "@/components/cart/cart-provider"
+import { QuantityStepper, TierPrices, TierSummary } from "@/components/storefront/tier-pricing"
+import { stepUnits } from "@/lib/pricing"
 import { formatPrice } from "@/lib/format"
 import {
   Sheet,
@@ -14,7 +16,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react"
+import { Trash2, ShoppingCart } from "lucide-react"
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -42,44 +44,32 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
           ) : (
             <ul className="flex flex-col gap-3">
               {items.map((item) => (
-                <li key={item.id} className="flex gap-3 rounded-lg border border-border p-2">
-                  <div className="min-w-0 flex-1">
+                <li key={item.id} className="flex flex-col gap-2 rounded-lg border border-border p-3">
+                  <div className="flex items-start justify-between gap-2">
                     <p className="line-clamp-2 text-sm font-medium leading-tight">{item.name}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{formatPrice(item.price)} c/u</p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex items-center rounded-md border border-border">
-                        <button
-                          type="button"
-                          onClick={() => setQty(item.id, item.quantity - 1)}
-                          className="grid size-7 place-items-center text-muted-foreground hover:text-foreground"
-                          aria-label="Restar uno"
-                        >
-                          <Minus className="size-3.5" />
-                        </button>
-                        <span className="w-8 text-center text-sm font-semibold tabular-nums">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setQty(item.id, item.quantity + 1)}
-                          className="grid size-7 place-items-center text-muted-foreground hover:text-foreground"
-                          aria-label="Sumar uno"
-                        >
-                          <Plus className="size-3.5" />
-                        </button>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => remove(item.id)}
-                        className="ml-auto text-muted-foreground hover:text-destructive"
-                        aria-label="Quitar del carrito"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
+                    <button
+                      type="button"
+                      onClick={() => remove(item.id)}
+                      className="shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label={`Quitar ${item.name} del carrito`}
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-end justify-between gap-3">
+                    <TierPrices tiers={item.tiers} className="min-w-0" />
+                    <div className="w-32 shrink-0">
+                      <QuantityStepper
+                        value={item.quantity}
+                        step={stepUnits(item.tiers)}
+                        name={item.name}
+                        size="sm"
+                        onChange={(n) => setQty(item.id, n)}
+                      />
                     </div>
                   </div>
-                  <div className="text-right text-sm font-semibold tabular-nums">
-                    {formatPrice(item.price * item.quantity)}
+                  <div className="border-t border-border pt-2">
+                    <TierSummary tiers={item.tiers} units={item.quantity} />
                   </div>
                 </li>
               ))}

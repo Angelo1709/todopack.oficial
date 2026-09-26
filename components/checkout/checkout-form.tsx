@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useCart } from "@/components/cart/cart-provider"
+import { lineTotal, useCart } from "@/components/cart/cart-provider"
 import { formatPrice } from "@/lib/format"
 import { createOrder, type CheckoutField, type CreatedOrder } from "@/app/actions/orders"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { CopyButton } from "@/components/checkout/copy-button"
 import { OrderSuccess } from "@/components/checkout/order-success"
 import { rememberOrderToken, type SignUpPrefill } from "@/lib/guest-orders"
-import { packLabel } from "@/lib/order-messages"
+import { describeBreakdown, describeQuantity, priceFor } from "@/lib/pricing"
 import {
   DELIVERY_SLOTS,
   DELIVERY_SLOT_LABEL,
@@ -423,18 +423,17 @@ export function CheckoutForm({
               <h2 className="mb-4 font-semibold">Tu pedido</h2>
               <ul className="mb-4 flex max-h-64 flex-col gap-2 overflow-y-auto">
                 {items.map((i) => {
-                  // packSize es opcional en el carrito (lo agrega el catálogo de presentaciones).
-                  const pack = packLabel(i.name, (i as { packSize?: unknown }).packSize)
+                  const breakdown = priceFor(i.tiers, i.quantity)
                   return (
                     <li key={i.id} className="flex justify-between gap-2 text-sm">
                       <span className="min-w-0">
                         <span className="line-clamp-1">{i.name}</span>
-                        <span className="text-xs text-muted-foreground tabular-nums">
-                          {i.quantity} × {formatPrice(i.price)}
-                          {pack ? ` · ${pack}` : null}
+                        <span className="block text-xs text-muted-foreground tabular-nums">
+                          {describeQuantity(i.tiers, i.quantity)}
+                          {breakdown && breakdown.lines.length > 1 ? ` · ${describeBreakdown(breakdown)}` : null}
                         </span>
                       </span>
-                      <span className="shrink-0 font-medium tabular-nums">{formatPrice(i.price * i.quantity)}</span>
+                      <span className="shrink-0 font-medium tabular-nums">{formatPrice(lineTotal(i))}</span>
                     </li>
                   )
                 })}

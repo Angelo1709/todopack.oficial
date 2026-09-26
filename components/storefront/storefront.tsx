@@ -2,28 +2,26 @@
 
 import { useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
-import type { CartItem } from "@/components/cart/cart-provider"
-import { ProductCard } from "@/components/storefront/product-card"
+import { ProductCard, type StoreArticle } from "@/components/storefront/product-card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, PackageSearch } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-type StoreProduct = Omit<CartItem, "quantity">
-
 export function Storefront({
-  products,
+  articles,
   categories,
   page,
   totalPages,
-  totalProducts,
+  totalArticles,
   query: initialQuery,
   selectedCategory,
 }: {
-  products: StoreProduct[]
+  articles: StoreArticle[]
   categories: string[]
   page: number
   totalPages: number
-  totalProducts: number
+  totalArticles: number
   query: string
   selectedCategory: string
 }) {
@@ -87,10 +85,12 @@ export function Storefront({
         <h2 className="font-serif text-xl font-bold">
           {category === "Todos" ? "Todos los productos" : category}
         </h2>
-        <span className="text-sm text-muted-foreground">{totalProducts} productos</span>
+        <span className="text-sm text-muted-foreground tabular-nums">
+          {totalArticles} producto{totalArticles === 1 ? "" : "s"}
+        </span>
       </div>
 
-      {products.length === 0 ? (
+      {articles.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border py-20 text-center text-muted-foreground">
           <PackageSearch className="size-10 opacity-40" />
           <p>No encontramos productos para tu búsqueda.</p>
@@ -98,30 +98,22 @@ export function Storefront({
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {articles.map((a) => (
+              <ProductCard key={a.key} article={a} />
             ))}
           </div>
           {totalPages > 1 && (
-          <nav className="mt-6 flex items-center justify-center gap-3" aria-label="Paginación">
-            <button
-              type="button"
-              onClick={() => navigate({ page: page - 1 })}
-              disabled={page <= 1}
-              className="rounded-md border px-3 py-2 text-sm disabled:opacity-40"
-            >
-              Anterior
-            </button>
-            <span className="text-sm text-muted-foreground">Página {page} de {totalPages}</span>
-            <button
-              type="button"
-              onClick={() => navigate({ page: page + 1 })}
-              disabled={page >= totalPages}
-              className="rounded-md border px-3 py-2 text-sm disabled:opacity-40"
-            >
-              Siguiente
-            </button>
-          </nav>
+            <nav className="mt-6 flex items-center justify-center gap-3" aria-label="Paginación">
+              <Button variant="outline" onClick={() => navigate({ page: page - 1 })} disabled={page <= 1}>
+                Anterior
+              </Button>
+              <span className="text-sm text-muted-foreground tabular-nums">
+                Página {page} de {totalPages}
+              </span>
+              <Button variant="outline" onClick={() => navigate({ page: page + 1 })} disabled={page >= totalPages}>
+                Siguiente
+              </Button>
+            </nav>
           )}
         </>
       )}

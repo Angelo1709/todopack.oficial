@@ -1,11 +1,14 @@
 import { db } from "@/lib/db"
 import { products } from "@/lib/db/schema"
-import { and, asc, count, eq, ilike } from "drizzle-orm"
+import { and, eq, ilike, sql } from "drizzle-orm"
 import { SiteHeader } from "@/components/site-header"
 import { Storefront } from "@/components/storefront/storefront"
 import { CATEGORY_ORDER } from "@/lib/categorize"
+import { articleKey, loadArticles } from "@/lib/catalog"
 
 export const dynamic = "force-dynamic"
+
+const PAGE_SIZE = 24
 
 export default async function HomePage({
   searchParams,
@@ -13,37 +16,41 @@ export default async function HomePage({
   searchParams: Promise<{ page?: string; q?: string; category?: string }>
 }) {
   const params = await searchParams
-  const pageSize = 24
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1)
-  const query = params.q?.trim() ?? ""
+  const query = params.q?.trim().slice(0, 100) ?? ""
   const category = params.category?.trim() ?? "Todos"
-  const filters = [
+  const where = and(
     eq(products.active, true),
-    ...(query ? [ilike(products.name, `%${query}%`)] : []),
-    ...(category !== "Todos" ? [eq(products.category, category)] : []),
-  ]
-  const where = and(...filters)
-  const [rows, [{ total }], categoryRows] = await Promise.all([
-    db
-      .select({
-        id: products.id,
-        name: products.name,
-        price: products.price,
-        category: products.category,
-        imageUrl: products.imageUrl,
-      })
-      .from(products)
-      .where(where)
-      .orderBy(asc(products.name))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
-    db.select({ total: count() }).from(products).where(where),
-    db.select({ category: products.category }).from(products).where(eq(products.active, true)),
-  ])
+    query ? ilike(products.name, `%${query.replace(/[\\%_]/g, "\\$&")}%`) : undefined,
+    category !== "Todos" ? eq(products.category, category) : undefined,
+  )
 
-  const totalProducts = Number(total)
-  const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize))
+  // Conteo de artículos (no de filas) y categorías con productos activos.
+  const [[{ total }], categoryRows] = await Promise.all([
+    db.select({ total: sql<number>`count(distinct ${articleKey})::int` }).from(products).where(where),
+    db.selectDistinct({ category: products.category }).from(products).where(eq(products.active, true)),
+  ])
+  const totalArticles = Number(total)
+  const totalPages = Math.max(1, Math.ceil(totalArticles / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
+
+  // Página de artículos que cumplen el filtro (alguna presentación coincide)...
+  const pageKeys = totalArticles
+    ? (
+        await db
+          .select({ key: articleKey })
+          .from(products)
+          .where(where)
+          .groupBy(articleKey)
+          .orderBy(sql`min(${products.name})`, articleKey)
+          .limit(PAGE_SIZE)
+          .offset((safePage - 1) * PAGE_SIZE)
+      ).map((r) => r.key)
+    : []
+
+  // ...con todas sus presentaciones activas (tramos de precio).
+  const articles = await loadArticles(pageKeys)
+
   const present = new Set(categoryRows.map((r) => r.category))
   const categories = CATEGORY_ORDER.filter((c) => present.has(c))
 
@@ -62,11 +69,11 @@ export default async function HomePage({
         </div>
       </section>
       <Storefront
-        products={rows}
+        articles={articles}
         categories={categories}
         page={safePage}
         totalPages={totalPages}
-        totalProducts={totalProducts}
+        totalArticles={totalArticles}
         query={query}
         selectedCategory={category}
       />
