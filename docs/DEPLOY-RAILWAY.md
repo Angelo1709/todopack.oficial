@@ -19,7 +19,8 @@ La app es un servicio Node (Next.js) + una base PostgreSQL de Railway. `railway.
    |---|---|
    | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (referencia a la base, red privada) |
    | `BETTER_AUTH_SECRET` | un secreto largo: `openssl rand -base64 32` |
-   | `ADMIN_EMAILS` | email(s) del dueño, separados por coma |
+   | `SUPERADMIN_EMAILS` | tu email: superadmin, puede crear usuarios desde el panel |
+   | `ADMIN_EMAILS` | opcional: emails que quedan como admin al registrarse |
    | `BETTER_AUTH_URL` | solo si usás dominio propio: `https://tudominio.com.ar` |
 
 5. Servicio de la app → **Settings** → **Networking** → **Generate Domain**. Sin `BETTER_AUTH_URL`, la app usa ese dominio (`RAILWAY_PUBLIC_DOMAIN`).
@@ -27,7 +28,8 @@ La app es un servicio Node (Next.js) + una base PostgreSQL de Railway. `railway.
 
 ## 2. Primeros pasos en la app
 
-1. Entrá a `/sign-up` y registrate con un email de `ADMIN_EMAILS`: esa cuenta queda como admin.
+1. Entrá a `/sign-up` y registrate con el email de `SUPERADMIN_EMAILS`: esa cuenta queda como superadmin.
+   Desde **Panel admin → Usuarios** creás la cuenta del dueño (rol Administrador) y le pasás los datos de acceso.
 2. **Panel admin → Configuración**: cargá el WhatsApp de la distribuidora (con código de país, ej. `5493415551234`), alias, CBU y titular. Son los datos que ve el cliente al pagar por transferencia.
 3. **Panel admin → Productos → Importar Excel**: subí la lista de precios. Cada vez que cambien los precios, se vuelve a importar el Excel: actualiza precios y agrega los productos nuevos.
 
@@ -46,6 +48,6 @@ Las variables se cargan desde el dashboard o con `railway variable set CLAVE=val
 ## Mantenimiento
 
 - **Migraciones**: cada cambio de esquema es un archivo nuevo `lib/db/migrations/NNNN_descripcion.sql`; se aplica solo en el próximo deploy.
-- **Dar admin a otra cuenta**: agregar su email a `ADMIN_EMAILS` antes de que se registre, o correr `pnpm make-admin email@x.com` dentro del servicio (`railway ssh`).
+- **Dar admin a otra cuenta**: desde **Panel admin → Usuarios** (superadmin), o correr `pnpm make-admin email@x.com` dentro del servicio (`railway ssh`).
 - **Backups**: la base de Railway tiene backups en su pestaña **Backups** (según el plan).
 - **Logs**: pestaña **Deployments** → **View logs** del servicio.

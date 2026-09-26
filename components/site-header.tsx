@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LogOut, Package, ShieldCheck, User as UserIcon } from "lucide-react"
+import { isAdminRole } from "@/lib/roles"
 
 export function SiteHeader() {
   const { data: session, isPending } = useSession()
@@ -80,7 +81,7 @@ export function SiteHeader() {
                 <DropdownMenuItem render={<Link href="/mis-pedidos" />}>
                   <Package className="size-4" /> Mis pedidos
                 </DropdownMenuItem>
-                {user.role === "admin" && (
+                {isAdminRole(user.role) && (
                   <DropdownMenuItem render={<Link href="/admin" />}>
                     <ShieldCheck className="size-4" /> Panel admin
                   </DropdownMenuItem>

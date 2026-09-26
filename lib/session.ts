@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { isAdminRole, isSuperadmin } from "@/lib/roles"
 
 export type SessionUser = {
   id: string
@@ -24,6 +25,12 @@ export async function requireUser(): Promise<SessionUser> {
 
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireUser()
-  if (user.role !== "admin") throw new Error("Forbidden")
+  if (!isAdminRole(user.role)) throw new Error("Forbidden")
+  return user
+}
+
+export async function requireSuperadmin(): Promise<SessionUser> {
+  const user = await requireUser()
+  if (!isSuperadmin(user.role)) throw new Error("Forbidden")
   return user
 }

@@ -45,8 +45,8 @@ No hay tests ni drizzle-kit. **Migraciones:** SQL a mano en `lib/db/migrations/N
 
 - `app/page.tsx` — catálogo público (búsqueda, filtro por categoría, paginación de 24).
 - `app/checkout`, `app/mis-pedidos` — compra y pedidos del cliente.
-- `app/admin/` — panel (layout con guard de rol + `AdminNav`): `/admin` pedidos, `/admin/productos` catálogo, `/admin/configuracion` WhatsApp y datos bancarios. Componentes en `components/admin/`.
-- `app/actions/` — server actions: `orders.ts` (cliente; `createOrder` acepta invitados), `admin-orders.ts` (pedidos, `requireAdmin()`), `catalog.ts` (productos, importación Excel, imágenes, `requireAdmin()`).
+- `app/admin/` — panel (layout con guard de rol + `AdminNav`): `/admin` pedidos, `/admin/productos` catálogo, `/admin/configuracion` WhatsApp y datos bancarios, `/admin/usuarios` (solo superadmin). Componentes en `components/admin/`.
+- `app/actions/` — server actions: `orders.ts` (cliente; `createOrder` acepta invitados), `admin-orders.ts` (pedidos, `requireAdmin()`), `catalog.ts` (productos, importación Excel, imágenes, `requireAdmin()`), `users.ts` (usuarios, `requireSuperadmin()`).
 - `app/api/health` — healthcheck de Railway (hace `SELECT 1`).
 - `components/cart/` — carrito en el cliente (context provider + sheet).
 - `lib/db/schema.ts` — tablas: `user`, `session`, `account`, `verification` (Better Auth, columnas camelCase obligatorias) y `products`, `orders`, `order_items`, `settings`.
@@ -62,7 +62,7 @@ No hay tests ni drizzle-kit. **Migraciones:** SQL a mano en `lib/db/migrations/N
 
 - Precios en **pesos enteros** (`integer`), sin centavos. Formatear con `formatPrice` (`lib/format.ts`); número de pedido con `formatOrderNumber` → `00201`.
 - **Presentaciones / packs:** `products.price` es el precio de la presentación completa y `pack_size` las unidades que incluye (1 = unidad). Productos con el mismo `group_key` son el mismo artículo en distintas presentaciones ("COCA COLA 1.5L UNIDAD" y "... PACK X6").
-- Roles: `customer` (default) y `admin`, en `user.role`. Admin: `ADMIN_EMAILS` al registrarse o `pnpm make-admin`.
+- Roles (`lib/roles.ts`, columna `user.role`): `customer` (default), `admin` (panel de pedidos y catálogo) y `superadmin` (además gestiona usuarios en `/admin/usuarios`: crear cuentas, cambiar rol admin/cliente, resetear contraseñas). Usar `isAdminRole()` / `requireAdmin()` y `requireSuperadmin()`, nunca comparar `role === "admin"`. `SUPERADMIN_EMAILS` da superadmin al registrarse y al iniciar sesión; `ADMIN_EMAILS` da admin al registrarse; `pnpm make-admin` promueve a admin.
 - Compra sin cuenta: `orders.userId` es null para invitados; `orders.public_token` permite ver el pedido sin sesión.
 - Pedido (`lib/order-status.ts`): transferencia `pendiente_validacion → pagado → entregado`; efectivo `pendiente_entrega → pagado` (se cobra al entregar); cualquiera no finalizado → `cancelado`. Franja `delivery_slot` = `mediodia | noche`. El comprobante de transferencia lo manda el cliente por WhatsApp (link con mensaje precargado con el número de pedido).
 - La fecha de entrega no puede ser pasada. Los ítems del pedido guardan copia de nombre, precio y pack al momento de compra.
@@ -70,7 +70,7 @@ No hay tests ni drizzle-kit. **Migraciones:** SQL a mano en `lib/db/migrations/N
 
 ## Variables de entorno
 
-Ver `.env.example`. Mínimo: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (en Railway se puede omitir: usa `RAILWAY_PUBLIC_DOMAIN`), `ADMIN_EMAILS`. `BLOB_READ_WRITE_TOKEN` es opcional. Nunca commitear `.env*` (salvo `.env.example`).
+Ver `.env.example`. Mínimo: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (en Railway se puede omitir: usa `RAILWAY_PUBLIC_DOMAIN`), `SUPERADMIN_EMAILS` (y opcional `ADMIN_EMAILS`). `BLOB_READ_WRITE_TOKEN` es opcional. Nunca commitear `.env*` (salvo `.env.example`).
 
 ## Convenciones
 
