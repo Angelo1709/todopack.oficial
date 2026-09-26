@@ -3,56 +3,410 @@
 import { db } from "@/lib/db"
 import { products } from "@/lib/db/schema"
 import { requireAdmin } from "@/lib/session"
-import { categorize } from "@/lib/categorize"
+import { categorize, isCategory } from "@/lib/categorize"
+import { normalizeGroupKey, parsePresentation, presentationLabel, unitPrice } from "@/lib/pack"
+import { nameKey } from "@/lib/price-list"
 import { persistImage } from "@/lib/storage"
-import { and, eq, sql } from "drizzle-orm"
+import { and, asc, eq, gt, ilike, isNull, ne, notInArray, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+
+// Los errores esperables se devuelven como { ok: false, error } (en producción Next oculta
+// el mensaje de las excepciones que salen de una server action).
+export type ActionResult<T = object> = ({ ok: true } & T) | { ok: false; error: string }
+
+const MAX_NAME = 200
+const MAX_PRICE = 100_000_000
+const MAX_PACK = 1000
+const MAX_IMPORT_ROWS = 5000
+
+function revalidateCatalog() {
+  revalidatePath("/")
+  revalidatePath("/admin/productos")
+}
+
+function likePattern(q: string) {
+  return `%${q.replace(/[\\%_]/g, "\\$&")}%`
+}
+
+function isUniqueViolation(e: unknown) {
+  const err = e as { code?: string; cause?: { code?: string } }
+  return err?.code === "23505" || err?.cause?.code === "23505"
+}
+
+// ---------------------------------------------------------------------------
+// Importación de la lista de precios (Excel)
+// ---------------------------------------------------------------------------
 
 export type ImportRow = { name: string; price: number }
 
-export async function importProducts(rows: ImportRow[]) {
-  await requireAdmin()
-  let inserted = 0
-  let updated = 0
-  let skipped = 0
+type CleanRow = { key: string; name: string; price: number }
 
-  for (const r of rows) {
-    const name = String(r.name || "").trim()
-    const price = Math.round(Number(r.price))
-    if (!name || !Number.isFinite(price) || price <= 0) {
+type ExistingProduct = {
+  id: number
+  name: string
+  price: number
+  active: boolean
+  category: string
+  packSize: number
+  groupKey: string | null
+}
+
+function cleanRows(rows: ImportRow[]): { rows: CleanRow[]; skipped: number } {
+  if (!Array.isArray(rows)) return { rows: [], skipped: 0 }
+  const byKey = new Map<string, CleanRow>()
+  let skipped = 0
+  for (const r of rows.slice(0, MAX_IMPORT_ROWS)) {
+    const name = String(r?.name ?? "").trim()
+    const price = Math.round(Number(r?.price))
+    if (!name || name.length > MAX_NAME || !Number.isFinite(price) || price <= 0 || price > MAX_PRICE) {
       skipped++
       continue
     }
-    const category = categorize(name)
-    const existing = await db
-      .select({ id: products.id })
-      .from(products)
-      .where(eq(products.name, name))
-      .limit(1)
-
-    if (existing.length) {
-      await db
-        .update(products)
-        .set({ price, category, active: true, updatedAt: new Date() })
-        .where(eq(products.id, existing[0].id))
-      updated++
-    } else {
-      await db.insert(products).values({ name, price, category })
-      inserted++
-    }
+    const key = nameKey(name)
+    if (byKey.has(key)) skipped++ // nombre repetido en la lista: vale la última fila
+    byKey.set(key, { key, name, price })
   }
-
-  revalidatePath("/")
-  revalidatePath("/admin")
-  return { inserted, updated, skipped, total: rows.length }
+  return { rows: [...byKey.values()], skipped: skipped + Math.max(0, rows.length - MAX_IMPORT_ROWS) }
 }
 
-export async function setProductActive(id: number, active: boolean) {
+async function loadExisting(executor: Pick<typeof db, "select"> = db): Promise<Map<string, ExistingProduct>> {
+  const rows = await executor
+    .select({
+      id: products.id,
+      name: products.name,
+      price: products.price,
+      active: products.active,
+      category: products.category,
+      packSize: products.packSize,
+      groupKey: products.groupKey,
+    })
+    .from(products)
+  return new Map(rows.map((p) => [nameKey(p.name), p]))
+}
+
+export type ImportPreviewStatus = "nuevo" | "actualiza" | "sin_cambios"
+
+export type ImportPreviewRow = {
+  name: string
+  price: number
+  status: ImportPreviewStatus
+  previousPrice: number | null
+  /** Existe pero estaba desactivado: se vuelve a activar. */
+  reactivates: boolean
+  /** Existe sin clasificar (group_key vacío): toma categoría y presentación detectadas. */
+  classifies: boolean
+  packSize: number
+  label: string
+  unitPrice: number
+  category: string
+}
+
+export type ImportPreview = {
+  rows: ImportPreviewRow[]
+  skipped: number
+  counts: Record<ImportPreviewStatus, number>
+  /** Productos activos que no están en la lista (se pueden desactivar). */
+  missingActive: number
+}
+
+/** Compara la lista contra la base sin modificar nada. */
+export async function previewImport(rows: ImportRow[]): Promise<ActionResult<ImportPreview>> {
   await requireAdmin()
-  await db.update(products).set({ active, updatedAt: new Date() }).where(eq(products.id, id))
-  revalidatePath("/")
-  revalidatePath("/admin")
+  const { rows: clean, skipped } = cleanRows(rows)
+  if (!clean.length) return { ok: false, error: "No encontramos filas con nombre y precio válidos." }
+
+  const existing = await loadExisting()
+  const matched = new Set<number>()
+  const counts: Record<ImportPreviewStatus, number> = { nuevo: 0, actualiza: 0, sin_cambios: 0 }
+
+  const previewRows = clean.map((r): ImportPreviewRow => {
+    const ex = existing.get(r.key)
+    if (ex) matched.add(ex.id)
+    const classifies = Boolean(ex && ex.groupKey === null)
+    // Para existentes ya clasificados se muestran sus valores (la importación no los cambia).
+    const detected = parsePresentation(ex?.name ?? r.name)
+    const packSize = ex && !classifies ? ex.packSize : detected.packSize
+    const category = ex && !classifies ? ex.category : categorize(ex?.name ?? r.name)
+    const status: ImportPreviewStatus = !ex
+      ? "nuevo"
+      : ex.price !== r.price || !ex.active || classifies
+        ? "actualiza"
+        : "sin_cambios"
+    counts[status]++
+    return {
+      name: r.name,
+      price: r.price,
+      status,
+      previousPrice: ex ? ex.price : null,
+      reactivates: Boolean(ex && !ex.active),
+      classifies,
+      packSize,
+      label: presentationLabel(ex?.name ?? r.name, packSize),
+      unitPrice: unitPrice(r.price, packSize),
+      category,
+    }
+  })
+
+  let missingActive = 0
+  for (const ex of existing.values()) if (ex.active && !matched.has(ex.id)) missingActive++
+
+  return { ok: true, rows: previewRows, skipped, counts, missingActive }
 }
+
+export type ImportResult = {
+  inserted: number
+  updated: number
+  unchanged: number
+  deactivated: number
+  skipped: number
+}
+
+/**
+ * Importa la lista en una transacción con upserts en lote:
+ * - nuevos: se insertan con categoría, pack y grupo detectados;
+ * - existentes: se actualiza el precio y se reactivan, sin pisar categoría, pack ni grupo
+ *   (pueden estar corregidos a mano), salvo los nunca clasificados (group_key NULL);
+ * - opcional: se desactivan los productos activos que no están en la lista.
+ */
+export async function importProducts(
+  rows: ImportRow[],
+  options: { deactivateMissing?: boolean } = {},
+): Promise<ActionResult<ImportResult>> {
+  await requireAdmin()
+  const { rows: clean, skipped } = cleanRows(rows)
+  if (!clean.length) return { ok: false, error: "No encontramos filas con nombre y precio válidos." }
+
+  const result = await db.transaction(async (tx) => {
+    const existing = await loadExisting(tx)
+    const values: (typeof products.$inferInsert)[] = []
+    const keepNames: string[] = []
+    let inserted = 0
+    let updated = 0
+    let unchanged = 0
+
+    for (const r of clean) {
+      const ex = existing.get(r.key)
+      // Si ya existe se usa el nombre de la base (puede diferir en espacios o mayúsculas).
+      const name = ex?.name ?? r.name
+      keepNames.push(name)
+      if (ex && ex.price === r.price && ex.active && ex.groupKey !== null) {
+        unchanged++
+        continue
+      }
+      if (ex) updated++
+      else inserted++
+      const detected = parsePresentation(name)
+      values.push({
+        name,
+        price: r.price,
+        category: categorize(name),
+        packSize: detected.packSize,
+        groupKey: detected.groupKey,
+      })
+    }
+
+    for (let i = 0; i < values.length; i += 500) {
+      await tx
+        .insert(products)
+        .values(values.slice(i, i + 500))
+        .onConflictDoUpdate({
+          target: products.name,
+          set: {
+            price: sql`excluded.price`,
+            active: true,
+            updatedAt: sql`now()`,
+            // Solo los nunca clasificados (group_key NULL) toman lo detectado.
+            category: sql`case when ${products.groupKey} is null then excluded.category else ${products.category} end`,
+            packSize: sql`case when ${products.groupKey} is null then excluded.pack_size else ${products.packSize} end`,
+            groupKey: sql`coalesce(${products.groupKey}, excluded.group_key)`,
+          },
+        })
+    }
+
+    let deactivated = 0
+    if (options.deactivateMissing) {
+      const off = await tx
+        .update(products)
+        .set({ active: false, updatedAt: new Date() })
+        .where(and(eq(products.active, true), notInArray(products.name, keepNames)))
+        .returning({ id: products.id })
+      deactivated = off.length
+    }
+
+    return { inserted, updated, unchanged, deactivated }
+  })
+
+  revalidateCatalog()
+  return { ok: true, ...result, skipped }
+}
+
+// ---------------------------------------------------------------------------
+// ABM de productos (no se borran: se desactivan)
+// ---------------------------------------------------------------------------
+
+export type ProductInput = {
+  id?: number | null
+  name: string
+  price: number
+  category: string
+  packSize: number
+  groupKey: string
+  imageUrl: string
+  active: boolean
+  /** Vincular con otro producto: toma su grupo. */
+  linkToId?: number | null
+}
+
+function validImageUrl(url: string) {
+  try {
+    const u = new URL(url)
+    return (u.protocol === "https:" || u.protocol === "http:") && url.length <= 2000
+  } catch {
+    return false
+  }
+}
+
+export async function saveProduct(input: ProductInput): Promise<ActionResult<{ id: number }>> {
+  await requireAdmin()
+
+  const id = input.id ? Number(input.id) : null
+  if (id !== null && (!Number.isInteger(id) || id <= 0)) return { ok: false, error: "Producto inválido." }
+  const name = String(input.name ?? "").trim()
+  if (!name) return { ok: false, error: "Escribí el nombre del producto." }
+  if (name.length > MAX_NAME) return { ok: false, error: `El nombre puede tener hasta ${MAX_NAME} caracteres.` }
+  const price = Number(input.price)
+  if (!Number.isInteger(price) || price <= 0 || price > MAX_PRICE) {
+    return { ok: false, error: "El precio tiene que ser un número entero mayor a 0 (en pesos, sin centavos)." }
+  }
+  const category = String(input.category ?? "")
+  if (!isCategory(category)) return { ok: false, error: "Elegí una categoría de la lista." }
+  const packSize = Number(input.packSize)
+  if (!Number.isInteger(packSize) || packSize < 1 || packSize > MAX_PACK) {
+    return { ok: false, error: `Las unidades por presentación van de 1 a ${MAX_PACK}.` }
+  }
+  const imageInput = String(input.imageUrl ?? "").trim()
+  if (imageInput && !validImageUrl(imageInput)) {
+    return { ok: false, error: "La URL de la imagen tiene que empezar con https:// (o http://)." }
+  }
+  const linkToId = input.linkToId ? Number(input.linkToId) : null
+
+  try {
+    const savedId = await db.transaction(async (tx) => {
+      const [current] = id
+        ? await tx.select({ id: products.id, imageUrl: products.imageUrl }).from(products).where(eq(products.id, id))
+        : []
+      if (id && !current) throw new Error("NOT_FOUND")
+
+      // El grupo nunca queda vacío: si no se indica, se calcula a partir del nombre.
+      let groupKey = normalizeGroupKey(input.groupKey ?? "")
+      if (linkToId) {
+        const [target] = await tx
+          .select({ id: products.id, name: products.name, groupKey: products.groupKey })
+          .from(products)
+          .where(eq(products.id, linkToId))
+        if (!target) throw new Error("LINK_NOT_FOUND")
+        groupKey = target.groupKey ?? parsePresentation(target.name).groupKey
+        if (!target.groupKey) {
+          await tx.update(products).set({ groupKey, updatedAt: new Date() }).where(eq(products.id, target.id))
+        }
+      }
+      if (!groupKey) groupKey = parsePresentation(name).groupKey || normalizeGroupKey(name)
+
+      let imageUrl: string | null = imageInput || null
+      if (imageUrl && imageUrl !== current?.imageUrl) {
+        imageUrl = await persistImage(imageUrl, `${id ?? "nuevo"}-${name}`)
+      }
+
+      const values = { name, price, category, packSize, groupKey, imageUrl, active: Boolean(input.active) }
+      if (id) {
+        await tx
+          .update(products)
+          .set({ ...values, updatedAt: new Date() })
+          .where(eq(products.id, id))
+        return id
+      }
+      const [row] = await tx.insert(products).values(values).returning({ id: products.id })
+      return row.id
+    })
+    revalidateCatalog()
+    return { ok: true, id: savedId }
+  } catch (e) {
+    if (isUniqueViolation(e)) return { ok: false, error: "Ya existe otro producto con ese nombre." }
+    const message = e instanceof Error ? e.message : ""
+    if (message === "NOT_FOUND") return { ok: false, error: "El producto ya no existe." }
+    if (message === "LINK_NOT_FOUND") return { ok: false, error: "No encontramos el producto a vincular." }
+    if (message === "La URL no devolvió una imagen") return { ok: false, error: "La URL no devolvió una imagen." }
+    throw e
+  }
+}
+
+export async function setProductActive(id: number, active: boolean): Promise<ActionResult> {
+  await requireAdmin()
+  if (!Number.isInteger(id) || id <= 0) return { ok: false, error: "Producto inválido." }
+  const rows = await db
+    .update(products)
+    .set({ active: Boolean(active), updatedAt: new Date() })
+    .where(eq(products.id, id))
+    .returning({ id: products.id })
+  if (!rows.length) return { ok: false, error: "El producto ya no existe." }
+  revalidateCatalog()
+  return { ok: true }
+}
+
+export type ProductOption = {
+  id: number
+  name: string
+  price: number
+  packSize: number
+  label: string
+  groupKey: string | null
+  active: boolean
+}
+
+function toOption(p: Omit<ProductOption, "label">): ProductOption {
+  return { ...p, label: presentationLabel(p.name, p.packSize) }
+}
+
+const optionColumns = {
+  id: products.id,
+  name: products.name,
+  price: products.price,
+  packSize: products.packSize,
+  groupKey: products.groupKey,
+  active: products.active,
+}
+
+/** Buscador para "vincular con otro producto". */
+export async function searchProductsForLink(query: string, excludeId?: number | null): Promise<ProductOption[]> {
+  await requireAdmin()
+  const q = String(query ?? "").trim()
+  if (q.length < 2) return []
+  const rows = await db
+    .select(optionColumns)
+    .from(products)
+    .where(and(ilike(products.name, likePattern(q)), excludeId ? ne(products.id, Number(excludeId)) : undefined))
+    .orderBy(asc(products.name))
+    .limit(8)
+  return rows.map(toOption)
+}
+
+/** Presentaciones de un grupo (para ver en el diálogo de edición). */
+export async function getProductGroup(groupKey: string): Promise<ProductOption[]> {
+  await requireAdmin()
+  const key = normalizeGroupKey(groupKey ?? "")
+  if (!key) return []
+  const rows = await db
+    .select(optionColumns)
+    .from(products)
+    .where(eq(products.groupKey, key))
+    .orderBy(asc(products.packSize), asc(products.price))
+    .limit(30)
+  return rows.map(toOption)
+}
+
+// ---------------------------------------------------------------------------
+// Búsqueda automática de imágenes
+// ---------------------------------------------------------------------------
 
 const imageHeaders = { "User-Agent": "TodoPack product catalog importer/1.0 (admin tool)" }
 
@@ -106,13 +460,27 @@ async function findProductImage(name: string) {
   return match?.imageinfo?.[0]?.thumburl ?? null
 }
 
-export async function importMissingProductImages(batchSize = 20) {
+/**
+ * Busca imágenes para un lote de productos activos sin imagen con id > afterId.
+ * El cliente guarda el cursor (nextAfterId) para no reintentar siempre los mismos sin resultado.
+ */
+export type ImageBatchResult = {
+  scanned: number
+  imported: Array<{ id: number; name: string }>
+  notFound: Array<{ id: number; name: string }>
+  /** Cursor para el próximo lote (0 = volver a empezar). */
+  nextAfterId: number
+  done: boolean
+}
+
+export async function importMissingProductImages(batchSize = 20, afterId = 0): Promise<ActionResult<ImageBatchResult>> {
   await requireAdmin()
   const safeBatchSize = Math.min(Math.max(Math.floor(batchSize), 1), 30)
+  const cursor = Number.isInteger(afterId) && afterId > 0 ? afterId : 0
   const missing = await db
     .select({ id: products.id, name: products.name })
     .from(products)
-    .where(and(eq(products.active, true), sql`${products.imageUrl} IS NULL`))
+    .where(and(eq(products.active, true), isNull(products.imageUrl), gt(products.id, cursor)))
     .orderBy(products.id)
     .limit(safeBatchSize)
 
@@ -121,7 +489,8 @@ export async function importMissingProductImages(batchSize = 20) {
 
   for (const product of missing) {
     try {
-      const sourceUrl = await findProductImage(product.name)
+      // Se busca por el nombre sin la presentación ("COCA COLA 1.5L", no "... PACK X6").
+      const sourceUrl = await findProductImage(parsePresentation(product.name).baseName)
       if (!sourceUrl) {
         notFound.push(product)
         continue
@@ -130,14 +499,21 @@ export async function importMissingProductImages(batchSize = 20) {
       await db
         .update(products)
         .set({ imageUrl, updatedAt: new Date() })
-        .where(and(eq(products.id, product.id), sql`${products.imageUrl} IS NULL`))
+        .where(and(eq(products.id, product.id), isNull(products.imageUrl)))
       imported.push(product)
     } catch {
       notFound.push(product)
     }
   }
 
-  revalidatePath("/")
-  revalidatePath("/admin")
-  return { scanned: missing.length, imported, notFound, remaining: missing.length === safeBatchSize }
+  if (imported.length) revalidateCatalog()
+  const done = missing.length < safeBatchSize
+  return {
+    ok: true,
+    scanned: missing.length,
+    imported,
+    notFound,
+    nextAfterId: done ? 0 : missing[missing.length - 1].id,
+    done,
+  }
 }

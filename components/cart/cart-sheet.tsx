@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useCart } from "@/components/cart/cart-provider"
+import { useCart, type CartItem } from "@/components/cart/cart-provider"
 import { formatPrice } from "@/lib/format"
 import {
   Sheet,
@@ -15,6 +15,26 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react"
+
+/** "Pack x6 · 12 u." + precio por pack y por unidad; en unidades sueltas solo "$ 1.100 c/u". */
+function ItemPresentation({ item }: { item: CartItem }) {
+  const packSize = item.packSize ?? 1
+  if (packSize <= 1) {
+    return <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">{formatPrice(item.price)} c/u</p>
+  }
+  const label = item.presentation || `Pack x${packSize}`
+  const word = label.split(" ")[0].toLowerCase()
+  return (
+    <>
+      <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
+        <span className="font-medium text-foreground">{label}</span> · {packSize * item.quantity} u.
+      </p>
+      <p className="text-xs text-muted-foreground tabular-nums">
+        {formatPrice(item.price)} c/{word} · ≈ {formatPrice(Math.round(item.price / packSize))} c/u
+      </p>
+    </>
+  )
+}
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -45,7 +65,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                 <li key={item.id} className="flex gap-3 rounded-lg border border-border p-2">
                   <div className="min-w-0 flex-1">
                     <p className="line-clamp-2 text-sm font-medium leading-tight">{item.name}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{formatPrice(item.price)} c/u</p>
+                    <ItemPresentation item={item} />
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex items-center rounded-md border border-border">
                         <button

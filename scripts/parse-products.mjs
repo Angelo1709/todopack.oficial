@@ -3,7 +3,7 @@
 // Usa la misma lógica que la importación del admin (lib/price-list.ts, lib/pack.ts, lib/categorize.ts).
 import { read, utils } from "xlsx"
 import { readFileSync, writeFileSync } from "node:fs"
-import { extractPriceRows } from "../lib/price-list.ts"
+import { extractPriceRows, nameKey } from "../lib/price-list.ts"
 import { parsePresentation } from "../lib/pack.ts"
 import { categorize } from "../lib/categorize.ts"
 
@@ -15,7 +15,7 @@ const { rows, skipped, headerRow } = extractPriceRows(utils.sheet_to_json(sheet,
 const byName = new Map()
 for (const { name, price } of rows) {
   const { packSize, groupKey } = parsePresentation(name)
-  byName.set(name.toUpperCase(), { name, price, category: categorize(name), packSize, groupKey })
+  byName.set(nameKey(name), { name, price, category: categorize(name), packSize, groupKey })
 }
 const products = [...byName.values()]
 const duplicates = rows.length - products.length

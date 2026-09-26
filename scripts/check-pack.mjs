@@ -76,6 +76,7 @@ const CATEGORIES = [
   ["SODA MANAOS X12", "Aguas"],
   ["MANAOS COLA 3L PACK X6", "Gaseosas"],
   ["ACEITUNA VERDE ENTERA 180GR UNIDAD", "Almacén"],
+  ["ZUELO ACEITE OLIVA ORIGINAL 500ML UNIDAD", "Almacén"], // "original" contiene "gin"
   ["AYUDIN LAVANDINA 2L ORIGINAL UNIDAD", "Limpieza"],
   ["FANTASIA TURRON BAÑADO 80GR UNIDAD", "Snacks y Golosinas"],
   ["TANG POMELO ROSADO JUGO EN POLVO CAJA X20 SOBRES", "Jugos e Isotónicas"],

@@ -36,9 +36,16 @@ export function parsePrice(raw: unknown): number {
   return Math.round(Number(normalized))
 }
 
+// El nombre se guarda tal cual viene (solo trim): es la clave con la que se reconoce el producto
+// en la base, y los productos ya cargados conservan los espacios dobles de la lista.
 function cellText(value: unknown): string {
   if (value === null || value === undefined) return ""
-  return String(value).replace(/\s+/g, " ").trim()
+  return String(value).trim()
+}
+
+/** Clave para comparar nombres sin importar espacios ni mayúsculas. */
+export function nameKey(name: string): string {
+  return String(name ?? "").replace(/\s+/g, " ").trim().toUpperCase()
 }
 
 function findHeader(rows: unknown[][]): { headerRow: number; nameCol: number; priceCol: number } | null {
