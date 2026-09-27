@@ -5,7 +5,7 @@ import type { AdminOrder } from "@/lib/admin-orders-utils"
 import { isFinalStatus, type DeliverySlot } from "@/lib/order-status"
 import {
   ROUTE_PLACE_LABEL,
-  googleMapsRouteUrls,
+  googleMapsTripUrls,
   planRoute,
   type LatLng,
   type RouteConfig,
@@ -81,7 +81,6 @@ export function buildDeliveryRoute(orders: AdminOrder[], slot: DeliverySlot, con
     location: located[index].location,
     legKm: plan.legsKm[i],
   }))
-  const points = [start.location, ...stops.map((s) => s.location), ...(end ? [end.location] : [])]
 
   return {
     ...base,
@@ -91,6 +90,13 @@ export function buildDeliveryRoute(orders: AdminOrder[], slot: DeliverySlot, con
     stops,
     returnKm: end && stops.length > 0 ? plan.legsKm[plan.legsKm.length - 1] : null,
     totalKm: stops.length > 0 ? plan.totalKm : 0,
-    mapsUrls: stops.length > 0 ? googleMapsRouteUrls(points) : [],
+    mapsUrls:
+      stops.length > 0
+        ? googleMapsTripUrls(
+            start.location,
+            stops.map((s) => s.location),
+            end?.location ?? null,
+          )
+        : [],
   }
 }

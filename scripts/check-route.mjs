@@ -6,6 +6,7 @@ import {
   distanceKm,
   formatKm,
   googleMapsRouteUrls,
+  googleMapsTripUrls,
   isShortMapsLink,
   parseLatLng,
   planRoute,
@@ -250,6 +251,30 @@ check(`Google Maps: hasta ${MAPS_MAX_WAYPOINTS} paradas intermedias por link`, (
   assert.equal(new URL(two[1]).searchParams.get("origin"), new URL(two[0]).searchParams.get("destination"))
   assert.equal(googleMapsRouteUrls(pts(21)).length, 2)
   assert.equal(googleMapsRouteUrls(pts(22)).length, 3)
+})
+
+check("la vuelta final entra en el link sólo si no suma otro tramo", () => {
+  const stops = (k) => Array.from({ length: k }, (_, i) => at(i + 1))
+  const start = at(0)
+  const end = at(-1)
+  const dest = (url) => new URL(url).searchParams.get("destination")
+  const fmt = (p) => `${p.lat.toFixed(6)},${p.lng.toFixed(6)}`
+  // 9 paradas + vuelta = 11 puntos: un link que termina en la llegada.
+  const nine = googleMapsTripUrls(start, stops(9), end)
+  assert.equal(nine.length, 1)
+  assert.equal(dest(nine[0]), fmt(end))
+  // 10 paradas: con la vuelta serían 2 links; sin ella, 1 que termina en la última entrega.
+  const ten = googleMapsTripUrls(start, stops(10), end)
+  assert.equal(ten.length, 1)
+  assert.equal(dest(ten[0]), fmt(stops(10)[9]))
+  // 20 paradas (un día completo en una franja): 2 links en vez de 3.
+  assert.equal(googleMapsTripUrls(start, stops(20), end).length, 2)
+  // 18 paradas: la vuelta entra sin sumar tramos.
+  const eighteen = googleMapsTripUrls(start, stops(18), end)
+  assert.equal(eighteen.length, 2)
+  assert.equal(dest(eighteen[1]), fmt(end))
+  // Sin vuelta configurada ("última entrega").
+  assert.equal(dest(googleMapsTripUrls(start, stops(3), null)[0]), fmt(stops(3)[2]))
 })
 
 check("formato de distancias", () => {

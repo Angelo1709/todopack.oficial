@@ -369,6 +369,17 @@ export function googleMapsRouteUrls(points: LatLng[]): string[] {
   return urls
 }
 
+/**
+ * Links del recorrido: salida, paradas y llegada. La vuelta final a `end` entra sólo si no obliga a abrir
+ * un link más (el camino de regreso el repartidor ya lo conoce).
+ */
+export function googleMapsTripUrls(start: LatLng, stops: LatLng[], end: LatLng | null): string[] {
+  const outbound = googleMapsRouteUrls([start, ...stops])
+  if (!end) return outbound
+  const full = googleMapsRouteUrls([start, ...stops, end])
+  return full.length > outbound.length ? outbound : full
+}
+
 /** "Cómo llegar" desde donde esté el repartidor hasta `p`. */
 export function googleMapsDirectionsUrl(p: LatLng): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${coords(p)}&travelmode=driving`
