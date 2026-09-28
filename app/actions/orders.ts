@@ -131,14 +131,18 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
   // Presentaciones y precios desde la base: nunca confiar en los del cliente.
   const articles = await loadArticlesForProducts(ids)
 
-  const unavailableIds = ids.filter((id) => !articles.has(id))
+  // Dados de baja, o sin stock en ninguna presentación (con el stock activo en la tienda).
+  const unavailableIds = ids.filter((id) => !articles.get(id)?.available)
   if (unavailableIds.length) {
+    const noStock = unavailableIds.filter((id) => articles.has(id)).map((id) => articles.get(id)!.name)
     return {
       ok: false,
       error:
-        unavailableIds.length === ids.length
-          ? "Los productos de tu carrito ya no están disponibles"
-          : "Algunos productos ya no están disponibles y los sacamos del carrito. Revisá el pedido y confirmá de nuevo.",
+        noStock.length === unavailableIds.length
+          ? `Nos quedamos sin stock de ${noStock.join(", ")} y ${noStock.length > 1 ? "los" : "lo"} sacamos del carrito. Revisá el pedido y confirmá de nuevo.`
+          : unavailableIds.length === ids.length
+            ? "Los productos de tu carrito ya no están disponibles"
+            : "Algunos productos ya no están disponibles y los sacamos del carrito. Revisá el pedido y confirmá de nuevo.",
       field: "items",
       unavailableIds,
     }

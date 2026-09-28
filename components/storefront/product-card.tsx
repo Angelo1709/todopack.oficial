@@ -16,6 +16,8 @@ export type StoreArticle = {
   category: string
   imageUrl: string | null
   tiers: Tier[]
+  /** false = sin stock en ninguna presentación (sólo con el stock activo en la tienda). */
+  available: boolean
 }
 
 export function ProductCard({ article }: { article: StoreArticle }) {
@@ -43,13 +45,22 @@ export function ProductCard({ article }: { article: StoreArticle }) {
         <span className="absolute left-2 top-2 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur">
           {article.category}
         </span>
+        {!article.available && (
+          <span className="absolute right-2 top-2 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-medium text-destructive backdrop-blur">
+            Sin stock
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-3">
         <p className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-tight">{article.name}</p>
         <TierPrices tiers={article.tiers} />
 
         <div className="mt-auto flex flex-col gap-2 pt-1">
-          {units > 0 ? (
+          {!article.available && units === 0 ? (
+            <Button size="sm" variant="outline" disabled className="h-8 w-full">
+              Sin stock
+            </Button>
+          ) : units > 0 ? (
             <>
               <QuantityStepper
                 value={units}

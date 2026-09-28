@@ -66,3 +66,30 @@ function routeConfigFrom(values: RouteSettingsValues): RouteConfig {
 export async function getRouteConfig(): Promise<RouteConfig> {
   return routeConfigFrom(await getRouteSettings())
 }
+
+// ---- Sincronización con el sistema del local (pantalla /admin/sistema) ----
+
+export const SYNC_SETTINGS_DEFAULTS = {
+  // Mientras está en "false" el stock sólo se ve en el panel; la tienda vende todo.
+  stockInStore: "false",
+  // El precio de la tienda lo manda el sistema del local (neto + IVA).
+  pricesFromSystem: "true",
+  // SHA-256 (hex) de la clave que usa el script de la PC. Vacía = sincronización desactivada.
+  syncKeyHash: "",
+} as const
+
+export type SyncSettingKey = keyof typeof SYNC_SETTINGS_DEFAULTS
+export const SYNC_SETTING_KEYS = Object.keys(SYNC_SETTINGS_DEFAULTS) as SyncSettingKey[]
+
+export type SyncConfig = { stockInStore: boolean; pricesFromSystem: boolean; syncKeyHash: string }
+
+export async function getSyncConfig(): Promise<SyncConfig> {
+  const rows = await db.select().from(settings).where(inArray(settings.key, SYNC_SETTING_KEYS))
+  const values: Record<SyncSettingKey, string> = { ...SYNC_SETTINGS_DEFAULTS }
+  for (const row of rows) values[row.key as SyncSettingKey] = row.value
+  return {
+    stockInStore: values.stockInStore === "true",
+    pricesFromSystem: values.pricesFromSystem === "true",
+    syncKeyHash: values.syncKeyHash,
+  }
+}

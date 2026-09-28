@@ -1,0 +1,6 @@
+# Ejemplo. El config.txt de verdad se descarga desde el panel de la tienda:
+# Sistema del local > Clave de la PC del local > Generar clave > Descargar config.txt
+URL=https://tu-tienda.up.railway.app/api/sistema/sincronizar
+CLAVE=la-clave-que-da-el-panel
+# Ruta de la base del sistema. Vacia = se busca sola (C:\Gestion\Gestion.mdb y otras ubicaciones comunes).
+BASE=

@@ -138,6 +138,42 @@ export const settings = pgTable("settings", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
+// ---- Sincronización con el sistema de gestión del local (ver lib/stock-sync.ts) ----
+
+/** Artículos del sistema del local tal como llegaron en la última sincronización. */
+export const systemArticles = pgTable("system_articles", {
+  systemId: integer("system_id").primaryKey(), // IdArticulo del sistema
+  code: text("code").notNull().default(""),
+  name: text("name").notNull(),
+  netPrice: doublePrecision("net_price").notNull(), // sin IVA
+  iva: doublePrecision("iva").notNull(), // alícuota en %
+  price: integer("price").notNull(), // final con IVA, pesos enteros
+  stock: integer("stock").notNull(),
+  // Presentación de la tienda vinculada (una por artículo). linkSource: 'nombre' | 'manual' | 'desvinculado'
+  // (el admin sacó el vínculo: sin producto y no se vuelve a vincular solo por nombre).
+  productId: integer("product_id")
+    .unique()
+    .references(() => products.id, { onDelete: "set null" }),
+  linkSource: text("link_source"),
+  seenAt: timestamp("seen_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+/** Una fila por sincronización recibida. */
+export const stockSyncs = pgTable(
+  "stock_syncs",
+  {
+    id: serial("id").primaryKey(),
+    receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+    source: text("source").notNull().default(""),
+    articles: integer("articles").notNull(),
+    linked: integer("linked").notNull(),
+    newLinks: integer("new_links").notNull(),
+    pricesUpdated: integer("prices_updated").notNull(),
+  },
+  (t) => [index("stock_syncs_received_idx").on(t.receivedAt)],
+)
+
 export type Product = typeof products.$inferSelect
 export type Order = typeof orders.$inferSelect
 export type OrderItem = typeof orderItems.$inferSelect

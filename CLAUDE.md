@@ -25,7 +25,7 @@ pnpm db:migrate     # aplica lib/db/migrations/*.sql pendientes
 pnpm db:seed        # carga data/products.json
 pnpm dev            # http://localhost:3000
 pnpm typecheck      # tsc --noEmit (el build también falla con errores de tipos)
-pnpm check          # verificaciones de packs/categorías, precios por tramos y recorrido de reparto
+pnpm check          # verificaciones de packs/categorías, precios por tramos, recorrido y sincronización
 pnpm build
 pnpm make-admin email@x.com   # o registrarse con un email listado en ADMIN_EMAILS
 ```
@@ -49,6 +49,8 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 - `app/admin/` — panel (layout con guard de rol + `AdminNav`): `/admin` pedidos, `/admin/productos` catálogo, `/admin/configuracion` WhatsApp, datos bancarios y salida/llegada del recorrido, `/admin/usuarios` (solo superadmin). Componentes en `components/admin/`.
 - `app/actions/` — server actions: `orders.ts` (cliente; `createOrder` acepta invitados), `admin-orders.ts` (pedidos, `requireAdmin()`), `catalog.ts` (productos, importación Excel, imágenes, `requireAdmin()`), `users.ts` (usuarios, `requireSuperadmin()`), `reparto.ts` (recorrido: buscar ubicaciones, corregir la de un pedido, salida/llegada; `requireAdmin()`). Ojo: un archivo `route.ts` dentro de `app/` es un Route Handler, no usar ese nombre para acciones.
 - `app/api/health` — healthcheck de Railway (hace `SELECT 1`).
+- `app/api/sistema/sincronizar` — recibe stock y precios del sistema de gestión del local (ver Reglas de negocio). `app/admin/sistema` es su pantalla en el panel y `app/actions/sistema.ts` sus acciones.
+- `tools/sincronizador-pc/` — lo que se instala en la PC Windows del local (PowerShell + .bat). Se guardan con CRLF y BOM (`.gitattributes`): no convertirlos.
 - `components/cart/` — carrito en el cliente (context provider + sheet).
 - `lib/db/schema.ts` — tablas: `user`, `session`, `account`, `verification` (Better Auth, columnas camelCase obligatorias) y `products`, `orders`, `order_items`, `settings`.
 - `lib/order-status.ts` — estados, franjas, medios de pago, etiquetas y transiciones permitidas. Único lugar donde se definen.
@@ -61,6 +63,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 - `lib/price-list.ts` — lee la lista de precios Excel (detecta columnas). `lib/categorize.ts` — categorías por palabras clave.
   Estos `lib/*.ts` los importan también los scripts `.mjs` (Node 24 ejecuta TS quitando tipos): sin alias `@/` ni sintaxis TS no borrable.
 - `lib/categories.ts` — slug e imagen de respaldo por categoría (`public/categories/*.png`).
+- `lib/stock-sync.ts` — **sincronización con el sistema del local** (puro, lo importa `scripts/check-sync.mjs`): valida lo que manda la PC, precio final (neto + IVA), repara nombres mal codificados ("CAÃ‘A" -> "CAÑA") y empareja por nombre. `lib/system-sync.ts` lo aplica en la base (clave como hash SHA-256 en `settings.syncKeyHash`).
 - `lib/route.ts` — **recorrido de reparto** (puro, lo importa `scripts/check-route.mjs`): distancias, orden de visita que minimiza los km (exacto hasta 12 paradas, aproximado con más), lectura de coordenadas/links pegados y links de Google Maps. `lib/delivery-route.ts` arma el recorrido de una franja; `lib/geocode.ts` busca direcciones en Nominatim (OpenStreetMap, gratis: máx. 1 pedido/s); `lib/order-location.ts` guarda la ubicación de cada pedido.
 - `data/` — Excel de lista de precios y `products.json` generado.
 
@@ -74,6 +77,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 - Compra sin cuenta: `orders.userId` es null para invitados; `orders.public_token` permite ver el pedido sin sesión.
 - Pedido (`lib/order-status.ts`): transferencia `pendiente_validacion → pagado → entregado`; efectivo `pendiente_entrega → pagado` (se cobra al entregar); cualquiera no finalizado → `cancelado`. Franja `delivery_slot` = `mediodia | noche`. El comprobante de transferencia lo manda el cliente por WhatsApp (link con mensaje precargado con el número de pedido).
 - **Recorrido de reparto** (pestaña Recorrido del panel, un solo vehículo): sale del local o del depósito y termina en uno de los dos o en la última entrega (`/admin/configuracion`, claves `route*`/`local*`/`depot*` de `settings`). Entran los pedidos todavía por entregar (`!isFinalStatus`). Cada pedido se ubica una sola vez (`orders.lat/lng/location_status`): al crearlo (`after()`), reusando la de otro pedido con la misma dirección, o a mano desde el panel. Distancias en línea recta.
+- **Stock y precios del sistema del local** (programa de escritorio VB6 con base Access, en la PC del local): `tools/sincronizador-pc/sincronizar.ps1` lee `Articulos` + `Iva` de `Gestion.mdb` en sólo lectura cada 10 minutos y los manda a `/api/sistema/sincronizar` (`Authorization: Bearer <clave>`; `?prueba=1` no guarda). Se guarda una copia en `system_articles` (vinculada a una presentación de `products`: por nombre normalizado, o a mano desde el panel; `link_source = 'desvinculado'` impide que se vuelva a vincular solo) y un registro en `stock_syncs`. Con `pricesFromSystem` el precio de los productos vinculados lo pisa el del sistema (una edición a mano o una importación de Excel dura hasta la próxima sincronización). Con `stockInStore` (arranca apagado) `lib/catalog.ts` ofrece sólo las presentaciones con stock > 0, el artículo sin ninguna se muestra "Sin stock" y `createOrder` lo rechaza; los productos sin vincular se venden sin control de stock.
 - La fecha de entrega no puede ser pasada. Los ítems del pedido guardan copia de nombre, precio y pack al momento de compra.
 - Los productos no se borran: se desactivan con `active = false`.
 

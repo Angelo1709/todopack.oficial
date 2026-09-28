@@ -1,0 +1,2 @@
+# Archivos para la PC Windows del local: se guardan tal cual (saltos CRLF y BOM en los .ps1).
+tools/sincronizador-pc/** -text

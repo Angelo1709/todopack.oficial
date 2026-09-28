@@ -1,0 +1,54 @@
+﻿SINCRONIZADOR TODO PACK
+=======================
+
+Qué hace
+--------
+Cada 10 minutos lee de la base del sistema de gestión del local (Gestion.mdb) el nombre, el código,
+el precio y el stock de cada artículo, y los manda a la tienda online.
+
+- La base se abre SÓLO PARA LEER: no modifica nada del sistema y puede estar abierto mientras tanto.
+- No manda clientes, ventas, caja ni datos fiscales: sólo artículos, precios y stock.
+- Corre oculto: no aparece nada en la pantalla de la caja.
+
+
+Instalación (una sola vez, en la PC del local)
+----------------------------------------------
+1. Copiá esta carpeta a la PC del local, por ejemplo en C:\TodoPack-Sincronizador
+
+2. En el panel de la tienda entrá a "Sistema del local" > "Clave de la PC del local",
+   tocá "Generar clave" y "Descargar config.txt". Copiá ese config.txt dentro de esta carpeta.
+
+3. Doble clic en probar.bat
+   Tiene que decir "Conexión con la tienda: OK" y cuántos artículos leyó.
+   No cambia nada en la tienda. Si da error, mirá "Problemas comunes" abajo.
+
+4. Doble clic en instalar.bat y aceptá el permiso de administrador.
+   Al final muestra el resultado de la primera sincronización.
+
+5. En el panel de la tienda, "Sistema del local" tiene que decir "Última sincronización: hace ... min".
+
+
+Otros archivos
+--------------
+sincronizar-ahora.bat   Sincroniza en este momento y muestra el resultado.
+desinstalar.bat         Saca la tarea programada.
+sincronizador.log       Registro de cada sincronización (OK o ERROR con el motivo).
+
+
+Problemas comunes
+-----------------
+"No encontré Gestion.mdb"
+    Abrí config.txt con el Bloc de notas y completá la línea BASE con la ruta de la base,
+    por ejemplo: BASE=C:\Gestion\Gestion.mdb
+
+"Clave inválida"
+    La clave cambió en el panel (se generó otra). Descargá el config.txt nuevo y reemplazalo.
+
+"No se puede conectar con el servidor remoto" / errores de conexión
+    Revisá que la PC tenga internet. Si pasa siempre, avisá a quien administra la tienda.
+
+"El proveedor 'Microsoft.Jet.OLEDB.4.0' no está registrado"
+    Corré los .bat de esta carpeta (usan la PowerShell de 32 bits, que es la que tiene ese motor).
+
+Si la PC está apagada o sin internet, la tienda sigue funcionando con los últimos datos que recibió,
+y el panel avisa que hace rato que no llegan datos.
