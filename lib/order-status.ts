@@ -19,6 +19,10 @@ export const ORDER_STATUSES = [
 ] as const
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
+/** Dónde se generó el pedido: la tienda web o el panel (cargado a mano por un admin). */
+export const ORDER_ORIGINS = ["web", "manual"] as const
+export type OrderOrigin = (typeof ORDER_ORIGINS)[number]
+
 export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
   efectivo: "Efectivo",
   transferencia: "Transferencia",
@@ -48,6 +52,10 @@ export function isPaymentMethod(value: unknown): value is PaymentMethod {
 
 export function isDeliverySlot(value: unknown): value is DeliverySlot {
   return DELIVERY_SLOTS.includes(value as DeliverySlot)
+}
+
+export function isOrderOrigin(value: unknown): value is OrderOrigin {
+  return ORDER_ORIGINS.includes(value as OrderOrigin)
 }
 
 export function isOrderStatus(value: unknown): value is OrderStatus {

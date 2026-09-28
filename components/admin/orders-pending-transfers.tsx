@@ -87,16 +87,18 @@ function PendingTransferRow({ transfer: t, today }: { transfer: PendingTransfer;
       </div>
       <span className="text-sm font-bold tabular-nums">{formatPrice(t.total)}</span>
       <div className="flex w-full gap-2 sm:w-auto">
-        <Button
-          variant="outline"
-          size="icon-lg"
-          className="shrink-0 sm:size-8"
-          render={<a href={customerWhatsAppUrl(t)} target="_blank" rel="noreferrer" />}
-          nativeButton={false}
-          aria-label={`Escribirle a ${t.customerName} por WhatsApp`}
-        >
-          <MessageCircle />
-        </Button>
+        {t.phone && (
+          <Button
+            variant="outline"
+            size="icon-lg"
+            className="shrink-0 sm:size-8"
+            render={<a href={customerWhatsAppUrl(t)} target="_blank" rel="noreferrer" />}
+            nativeButton={false}
+            aria-label={`Escribirle a ${t.customerName} por WhatsApp`}
+          >
+            <MessageCircle />
+          </Button>
+        )}
         <Button className="h-9 flex-1 px-3 sm:h-8 sm:flex-none" disabled={pending} onClick={() => run(t.id, "pagado")}>
           {pending && <Spinner aria-label="Validando" />}
           {pending ? "Validando..." : transitionLabel("transferencia", "pagado")}

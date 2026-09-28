@@ -7,6 +7,7 @@ import {
   isDeliverySlot,
   isFinalStatus,
   type DeliverySlot,
+  type OrderOrigin,
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/order-status"
@@ -26,7 +27,12 @@ export type AdminOrderItem = {
 export type AdminOrder = {
   id: number
   customerName: string
+  /** Compró en la web sin cuenta. */
   isGuest: boolean
+  origin: OrderOrigin
+  /** Admin que cargó el pedido manual. */
+  createdByName: string | null
+  /** Puede venir vacío en los pedidos manuales. */
   phone: string
   address: string
   deliveryDate: string
