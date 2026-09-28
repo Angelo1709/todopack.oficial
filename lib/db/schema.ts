@@ -7,6 +7,7 @@ import {
   integer,
   date,
   index,
+  doublePrecision,
 } from "drizzle-orm/pg-core"
 
 // Cualquier cambio acá necesita su migración SQL en lib/db/migrations/.
@@ -104,6 +105,11 @@ export const orders = pgTable(
     status: text("status").notNull(), // ver ORDER_STATUSES en lib/order-status.ts
     total: integer("total").notNull(),
     notes: text("notes"),
+    // Ubicación de la entrega para el recorrido. locationStatus: ver LOCATION_STATUSES en lib/route.ts
+    // (null = todavía no se buscó).
+    lat: doublePrecision("lat"),
+    lng: doublePrecision("lng"),
+    locationStatus: text("location_status"),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

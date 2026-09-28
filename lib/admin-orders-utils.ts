@@ -10,6 +10,7 @@ import {
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/order-status"
+import type { LatLng, LocationStatus } from "@/lib/route"
 import { whatsappUrl } from "@/lib/whatsapp"
 
 // ---- Tipos que viajan al cliente (sólo lo que muestra el panel) ----
@@ -34,6 +35,10 @@ export type AdminOrder = {
   status: OrderStatus
   total: number
   notes: string | null
+  /** Ubicación de la entrega para el recorrido (null si no se buscó o no se encontró). */
+  location: LatLng | null
+  /** null = todavía no se buscó en el mapa. */
+  locationStatus: LocationStatus | null
   /** "Recibido a las 18:30" o "Recibido el vie, 25 sept a las 18:30" (hora argentina). */
   createdLabel: string
   items: AdminOrderItem[]
@@ -64,7 +69,8 @@ export const STATUS_FILTER_LABEL: Record<StatusFilter, string> = {
 }
 
 export type SlotFilter = DeliverySlot | "todas"
-export type AdminView = "pedidos" | "carga"
+export const ADMIN_VIEWS = ["pedidos", "carga", "recorrido"] as const
+export type AdminView = (typeof ADMIN_VIEWS)[number]
 
 export type AdminFilters = {
   date: string
@@ -90,11 +96,12 @@ export function parseAdminFilters(params: SearchParams, today: string): AdminFil
   const date = first(params.date)
   const slot = first(params.slot)
   const estado = first(params.estado)
+  const vista = first(params.vista)
   return {
     date: isPanelDate(date) ? date : today,
     slot: isDeliverySlot(slot) ? slot : "todas",
     estado: STATUS_FILTERS.includes(estado as StatusFilter) ? (estado as StatusFilter) : "todos",
-    vista: first(params.vista) === "carga" ? "carga" : "pedidos",
+    vista: ADMIN_VIEWS.includes(vista as AdminView) ? (vista as AdminView) : "pedidos",
   }
 }
 

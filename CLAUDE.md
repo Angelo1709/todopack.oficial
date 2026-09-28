@@ -25,7 +25,7 @@ pnpm db:migrate     # aplica lib/db/migrations/*.sql pendientes
 pnpm db:seed        # carga data/products.json
 pnpm dev            # http://localhost:3000
 pnpm typecheck      # tsc --noEmit (el build también falla con errores de tipos)
-pnpm check          # verificaciones de packs/categorías y de precios por tramos
+pnpm check          # verificaciones de packs/categorías, precios por tramos y recorrido de reparto
 pnpm build
 pnpm make-admin email@x.com   # o registrarse con un email listado en ADMIN_EMAILS
 ```
@@ -46,8 +46,8 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 
 - `app/page.tsx` — catálogo público (búsqueda, filtro por categoría, paginación de 24).
 - `app/checkout`, `app/mis-pedidos` — compra y pedidos del cliente.
-- `app/admin/` — panel (layout con guard de rol + `AdminNav`): `/admin` pedidos, `/admin/productos` catálogo, `/admin/configuracion` WhatsApp y datos bancarios, `/admin/usuarios` (solo superadmin). Componentes en `components/admin/`.
-- `app/actions/` — server actions: `orders.ts` (cliente; `createOrder` acepta invitados), `admin-orders.ts` (pedidos, `requireAdmin()`), `catalog.ts` (productos, importación Excel, imágenes, `requireAdmin()`), `users.ts` (usuarios, `requireSuperadmin()`).
+- `app/admin/` — panel (layout con guard de rol + `AdminNav`): `/admin` pedidos, `/admin/productos` catálogo, `/admin/configuracion` WhatsApp, datos bancarios y salida/llegada del recorrido, `/admin/usuarios` (solo superadmin). Componentes en `components/admin/`.
+- `app/actions/` — server actions: `orders.ts` (cliente; `createOrder` acepta invitados), `admin-orders.ts` (pedidos, `requireAdmin()`), `catalog.ts` (productos, importación Excel, imágenes, `requireAdmin()`), `users.ts` (usuarios, `requireSuperadmin()`), `reparto.ts` (recorrido: buscar ubicaciones, corregir la de un pedido, salida/llegada; `requireAdmin()`). Ojo: un archivo `route.ts` dentro de `app/` es un Route Handler, no usar ese nombre para acciones.
 - `app/api/health` — healthcheck de Railway (hace `SELECT 1`).
 - `components/cart/` — carrito en el cliente (context provider + sheet).
 - `lib/db/schema.ts` — tablas: `user`, `session`, `account`, `verification` (Better Auth, columnas camelCase obligatorias) y `products`, `orders`, `order_items`, `settings`.
@@ -61,6 +61,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 - `lib/price-list.ts` — lee la lista de precios Excel (detecta columnas). `lib/categorize.ts` — categorías por palabras clave.
   Estos `lib/*.ts` los importan también los scripts `.mjs` (Node 24 ejecuta TS quitando tipos): sin alias `@/` ni sintaxis TS no borrable.
 - `lib/categories.ts` — slug e imagen de respaldo por categoría (`public/categories/*.png`).
+- `lib/route.ts` — **recorrido de reparto** (puro, lo importa `scripts/check-route.mjs`): distancias, orden de visita que minimiza los km (exacto hasta 12 paradas, aproximado con más), lectura de coordenadas/links pegados y links de Google Maps. `lib/delivery-route.ts` arma el recorrido de una franja; `lib/geocode.ts` busca direcciones en Nominatim (OpenStreetMap, gratis: máx. 1 pedido/s); `lib/order-location.ts` guarda la ubicación de cada pedido.
 - `data/` — Excel de lista de precios y `products.json` generado.
 
 ## Reglas de negocio
@@ -72,6 +73,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 - Roles (`lib/roles.ts`, columna `user.role`): `customer` (default), `admin` (panel de pedidos y catálogo) y `superadmin` (además gestiona usuarios en `/admin/usuarios`: crear cuentas, cambiar rol admin/cliente, resetear contraseñas). Usar `isAdminRole()` / `requireAdmin()` y `requireSuperadmin()`, nunca comparar `role === "admin"`. `SUPERADMIN_EMAILS` da superadmin al registrarse y al iniciar sesión; `ADMIN_EMAILS` da admin al registrarse; `pnpm make-admin` promueve a admin.
 - Compra sin cuenta: `orders.userId` es null para invitados; `orders.public_token` permite ver el pedido sin sesión.
 - Pedido (`lib/order-status.ts`): transferencia `pendiente_validacion → pagado → entregado`; efectivo `pendiente_entrega → pagado` (se cobra al entregar); cualquiera no finalizado → `cancelado`. Franja `delivery_slot` = `mediodia | noche`. El comprobante de transferencia lo manda el cliente por WhatsApp (link con mensaje precargado con el número de pedido).
+- **Recorrido de reparto** (pestaña Recorrido del panel, un solo vehículo): sale del local o del depósito y termina en uno de los dos o en la última entrega (`/admin/configuracion`, claves `route*`/`local*`/`depot*` de `settings`). Entran los pedidos todavía por entregar (`!isFinalStatus`). Cada pedido se ubica una sola vez (`orders.lat/lng/location_status`): al crearlo (`after()`), reusando la de otro pedido con la misma dirección, o a mano desde el panel. Distancias en línea recta.
 - La fecha de entrega no puede ser pasada. Los ítems del pedido guardan copia de nombre, precio y pack al momento de compra.
 - Los productos no se borran: se desactivan con `active = false`.
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { isAdminRole } from "@/lib/roles"
+import { RouteSettingsForm } from "@/components/admin/route-settings-form"
 import { SettingsForm } from "@/components/admin/settings-form"
 import { getSessionUser } from "@/lib/session"
-import { getSettings } from "@/lib/settings"
+import { getRouteSettings, getSettings } from "@/lib/settings"
 
 export const dynamic = "force-dynamic"
 
@@ -16,13 +17,18 @@ export default async function AdminSettingsPage() {
   if (!user) redirect("/sign-in")
   if (!isAdminRole(user.role)) redirect("/")
 
-  const settings = await getSettings()
+  const [settings, routeSettings] = await Promise.all([getSettings(), getRouteSettings()])
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
       <h1 className="font-serif text-2xl font-bold">Configuración</h1>
-      <p className="mb-6 text-sm text-muted-foreground">WhatsApp y datos bancarios que ve el cliente al pagar.</p>
+      <p className="mb-6 text-sm text-muted-foreground">
+        WhatsApp y datos bancarios que ve el cliente al pagar, y el recorrido de reparto.
+      </p>
       <SettingsForm initial={settings} />
+      <div className="mt-8">
+        <RouteSettingsForm initial={routeSettings} />
+      </div>
     </div>
   )
 }

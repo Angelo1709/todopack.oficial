@@ -6,6 +6,7 @@ import { OrdersFilterChips, OrdersViewSwitch } from "@/components/admin/orders-f
 import { OrdersList } from "@/components/admin/orders-list"
 import { OrdersLoadingSheet } from "@/components/admin/orders-loading-sheet"
 import { OrdersPendingTransfers } from "@/components/admin/orders-pending-transfers"
+import { OrdersRoute } from "@/components/admin/orders-route"
 import {
   STATUS_FILTERS,
   STATUS_FILTER_LABEL,
@@ -21,9 +22,21 @@ import {
   type PendingTransfer,
   type SlotFilter,
 } from "@/lib/admin-orders-utils"
+import { buildDeliveryRoute } from "@/lib/delivery-route"
 import { formatPrice } from "@/lib/format"
 import { DELIVERY_SLOTS, DELIVERY_SLOT_LABEL } from "@/lib/order-status"
-import { Banknote, CalendarDays, ClipboardList, Clock, DollarSign, Landmark, Package, Truck } from "lucide-react"
+import type { RouteConfig } from "@/lib/route"
+import {
+  Banknote,
+  CalendarDays,
+  ClipboardList,
+  Clock,
+  DollarSign,
+  Landmark,
+  Package,
+  Route as RouteIcon,
+  Truck,
+} from "lucide-react"
 
 const SLOT_FILTERS: SlotFilter[] = ["todas", ...DELIVERY_SLOTS]
 
@@ -32,12 +45,15 @@ export function AdminDashboard({
   today,
   orders,
   pendingTransfers,
+  routeConfig,
 }: {
   filters: AdminFilters
   today: string
   /** Todos los pedidos de la fecha elegida (cualquier franja y estado). */
   orders: AdminOrder[]
   pendingTransfers: PendingTransfer[]
+  /** Salida y llegada del recorrido (sólo hace falta en la vista "recorrido"). */
+  routeConfig: RouteConfig | null
 }) {
   const scoped = filters.slot === "todas" ? orders : orders.filter((o) => o.deliverySlot === filters.slot)
   const visible = scoped.filter((o) => matchesStatusFilter(filters.estado, o.paymentMethod, o.status))
@@ -119,6 +135,12 @@ export function AdminDashboard({
                 icon: Truck,
                 active: filters.vista === "carga",
               },
+              {
+                href: adminOrdersHref(filters, { vista: "recorrido" }),
+                label: "Recorrido",
+                icon: RouteIcon,
+                active: filters.vista === "recorrido",
+              },
             ]}
           />
           <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-6">
@@ -152,6 +174,13 @@ export function AdminDashboard({
             dateLabel={dateLabel}
             slotLabel={slotLabel}
             ordersCount={summary.orders}
+          />
+        ) : filters.vista === "recorrido" && routeConfig ? (
+          <OrdersRoute
+            routes={slots.map((slot) => buildDeliveryRoute(orders, slot, routeConfig))}
+            date={filters.date}
+            dateLabel={dateLabel}
+            slotLabel={slotLabel}
           />
         ) : visible.length > 0 ? (
           <OrdersList orders={visible} slots={slots} estado={filters.estado} />

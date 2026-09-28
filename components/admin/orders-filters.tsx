@@ -38,10 +38,13 @@ export function OrdersFilterChips({ label, chips }: { label: string; chips: Filt
 
 export type ViewTab = { href: string; label: string; icon: LucideIcon; active: boolean }
 
-/** Selector Pedidos / Carga del día. */
+/** Selector Pedidos / Carga del día / Recorrido. */
 export function OrdersViewSwitch({ tabs }: { tabs: ViewTab[] }) {
   return (
-    <nav aria-label="Vista" className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1 sm:inline-grid sm:w-fit">
+    <nav
+      aria-label="Vista"
+      className="grid auto-cols-fr grid-flow-col gap-1 rounded-lg bg-muted p-1 sm:inline-grid sm:w-fit"
+    >
       {tabs.map((t) => (
         <Link
           key={t.href}
@@ -49,7 +52,7 @@ export function OrdersViewSwitch({ tabs }: { tabs: ViewTab[] }) {
           scroll={false}
           aria-current={t.active ? "page" : undefined}
           className={cn(
-            "relative flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors",
+            "relative flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium transition-colors sm:gap-2 sm:px-4",
             t.active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
           )}
         >
