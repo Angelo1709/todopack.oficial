@@ -126,3 +126,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mapa del recorrido (Leaflet, components/admin/route-map.tsx). */
+@layer components {
+  /* El reset de Tailwind limita el ancho de las imágenes y deforma las baldosas del mapa. */
+  .leaflet-container img {
+    max-width: none;
+    max-height: none;
+  }
+  .leaflet-container {
+    font: inherit;
+  }
+  /* Camino del recorrido: ámbar; los tramos sin camino por calle, punteados. */
+  .route-line {
+    stroke: var(--primary);
+  }
+  .route-line-recta {
+    stroke-dasharray: 6 8;
+  }
+  /* Ubicación del repartidor (GPS). */
+  .route-me {
+    fill: var(--accent);
+    fill-opacity: 1;
+    stroke: var(--background);
+    stroke-width: 3;
+  }
+}

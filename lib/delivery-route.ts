@@ -11,7 +11,7 @@ import {
   type RouteConfig,
   type RoutePlace,
 } from "@/lib/route"
-import { streetDistances, type StreetGraph } from "@/lib/street-graph"
+import { streetDistances, streetPaths, type StreetGraph } from "@/lib/street-graph"
 
 export type RouteEndpoint = { place: RoutePlace; label: string; address: string; location: LatLng }
 export type RouteStop = { order: AdminOrder; location: LatLng; /** km desde el punto anterior. */ legKm: number }
@@ -41,6 +41,11 @@ export type DeliveryRoute = {
        * línea recta (direcciones fuera del mapa); "recta" = sin mapa de calles.
        */
       measuredBy: "calles" | "mixto" | "recta"
+      /**
+       * Camino de cada tramo para dibujar en el mapa ([lat, lng] esquina por esquina), en el orden de visita:
+       * salida -> 1ª entrega, ..., última -> llegada. null = sin camino por calle (se dibuja en línea recta).
+       */
+      legPaths: ([number, number][] | null)[]
     }
   | {
       ok: false
@@ -94,7 +99,9 @@ export function buildDeliveryRoute(
   )
   // ¿Algún tramo del recorrido elegido quedó sin medir por calle?
   const visit = [0, ...plan.order.map((i) => i + 1), ...(end ? [points.length - 1] : [])]
-  const straightLegs = distances ? visit.slice(1).filter((to, k) => distances[visit[k]][to] === null).length : 0
+  const legs = visit.slice(1).map((to, k): [number, number] => [visit[k], to])
+  const straightLegs = distances ? legs.filter(([from, to]) => distances[from][to] === null).length : 0
+  const legPaths = streets && distances ? streetPaths(streets, points, legs) : legs.map(() => null)
   const stops = plan.order.map((index, i) => ({
     order: located[index],
     location: located[index].location,
@@ -110,6 +117,7 @@ export function buildDeliveryRoute(
     returnKm: end && stops.length > 0 ? plan.legsKm[plan.legsKm.length - 1] : null,
     totalKm: stops.length > 0 ? plan.totalKm : 0,
     measuredBy: !distances ? "recta" : straightLegs > 0 ? "mixto" : "calles",
+    legPaths,
     mapsUrls:
       stops.length > 0
         ? googleMapsTripUrls(
