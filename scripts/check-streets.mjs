@@ -1,6 +1,6 @@
 // Verificaciones del mapa de calles (lib/street-graph.ts). Uso: node scripts/check-streets.mjs
 import assert from "node:assert/strict"
-import { buildStreetGraph, directionOf, isDrivable, streetDistances, SNAP_MAX_KM } from "../lib/street-graph.ts"
+import { buildStreetGraph, directionOf, isDrivable, streetDistances, streetPaths, SNAP_MAX_KM } from "../lib/street-graph.ts"
 
 let n = 0
 const check = (name, fn) => {
@@ -130,6 +130,55 @@ check("calle sin salida de mano única: se llega pero no se puede volver (null)"
   const [[, entrar], [salir]] = streetDistances(buildStreetGraph(conPasaje).graph, [corner(0, 0), pasaje])
   assert.ok(entrar !== null && near(entrar, 4.5 * S, 0.01), `entrar ${entrar}`)
   assert.equal(salir, null)
+})
+
+// ---- Caminos para dibujar en el mapa ----
+
+const pathKm = (path) => {
+  let km = 0
+  const rad = Math.PI / 180
+  for (let i = 1; i < path.length; i++) {
+    const [aLat, aLng] = path[i - 1]
+    const [bLat, bLng] = path[i]
+    const h = Math.sin(((bLat - aLat) * rad) / 2) ** 2 +
+      Math.cos(aLat * rad) * Math.cos(bLat * rad) * Math.sin(((bLng - aLng) * rad) / 2) ** 2
+    km += 2 * 6371 * Math.asin(Math.sqrt(h))
+  }
+  return km
+}
+const passesBy = (path, p) => path.some(([lat, lng]) => Math.abs(lat - p.lat) < 1e-9 && Math.abs(lng - p.lng) < 1e-9)
+
+check("camino a favor de la mano: derecho por la cuadra", () => {
+  const [ida] = streetPaths(graph, [oeste, este], [[0, 1]])
+  assert.ok(near(pathKm(ida), S, 0.003), `${pathKm(ida)}`)
+  assert.ok(passesBy(ida, corner(1, 1)), "pasa por la esquina 5")
+  assert.ok(near(ida[0][0], oeste.lat, 1e-9) && near(ida.at(-1)[1], este.lng, 1e-9), "empieza y termina en las entregas")
+})
+
+check("camino en contra de la mano: da la vuelta a la manzana y mide lo mismo que la distancia", () => {
+  const [vuelta] = streetPaths(graph, [oeste, este], [[1, 0]])
+  const [, [d]] = streetDistances(graph, [oeste, este])
+  assert.ok(near(pathKm(vuelta), d, 1e-6), `${pathKm(vuelta)} vs ${d}`)
+  assert.ok(passesBy(vuelta, corner(1, 2)) && passesBy(vuelta, corner(1, 0)), "sale por la esquina 6 y entra por la 4")
+  assert.ok(!passesBy(vuelta, corner(1, 1)), "no va de contramano por la esquina 5")
+})
+
+check("sin camino posible o lejos del mapa: null", () => {
+  const conPasaje = [
+    ...barrio,
+    { type: "node", id: 20, lat: corner(2, 2).lat - DLAT, lon: corner(2, 2).lng },
+    way(21, [9, 20], { oneway: "yes" }),
+  ]
+  const pasaje = { lat: corner(2, 2).lat - DLAT / 2, lng: corner(2, 2).lng }
+  const lejos = { lat: LAT0 + 0.01, lng: LNG0 }
+  const [entrar, salir, aLejos] = streetPaths(buildStreetGraph(conPasaje).graph, [corner(0, 0), pasaje, lejos], [
+    [0, 1],
+    [1, 0],
+    [0, 2],
+  ])
+  assert.ok(entrar && near(pathKm(entrar), 4.5 * S, 0.01))
+  assert.equal(salir, null)
+  assert.equal(aLejos, null)
 })
 
 console.log(`check-streets: ${n} verificaciones OK`)

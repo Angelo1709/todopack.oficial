@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { OrderLocationButton } from "@/components/admin/order-location-dialog"
 import { OrdersLocateButton } from "@/components/admin/orders-locate-button"
 import { OrdersPrintButton } from "@/components/admin/orders-print-button"
+import { RouteMap, type RouteMapPoint } from "@/components/admin/route-map"
 import { orderLabel, type AdminOrder } from "@/lib/admin-orders-utils"
 import type { DeliveryRoute, RouteEndpoint, RouteStop } from "@/lib/delivery-route"
 import { formatPrice } from "@/lib/format"
@@ -162,25 +163,52 @@ function SlotRoute({ route }: { route: DeliveryRoute }) {
           No hay entregas pendientes para {slotName}.
         </p>
       ) : route.stops.length > 0 ? (
-        <ol className="flex flex-col gap-2">
-          <EndpointRow kind="salida" endpoint={route.start} />
-          {route.stops.map((stop, i) => (
-            <StopRow key={stop.order.id} stop={stop} position={i + 1} />
-          ))}
-          {route.end ? (
-            <EndpointRow kind="llegada" endpoint={route.end} km={route.returnKm} />
-          ) : (
-            <li className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground">
-              <Flag className="size-4 shrink-0" />
-              Termina en la última entrega.
-            </li>
-          )}
-        </ol>
+        <>
+          <RouteMap points={mapPoints(route)} legPaths={route.legPaths} />
+          <ol className="mt-3 flex flex-col gap-2">
+            <EndpointRow kind="salida" endpoint={route.start} />
+            {route.stops.map((stop, i) => (
+              <StopRow key={stop.order.id} stop={stop} position={i + 1} />
+            ))}
+            {route.end ? (
+              <EndpointRow kind="llegada" endpoint={route.end} km={route.returnKm} />
+            ) : (
+              <li className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground">
+                <Flag className="size-4 shrink-0" />
+                Termina en la última entrega.
+              </li>
+            )}
+          </ol>
+        </>
       ) : null}
 
       {route.unlocated.length > 0 && <UnlocatedOrders orders={route.unlocated} />}
     </section>
   )
+}
+
+/** Salida, entregas (numeradas en orden de visita) y llegada, para el mapa. */
+function mapPoints(route: Extract<DeliveryRoute, { ok: true }>): RouteMapPoint[] {
+  const place = (endpoint: RouteEndpoint, kind: "salida" | "llegada"): RouteMapPoint => ({
+    lat: endpoint.location.lat,
+    lng: endpoint.location.lng,
+    label: endpoint.label.charAt(0),
+    title: `${kind === "salida" ? "Sale del" : "Vuelve al"} ${endpoint.label.toLowerCase()}${endpoint.address ? ` · ${endpoint.address}` : ""}`,
+    kind,
+  })
+  return [
+    place(route.start, "salida"),
+    ...route.stops.map(
+      (s, i): RouteMapPoint => ({
+        lat: s.location.lat,
+        lng: s.location.lng,
+        label: String(i + 1),
+        title: `${i + 1}. ${s.order.customerName} · ${s.order.address}`,
+        kind: "entrega",
+      }),
+    ),
+    ...(route.end ? [place(route.end, "llegada")] : []),
+  ]
 }
 
 function MissingPlaces({ missing }: { missing: RoutePlace[] }) {

@@ -191,21 +191,23 @@ class MinHeap {
   }
 }
 
-/**
- * Distancias en km POR CALLE entre todos los `points` (matriz [desde][hasta]; ida y vuelta pueden diferir
- * por las manos únicas). null donde no se puede medir: punto lejos de toda calle del mapa o sin camino
- * posible respetando las manos. Cada punto se ubica sobre la calle más cercana.
- */
-export function streetDistances(graph: StreetGraph, points: Point[]): (number | null)[][] {
+/** Grafo de calles con pesos + un nodo extra por cada punto ubicado sobre una calle. */
+type Augmented = {
+  /** Índice del nodo extra del punto i: base + i. */
+  base: number
+  adjacency: [number, number][][]
+  coord: (node: number) => [number, number]
+  snaps: (Snap | null)[]
+}
+
+function augment(graph: StreetGraph, points: Point[]): Augmented {
   const segments = segmentsOf(graph)
   const snaps = points.map((p) => snapToStreet(graph, segments, p))
-
-  // Grafo con pesos + un nodo extra por cada punto ubicado sobre una calle.
-  const total = graph.nodes.length + points.length
-  const adjacency: [number, number][][] = Array.from({ length: total }, () => [])
+  const base = graph.nodes.length
+  const adjacency: [number, number][][] = Array.from({ length: base + points.length }, () => [])
   const coord = (i: number): [number, number] => {
-    if (i < graph.nodes.length) return graph.nodes[i]
-    const snap = snaps[i - graph.nodes.length]!
+    if (i < base) return graph.nodes[i]
+    const snap = snaps[i - base]!
     return [snap.lat, snap.lng]
   }
   const link = (from: number, to: number) => {
@@ -223,40 +225,80 @@ export function streetDistances(graph: StreetGraph, points: Point[]): (number | 
   })
   for (const [s, idxs] of onSegment) {
     const seg = segments[s]
-    const chain = [
-      seg.a,
-      ...idxs.sort((x, y) => snaps[x]!.t - snaps[y]!.t).map((i) => graph.nodes.length + i),
-      seg.b,
-    ]
+    const chain = [seg.a, ...idxs.sort((x, y) => snaps[x]!.t - snaps[y]!.t).map((i) => base + i), seg.b]
     for (let k = 1; k < chain.length; k++) {
       if (seg.ab) link(chain[k - 1], chain[k])
       if (seg.ba) link(chain[k], chain[k - 1])
     }
   }
+  return { base, adjacency, coord, snaps }
+}
 
-  return points.map((_, from) => {
-    const row: (number | null)[] = points.map(() => null)
-    if (!snaps[from]) return row
-    const dist = new Float64Array(total).fill(Infinity)
-    const source = graph.nodes.length + from
-    dist[source] = 0
-    const heap = new MinHeap()
-    heap.push([0, source])
-    while (heap.size > 0) {
-      const [d, u] = heap.pop()
-      if (d > dist[u]) continue
-      for (const [v, w] of adjacency[u]) {
-        const nd = d + w
-        if (nd < dist[v]) {
-          dist[v] = nd
-          heap.push([nd, v])
-        }
+/** Camino más corto desde `source` a todos los nodos: distancia y nodo anterior (-1 = sin camino). */
+function shortestFrom(aug: Augmented, source: number): { dist: Float64Array; prev: Int32Array } {
+  const dist = new Float64Array(aug.adjacency.length).fill(Infinity)
+  const prev = new Int32Array(aug.adjacency.length).fill(-1)
+  dist[source] = 0
+  const heap = new MinHeap()
+  heap.push([0, source])
+  while (heap.size > 0) {
+    const [d, u] = heap.pop()
+    if (d > dist[u]) continue
+    for (const [v, w] of aug.adjacency[u]) {
+      const nd = d + w
+      if (nd < dist[v]) {
+        dist[v] = nd
+        prev[v] = u
+        heap.push([nd, v])
       }
     }
+  }
+  return { dist, prev }
+}
+
+/**
+ * Distancias en km POR CALLE entre todos los `points` (matriz [desde][hasta]; ida y vuelta pueden diferir
+ * por las manos únicas). null donde no se puede medir: punto lejos de toda calle del mapa o sin camino
+ * posible respetando las manos. Cada punto se ubica sobre la calle más cercana.
+ */
+export function streetDistances(graph: StreetGraph, points: Point[]): (number | null)[][] {
+  const aug = augment(graph, points)
+  return points.map((_, from) => {
+    const row: (number | null)[] = points.map(() => null)
+    if (!aug.snaps[from]) return row
+    const { dist } = shortestFrom(aug, aug.base + from)
     for (let to = 0; to < points.length; to++) {
       if (to === from) row[to] = 0
-      else if (snaps[to] && dist[graph.nodes.length + to] < Infinity) row[to] = dist[graph.nodes.length + to]
+      else if (aug.snaps[to] && dist[aug.base + to] < Infinity) row[to] = dist[aug.base + to]
     }
     return row
+  })
+}
+
+/**
+ * Camino por calle, esquina por esquina ([lat, lng] desde el punto de salida hasta el de llegada), de cada
+ * tramo pedido en `legs` ([índice desde, índice hasta] sobre `points`). null donde no hay camino por calle.
+ */
+export function streetPaths(
+  graph: StreetGraph,
+  points: Point[],
+  legs: [number, number][],
+): ([number, number][] | null)[] {
+  const aug = augment(graph, points)
+  const bySource = new Map<number, Int32Array>()
+  return legs.map(([from, to]) => {
+    if (!aug.snaps[from] || !aug.snaps[to]) return null
+    let prev = bySource.get(from)
+    if (!prev) {
+      prev = shortestFrom(aug, aug.base + from).prev
+      bySource.set(from, prev)
+    }
+    const source = aug.base + from
+    const path: [number, number][] = []
+    for (let node = aug.base + to; node !== -1; node = node === source ? -1 : prev[node]) {
+      path.push(aug.coord(node))
+      if (node !== source && prev[node] === -1) return null // sin camino
+    }
+    return path.reverse()
   })
 }
