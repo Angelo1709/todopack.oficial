@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { orders, orderItems, user } from "@/lib/db/schema"
+import { orders, orderItems, products, user } from "@/lib/db/schema"
 import { requireAdmin, type SessionUser } from "@/lib/session"
 import {
   ORDER_STATUS_LABEL,
@@ -27,7 +27,9 @@ import {
 import { isLocationStatus } from "@/lib/route"
 import { isIsoDate, todayAR } from "@/lib/dates"
 import { locateOrder } from "@/lib/order-location"
-import { and, asc, count, eq, inArray } from "drizzle-orm"
+import { presentationLabel } from "@/lib/pack"
+import { MAX_UNITS } from "@/lib/pricing"
+import { and, asc, count, eq, ilike, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { randomBytes } from "node:crypto"
 
@@ -157,10 +159,17 @@ export type ManualOrderInput = {
   deliveryDate: string // yyyy-mm-dd
   deliverySlot: DeliverySlot
   paymentMethod: PaymentMethod
-  /** Importe a cobrar en pesos ("15.000", "$ 15000"...). Vacío = sin importe. */
+  /**
+   * Productos de la tienda. El precio (de la presentación completa) arranca en el de lista y se puede
+   * cambiar a mano. Con productos, el total es la suma de los renglones.
+   */
+  items?: ManualOrderItemInput[]
+  /** Importe a cobrar en pesos ("15.000", "$ 15000"...) cuando no se cargan productos. Vacío = sin importe. */
   total?: string | number
   notes?: string
 }
+
+export type ManualOrderItemInput = { productId: number; quantity: number; price: string | number }
 
 export type ManualOrderField = keyof ManualOrderInput
 
@@ -183,9 +192,35 @@ function parseAmount(value: unknown): number | null {
   return /^\d+$/.test(clean) ? Number(clean) : null
 }
 
+const MAX_ITEMS = 300
+
+export type OrderProductOption = { id: number; name: string; label: string; packSize: number; price: number }
+
+/** Buscador de productos activos para cargar un pedido manual. */
+export async function searchProductsForOrder(query: string): Promise<OrderProductOption[]> {
+  await requireAdmin()
+  const q = text(query).slice(0, 100)
+  if (q.length < 2) return []
+  // Cada palabra tiene que aparecer en el nombre, en cualquier orden ("coca 1.5 pack").
+  const words = q.split(/\s+/).filter(Boolean).slice(0, 6)
+  const rows = await db
+    .select({ id: products.id, name: products.name, packSize: products.packSize, price: products.price })
+    .from(products)
+    .where(
+      and(
+        eq(products.active, true),
+        ...words.map((w) => ilike(products.name, `%${w.replace(/[\\%_]/g, "\\$&")}%`)),
+      ),
+    )
+    .orderBy(asc(products.name))
+    .limit(15)
+  return rows.map((r) => ({ ...r, label: presentationLabel(r.name, r.packSize) }))
+}
+
 /**
  * Pedido tomado por teléfono o en el local: entra a la lista del día junto con los de la web y al
- * recorrido. No tiene productos cargados; `total` es lo que hay que cobrar (0 si no se sabe).
+ * recorrido. Con productos, el total es la suma de los renglones (precio editable por renglón); sin
+ * productos, `total` es lo que hay que cobrar (0 si no se sabe).
  */
 export async function createManualOrder(input: ManualOrderInput): Promise<ManualOrderResult> {
   let admin: SessionUser
@@ -202,7 +237,6 @@ export async function createManualOrder(input: ManualOrderInput): Promise<Manual
   const phoneDigits = phone.replace(/\D/g, "")
   const deliveryDate = text(input?.deliveryDate)
   const notes = text(input?.notes)
-  const total = parseAmount(input?.total)
 
   if (!customerName) return fail("Completá el nombre del cliente", "customerName")
   if (customerName.length > 120) return fail("El nombre es demasiado largo", "customerName")
@@ -215,28 +249,63 @@ export async function createManualOrder(input: ManualOrderInput): Promise<Manual
   if (deliveryDate < todayAR()) return fail("La fecha de entrega no puede ser en el pasado", "deliveryDate")
   if (!isDeliverySlot(input?.deliverySlot)) return fail("Elegí la franja de entrega", "deliverySlot")
   if (!isPaymentMethod(input?.paymentMethod)) return fail("Elegí el medio de pago", "paymentMethod")
-  if (total === null || total > MAX_TOTAL) return fail("Revisá el importe: solo números, por ejemplo 15000", "total")
   if (notes.length > 1000) return fail("Las notas son demasiado largas", "notes")
 
-  const [order] = await db
-    .insert(orders)
-    .values({
-      publicToken: randomBytes(16).toString("base64url"),
-      userId: null,
-      customerName,
-      phone,
-      email: null,
-      address,
-      deliveryDate,
-      deliverySlot: input.deliverySlot,
-      paymentMethod: input.paymentMethod,
-      status: initialStatus(input.paymentMethod),
-      total,
-      notes: notes || null,
-      origin: "manual",
-      createdBy: admin.id,
-    })
-    .returning({ id: orders.id })
+  // Renglones: nombre y presentación salen de la base (no del navegador); cantidad y precio, del formulario.
+  const rawItems = Array.isArray(input?.items) ? input.items : []
+  if (rawItems.length > MAX_ITEMS) return fail("El pedido tiene demasiados productos", "items")
+  const ids = [...new Set(rawItems.map((it) => Number(it?.productId)).filter((id) => Number.isInteger(id) && id > 0))]
+  const found = ids.length
+    ? await db
+        .select({ id: products.id, name: products.name, packSize: products.packSize })
+        .from(products)
+        .where(inArray(products.id, ids))
+    : []
+  const byId = new Map(found.map((p) => [p.id, p]))
+  const lineItems: { productId: number; name: string; price: number; packSize: number; quantity: number }[] = []
+  for (const it of rawItems) {
+    const product = byId.get(Number(it?.productId))
+    if (!product) return fail("Uno de los productos ya no existe: sacalo y volvé a buscarlo", "items")
+    const quantity = Number(it?.quantity)
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > MAX_UNITS) {
+      return fail(`Revisá la cantidad de ${product.name}`, "items")
+    }
+    const price = parseAmount(it?.price)
+    if (price === null || price > MAX_TOTAL) return fail(`Revisá el precio de ${product.name}`, "items")
+    lineItems.push({ productId: product.id, name: product.name, price, packSize: product.packSize, quantity })
+  }
+
+  const total = lineItems.length
+    ? lineItems.reduce((sum, li) => sum + li.price * li.quantity, 0)
+    : parseAmount(input?.total)
+  if (lineItems.length && total !== null && total > MAX_TOTAL) return fail("El total del pedido es demasiado grande", "items")
+  if (total === null || total > MAX_TOTAL) return fail("Revisá el importe: solo números, por ejemplo 15000", "total")
+
+  const order = await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(orders)
+      .values({
+        publicToken: randomBytes(16).toString("base64url"),
+        userId: null,
+        customerName,
+        phone,
+        email: null,
+        address,
+        deliveryDate,
+        deliverySlot: input.deliverySlot,
+        paymentMethod: input.paymentMethod,
+        status: initialStatus(input.paymentMethod),
+        total,
+        notes: notes || null,
+        origin: "manual",
+        createdBy: admin.id,
+      })
+      .returning({ id: orders.id })
+    if (lineItems.length) {
+      await tx.insert(orderItems).values(lineItems.map((li) => ({ ...li, orderId: created.id })))
+    }
+    return created
+  })
 
   // Se ubica ahora (no en segundo plano) para que ya aparezca en el recorrido al volver a la lista.
   let located = false
