@@ -7,6 +7,7 @@ import { parseAdminFilters } from "@/lib/admin-orders-utils"
 import { todayAR } from "@/lib/dates"
 import { getSessionUser } from "@/lib/session"
 import { getRouteConfig } from "@/lib/settings"
+import { getStreetGraph } from "@/lib/street-map"
 
 export const dynamic = "force-dynamic"
 
@@ -27,10 +28,12 @@ export default async function AdminPage({
   const today = todayAR()
   const filters = parseAdminFilters(await searchParams, today)
 
-  const [orders, pendingTransfers, routeConfig] = await Promise.all([
+  const recorrido = filters.vista === "recorrido"
+  const [orders, pendingTransfers, routeConfig, streetGraph] = await Promise.all([
     getAdminOrdersForDate(filters.date),
     getPendingTransfers(),
-    filters.vista === "recorrido" ? getRouteConfig() : null,
+    recorrido ? getRouteConfig() : null,
+    recorrido ? getStreetGraph() : null,
   ])
 
   return (
@@ -40,6 +43,7 @@ export default async function AdminPage({
       orders={orders}
       pendingTransfers={pendingTransfers}
       routeConfig={routeConfig}
+      streetGraph={streetGraph}
     />
   )
 }

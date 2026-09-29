@@ -20,6 +20,7 @@ import {
   type RoutePlace,
 } from "@/lib/route"
 import { requireAdmin } from "@/lib/session"
+import { refreshStreetMap } from "@/lib/street-map"
 import {
   ROUTE_SETTING_KEYS,
   getRouteConfig,
@@ -173,4 +174,21 @@ export async function updateRouteSettings(input: Record<string, unknown>): Promi
   revalidatePath("/admin/configuracion")
   revalidatePath("/admin")
   return { ok: true, values }
+}
+
+// ---- Mapa de calles (OpenStreetMap) ----
+
+export type StreetMapResult =
+  | { ok: true; info: { fetchedAt: string; ways: number; oneWays: number } }
+  | { ok: false; error: string }
+
+/** Baja de nuevo las calles de la zona desde OpenStreetMap (por ejemplo, después de corregir manos). */
+export async function refreshStreetMapAction(): Promise<StreetMapResult> {
+  if (!(await isAdmin())) return { ok: false, error: NOT_ADMIN }
+  const result = await refreshStreetMap(await getRouteConfig())
+  if (!result.ok) return result
+  revalidatePath("/admin/configuracion")
+  revalidatePath("/admin")
+  const { fetchedAt, ways, oneWays } = result.info
+  return { ok: true, info: { fetchedAt: fetchedAt.toISOString(), ways, oneWays } }
 }

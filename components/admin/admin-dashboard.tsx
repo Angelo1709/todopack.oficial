@@ -27,6 +27,7 @@ import { buildDeliveryRoute } from "@/lib/delivery-route"
 import { formatPrice } from "@/lib/format"
 import { DELIVERY_SLOTS, DELIVERY_SLOT_LABEL } from "@/lib/order-status"
 import type { RouteConfig } from "@/lib/route"
+import type { StreetGraph } from "@/lib/street-graph"
 import {
   Banknote,
   CalendarDays,
@@ -47,6 +48,7 @@ export function AdminDashboard({
   orders,
   pendingTransfers,
   routeConfig,
+  streetGraph,
 }: {
   filters: AdminFilters
   today: string
@@ -55,6 +57,8 @@ export function AdminDashboard({
   pendingTransfers: PendingTransfer[]
   /** Salida y llegada del recorrido (sólo hace falta en la vista "recorrido"). */
   routeConfig: RouteConfig | null
+  /** Mapa de calles para medir el recorrido por calle (null = línea recta). */
+  streetGraph: StreetGraph | null
 }) {
   const scoped = filters.slot === "todas" ? orders : orders.filter((o) => o.deliverySlot === filters.slot)
   const visible = scoped.filter((o) => matchesStatusFilter(filters.estado, o.paymentMethod, o.status))
@@ -181,7 +185,7 @@ export function AdminDashboard({
           />
         ) : filters.vista === "recorrido" && routeConfig ? (
           <OrdersRoute
-            routes={slots.map((slot) => buildDeliveryRoute(orders, slot, routeConfig))}
+            routes={slots.map((slot) => buildDeliveryRoute(orders, slot, routeConfig, streetGraph))}
             date={filters.date}
             dateLabel={dateLabel}
             slotLabel={slotLabel}

@@ -154,24 +154,30 @@ const EPS = 1e-9
  * Orden de visita que minimiza la distancia total: sale de `start`, pasa por todas las `stops` y termina
  * en `end` (o en la última parada si `end` es null). Hasta EXACT_MAX_STOPS es exacto; con más, vecino más
  * cercano mejorado con 2-opt y or-opt. Determinístico: mismos datos, mismo orden.
+ *
+ * `distances` (km por calle, ver lib/street-graph.ts) va sobre los puntos [start, ...stops, end] y puede
+ * depender del sentido (manos únicas); donde falta (null) se usa la distancia en línea recta.
  */
 export function planRoute(
   start: LatLng,
   stops: LatLng[],
   end: LatLng | null,
-  // Sólo para las verificaciones: forzar el método aproximado y compararlo con el exacto.
-  { exactMaxStops = EXACT_MAX_STOPS }: { exactMaxStops?: number } = {},
+  {
+    distances,
+    // Sólo para las verificaciones: forzar el método aproximado y compararlo con el exacto.
+    exactMaxStops = EXACT_MAX_STOPS,
+  }: { distances?: (number | null)[][] | null; exactMaxStops?: number } = {},
 ): PlannedRoute {
   const n = stops.length
   if (n === 0) {
-    const legsKm = end ? [distanceKm(start, end)] : []
+    const legsKm = end ? [distances?.[0]?.[1] ?? distanceKm(start, end)] : []
     return { order: [], legsKm, totalKm: legsKm.reduce((a, b) => a + b, 0) }
   }
 
   // Nodos: 0 = salida, 1..n = paradas, n + 1 = llegada (si hay).
   const nodes = [start, ...stops, ...(end ? [end] : [])]
   const endNode = end ? n + 1 : -1
-  const dist = nodes.map((a) => nodes.map((b) => distanceKm(a, b)))
+  const dist = nodes.map((a, i) => nodes.map((b, j) => distances?.[i]?.[j] ?? distanceKm(a, b)))
   // Hacia "ninguna llegada" (-1) el tramo no cuenta.
   const d = (a: number, b: number) => (a < 0 || b < 0 ? 0 : dist[a][b])
 
@@ -290,7 +296,10 @@ function improvedTour(n: number, d: Dist, endNode: number): number[] {
   return best
 }
 
-/** 2-opt y or-opt sobre `tour` (lo modifica) hasta que ningún cambio acorte el recorrido. */
+/**
+ * 2-opt y or-opt sobre `tour` (lo modifica) hasta que ningún cambio acorte el recorrido. Las distancias
+ * pueden depender del sentido: al invertir un tramo se recalcula lo que cuesta recorrerlo al revés.
+ */
 function localSearch(tour: number[], d: Dist, endNode: number) {
   const n = tour.length
   const prevOf = (t: number[], i: number) => (i === 0 ? 0 : t[i - 1])
@@ -301,10 +310,15 @@ function localSearch(tour: number[], d: Dist, endNode: number) {
 
     // 2-opt: invertir un tramo si así se descruzan dos caminos.
     for (let i = 0; i < n - 1 && !improved; i++) {
+      const a = prevOf(tour, i)
+      // Costo del tramo tour[i..j] recorrido en su sentido y al revés.
+      let forward = 0
+      let backward = 0
       for (let j = i + 1; j < n; j++) {
-        const a = prevOf(tour, i)
+        forward += d(tour[j - 1], tour[j])
+        backward += d(tour[j], tour[j - 1])
         const e = nextOf(tour, j)
-        const delta = d(a, tour[j]) + d(tour[i], e) - d(a, tour[i]) - d(tour[j], e)
+        const delta = d(a, tour[j]) + backward + d(tour[i], e) - (d(a, tour[i]) + forward + d(tour[j], e))
         if (delta < -EPS) {
           const reversed = tour.slice(i, j + 1).reverse()
           tour.splice(i, j - i + 1, ...reversed)
@@ -318,16 +332,21 @@ function localSearch(tour: number[], d: Dist, endNode: number) {
     for (let len = 1; len <= 3 && !improved; len++) {
       for (let i = 0; i + len <= n && !improved; i++) {
         const seg = tour.slice(i, i + len)
+        const inside = (piece: number[]) => {
+          let km = 0
+          for (let k = 1; k < piece.length; k++) km += d(piece[k - 1], piece[k])
+          return km
+        }
         const before = prevOf(tour, i)
         const after = nextOf(tour, i + len - 1)
-        const saved = d(before, seg[0]) + d(seg[len - 1], after) - d(before, after)
+        const saved = d(before, seg[0]) + inside(seg) + d(seg[len - 1], after) - d(before, after)
         const rest = [...tour.slice(0, i), ...tour.slice(i + len)]
         for (let p = 0; p <= rest.length && !improved; p++) {
           const u = p === 0 ? 0 : rest[p - 1]
           const v = p === rest.length ? endNode : rest[p]
           for (const piece of [seg, [...seg].reverse()]) {
             if (p === i && piece === seg) continue
-            const added = d(u, piece[0]) + d(piece[len - 1], v) - d(u, v)
+            const added = d(u, piece[0]) + inside(piece) + d(piece[len - 1], v) - d(u, v)
             if (added < saved - EPS) {
               tour.splice(0, n, ...rest.slice(0, p), ...piece, ...rest.slice(p))
               improved = true
