@@ -8,7 +8,9 @@ import {
   date,
   index,
   doublePrecision,
+  jsonb,
 } from "drizzle-orm/pg-core"
+import type { StreetGraph } from "../street-graph"
 
 // Cualquier cambio acá necesita su migración SQL en lib/db/migrations/.
 
@@ -136,6 +138,16 @@ export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+/** Mapa de calles de la zona (una sola fila). Ver lib/street-map.ts y lib/street-graph.ts. */
+export const streetMap = pgTable("street_map", {
+  id: integer("id").primaryKey().default(1),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
+  bbox: text("bbox").notNull(), // "sur,oeste,norte,este"
+  ways: integer("ways").notNull(),
+  oneWays: integer("one_ways").notNull(),
+  graph: jsonb("graph").$type<StreetGraph>().notNull(),
 })
 
 export type Product = typeof products.$inferSelect

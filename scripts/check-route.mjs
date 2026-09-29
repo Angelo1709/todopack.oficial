@@ -181,6 +181,84 @@ check("40 paradas: resuelve rápido y no es peor que ir siempre a la más cercan
   assert.ok(r.totalKm <= routeKm(start, stops, start, greedy) + 1e-9)
 })
 
+// Matriz de km sobre [salida, ...paradas, llegada]: línea recta × 1,2 más un recargo en algunos sentidos
+// (manos únicas que obligan a dar la vuelta a la manzana).
+function oneWayMatrix(rand, pts) {
+  return pts.map((a, i) =>
+    pts.map((b, j) => (i === j ? 0 : distanceKm(a, b) * 1.2 + (rand() < 0.4 ? rand() * 0.8 : 0))),
+  )
+}
+function matrixKm(M, order, hasEnd) {
+  let km = 0
+  let prev = 0
+  for (const i of order) {
+    km += M[prev][i + 1]
+    prev = i + 1
+  }
+  return hasEnd ? km + M[prev][M.length - 1] : km
+}
+function bruteForceMatrix(M, count, hasEnd) {
+  let best = Infinity
+  const permute = (rest, order) => {
+    if (rest.length === 0) {
+      best = Math.min(best, matrixKm(M, order, hasEnd))
+      return
+    }
+    for (let i = 0; i < rest.length; i++) permute([...rest.slice(0, i), ...rest.slice(i + 1)], [...order, rest[i]])
+  }
+  permute([...Array(count).keys()], [])
+  return best
+}
+
+check("calles de mano única (ida ≠ vuelta): exacto y aproximado contra fuerza bruta", () => {
+  const rand = rng(77)
+  let worst = 0
+  for (let count = 3; count <= 8; count++) {
+    for (let t = 0; t < 5; t++) {
+      for (const hasEnd of [true, false]) {
+        const pts = randomPoints(rand, count + (hasEnd ? 2 : 1))
+        const M = oneWayMatrix(rand, pts)
+        const stops = pts.slice(1, count + 1)
+        const end = hasEnd ? pts[count + 1] : null
+        const best = bruteForceMatrix(M, count, hasEnd)
+        const exact = planRoute(pts[0], stops, end, { distances: M })
+        assert.ok(near(exact.totalKm, best), `exacto n=${count}`)
+        assert.ok(near(matrixKm(M, exact.order, hasEnd), exact.totalKm))
+        const approx = planRoute(pts[0], stops, end, { distances: M, exactMaxStops: 0 })
+        assert.ok(isPermutation(approx.order, count))
+        worst = Math.max(worst, approx.totalKm / best - 1)
+      }
+    }
+  }
+  assert.ok(worst < 0.05, `peor desvío ${100 * worst}%`)
+})
+
+check("mano única: entrega primero lo que queda a favor de la mano", () => {
+  // Salida en 0, paradas a 1 y 2 km. Ir de la de 2 km a la de 1 km obliga a rodear (5 km).
+  const pts = [at(0), at(1), at(2)]
+  const M = [
+    [0, 1, 2],
+    [1, 0, 1],
+    [2, 5, 0],
+  ]
+  const r = planRoute(pts[0], pts.slice(1), null, { distances: M })
+  assert.deepEqual(r.order, [0, 1])
+  assert.ok(near(r.totalKm, 2))
+})
+
+check("sin dato por calle (null) usa la línea recta en ese tramo", () => {
+  const pts = [at(0), at(1), at(3)]
+  const M = [
+    [0, null, null],
+    [null, 0, 7],
+    [null, 7, 0],
+  ]
+  const r = planRoute(pts[0], pts.slice(1), null, { distances: M })
+  assert.deepEqual(r.order, [0, 1])
+  assert.ok(near(r.legsKm[0], distanceKm(pts[0], pts[1])))
+  assert.equal(r.legsKm[1], 7)
+})
+
 check("determinístico: mismos datos, mismo orden", () => {
   const stops = randomPoints(rng(5), 20)
   assert.deepEqual(planRoute(at(0), stops, at(1)).order, planRoute(at(0), stops, at(1)).order)

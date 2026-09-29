@@ -11,6 +11,7 @@ import {
   type RouteConfig,
   type RoutePlace,
 } from "@/lib/route"
+import { streetDistances, type StreetGraph } from "@/lib/street-graph"
 
 export type RouteEndpoint = { place: RoutePlace; label: string; address: string; location: LatLng }
 export type RouteStop = { order: AdminOrder; location: LatLng; /** km desde el punto anterior. */ legKm: number }
@@ -35,6 +36,11 @@ export type DeliveryRoute = {
       totalKm: number
       /** Links de Google Maps (más de uno si hay muchas paradas). */
       mapsUrls: string[]
+      /**
+       * Cómo se midió: "calles" = todos los tramos por calle respetando las manos; "mixto" = algunos en
+       * línea recta (direcciones fuera del mapa); "recta" = sin mapa de calles.
+       */
+      measuredBy: "calles" | "mixto" | "recta"
     }
   | {
       ok: false
@@ -53,7 +59,13 @@ function endpoint(config: RouteConfig, place: RoutePlace): RouteEndpoint | null 
   return location ? { place, label: ROUTE_PLACE_LABEL[place], address, location } : null
 }
 
-export function buildDeliveryRoute(orders: AdminOrder[], slot: DeliverySlot, config: RouteConfig): DeliveryRoute {
+export function buildDeliveryRoute(
+  orders: AdminOrder[],
+  slot: DeliverySlot,
+  config: RouteConfig,
+  /** Mapa de calles (lib/street-map.ts); sin mapa se mide en línea recta. */
+  streets: StreetGraph | null = null,
+): DeliveryRoute {
   const slotOrders = orders.filter((o) => o.deliverySlot === slot && o.status !== "cancelado")
   const pending = slotOrders.filter(needsDelivery)
   const base = {
@@ -71,11 +83,18 @@ export function buildDeliveryRoute(orders: AdminOrder[], slot: DeliverySlot, con
   if (!start || missing.length > 0) return { ...base, ok: false, missing }
 
   const located = pending.filter((o): o is AdminOrder & { location: LatLng } => o.location !== null)
+  // Puntos: salida, entregas y llegada (el mismo orden que usa planRoute).
+  const points = [start.location, ...located.map((o) => o.location), ...(end ? [end.location] : [])]
+  const distances = streets && located.length > 0 ? streetDistances(streets, points) : null
   const plan = planRoute(
     start.location,
     located.map((o) => o.location),
     end?.location ?? null,
+    { distances },
   )
+  // ¿Algún tramo del recorrido elegido quedó sin medir por calle?
+  const visit = [0, ...plan.order.map((i) => i + 1), ...(end ? [points.length - 1] : [])]
+  const straightLegs = distances ? visit.slice(1).filter((to, k) => distances[visit[k]][to] === null).length : 0
   const stops = plan.order.map((index, i) => ({
     order: located[index],
     location: located[index].location,
@@ -90,6 +109,7 @@ export function buildDeliveryRoute(orders: AdminOrder[], slot: DeliverySlot, con
     stops,
     returnKm: end && stops.length > 0 ? plan.legsKm[plan.legsKm.length - 1] : null,
     totalKm: stops.length > 0 ? plan.totalKm : 0,
+    measuredBy: !distances ? "recta" : straightLegs > 0 ? "mixto" : "calles",
     mapsUrls:
       stops.length > 0
         ? googleMapsTripUrls(

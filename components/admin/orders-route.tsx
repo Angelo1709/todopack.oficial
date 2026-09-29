@@ -60,10 +60,7 @@ export function OrdersRoute({
           <p className="text-sm text-muted-foreground first-letter:uppercase print:text-base print:text-foreground">
             {dateLabel} · {slotLabel}
           </p>
-          <p className="text-xs text-muted-foreground print:hidden">
-            Ordenado para hacer la menor cantidad de km. Las distancias son en línea recta: por calle suelen ser un
-            poco más.
-          </p>
+          <RouteMeasureNote routes={routes} />
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
           {unsearched > 0 && <OrdersLocateButton date={date} count={unsearched} />}
@@ -84,6 +81,33 @@ export function OrdersRoute({
         <SlotRoute key={route.slot} route={route} />
       ))}
     </section>
+  )
+}
+
+/** Cómo se midieron las distancias (por calle con las manos de OpenStreetMap, o en línea recta). */
+function RouteMeasureNote({ routes }: { routes: DeliveryRoute[] }) {
+  const measured = routes.flatMap((r) => (r.ok && r.stops.length > 0 ? [r.measuredBy] : []))
+  if (measured.length === 0) return null
+  const className = "max-w-2xl text-xs text-muted-foreground print:hidden"
+  if (measured.every((m) => m === "recta")) {
+    return (
+      <p className={className}>
+        Ordenado para hacer la menor cantidad de km, midiendo en línea recta. Para respetar las calles de mano única,
+        bajá el mapa de calles en{" "}
+        <Link href="/admin/configuracion#calles" className="underline underline-offset-2 hover:text-foreground">
+          Configuración
+        </Link>
+        .
+      </p>
+    )
+  }
+  return (
+    <p className={className}>
+      Ordenado para hacer la menor cantidad de km por calle, respetando las manos (calles © colaboradores de
+      OpenStreetMap).
+      {measured.includes("mixto") && " Las direcciones fuera del mapa se midieron en línea recta."} Google Maps puede
+      marcar otro camino entre una parada y la otra: seguí el orden de esta lista.
+    </p>
   )
 }
 

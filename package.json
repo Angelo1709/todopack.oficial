@@ -16,7 +16,7 @@
     "db:seed": "node --env-file-if-exists=.env.local scripts/seed-products.mjs",
     "make-admin": "node --env-file-if-exists=.env.local scripts/make-admin.mjs",
     "db:local": "pglite-server --db=.pglite --port=5433 --max-connections=10",
-    "check": "node scripts/check-pack.mjs && node scripts/check-pricing.mjs && node scripts/check-route.mjs"
+    "check": "node scripts/check-pack.mjs && node scripts/check-pricing.mjs && node scripts/check-route.mjs && node scripts/check-streets.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
