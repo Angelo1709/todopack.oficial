@@ -110,6 +110,10 @@ export const orders = pgTable(
     lat: doublePrecision("lat"),
     lng: doublePrecision("lng"),
     locationStatus: text("location_status"),
+    // 'web' (checkout de la tienda) | 'manual' (cargado desde el panel). Ver ORDER_ORIGINS en lib/order-status.ts.
+    origin: text("origin").notNull().default("web"),
+    // Admin que cargó el pedido manual (null en los de la web).
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

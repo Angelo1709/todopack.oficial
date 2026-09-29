@@ -38,6 +38,11 @@ export function OrdersCard({ order, position }: { order: AdminOrder; position: n
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <p className="font-semibold leading-tight">{order.customerName}</p>
             {order.isGuest && <Badge variant="outline">Invitado</Badge>}
+            {order.origin === "manual" && (
+              <Badge variant="secondary" title={order.createdByName ? `Cargado por ${order.createdByName}` : undefined}>
+                Manual
+              </Badge>
+            )}
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
             <span className="font-medium text-foreground tabular-nums">{orderLabel(order.id)}</span> ·{" "}
@@ -46,7 +51,11 @@ export function OrdersCard({ order, position }: { order: AdminOrder; position: n
         </div>
 
         <div className="shrink-0 text-right">
-          <p className="text-lg font-bold leading-tight tabular-nums">{formatPrice(order.total)}</p>
+          {order.origin === "manual" && order.total === 0 ? (
+            <p className="text-sm leading-tight text-muted-foreground">Sin importe</p>
+          ) : (
+            <p className="text-lg font-bold leading-tight tabular-nums">{formatPrice(order.total)}</p>
+          )}
           <p className="mt-0.5 flex items-center justify-end gap-1 text-xs text-muted-foreground">
             <PaymentIcon className="size-3.5" />
             {PAYMENT_METHOD_LABEL[order.paymentMethod]}
@@ -69,23 +78,27 @@ export function OrdersCard({ order, position }: { order: AdminOrder; position: n
             <MapPin className="mt-0.5 size-3.5 shrink-0" />
             <span className="break-words">{order.address}</span>
           </a>
-          <a
-            href={`tel:${order.phone.replace(/[^\d+]/g, "")}`}
-            className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <Phone className="size-3.5 shrink-0" />
-            <span className="tabular-nums">{order.phone}</span>
-          </a>
+          {order.phone && (
+            <a
+              href={`tel:${order.phone.replace(/[^\d+]/g, "")}`}
+              className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Phone className="size-3.5 shrink-0" />
+              <span className="tabular-nums">{order.phone}</span>
+            </a>
+          )}
         </div>
-        <Button
-          variant="outline"
-          className="h-9 shrink-0 px-3 sm:h-8"
-          render={<a href={customerWhatsAppUrl(order)} target="_blank" rel="noreferrer" />}
-          nativeButton={false}
-        >
-          <MessageCircle className="size-4" />
-          WhatsApp
-        </Button>
+        {order.phone && (
+          <Button
+            variant="outline"
+            className="h-9 shrink-0 px-3 sm:h-8"
+            render={<a href={customerWhatsAppUrl(order)} target="_blank" rel="noreferrer" />}
+            nativeButton={false}
+          >
+            <MessageCircle className="size-4" />
+            WhatsApp
+          </Button>
+        )}
       </div>
 
       <ul className="mt-3 flex flex-col gap-1 border-y border-border py-2 text-sm">
@@ -103,7 +116,11 @@ export function OrdersCard({ order, position }: { order: AdminOrder; position: n
             </li>
           )
         })}
-        {order.items.length === 0 && <li className="text-muted-foreground">Sin productos cargados.</li>}
+        {order.items.length === 0 && (
+          <li className="text-muted-foreground">
+            {order.origin === "manual" ? "Cargado a mano: sin detalle de productos." : "Sin productos cargados."}
+          </li>
+        )}
       </ul>
 
       {order.notes && (

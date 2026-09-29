@@ -211,7 +211,7 @@ function PaymentLine({ order }: { order: AdminOrder }) {
     return (
       <span className="inline-flex items-center gap-1 font-semibold text-foreground tabular-nums">
         <Banknote className="size-3.5" />
-        Cobrar {formatPrice(order.total)}
+        {order.total > 0 ? `Cobrar ${formatPrice(order.total)}` : "Cobrar en efectivo"}
       </span>
     )
   }
@@ -246,13 +246,15 @@ function StopRow({ stop, position }: { stop: RouteStop; position: number }) {
             <MapPin className="mt-0.5 size-3.5 shrink-0" />
             <span className="break-words">{order.address}</span>
           </p>
-          <a
-            href={`tel:${order.phone.replace(/[^\d+]/g, "")}`}
-            className="mt-0.5 flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <Phone className="size-3.5 shrink-0" />
-            <span className="tabular-nums">{order.phone}</span>
-          </a>
+          {order.phone && (
+            <a
+              href={`tel:${order.phone.replace(/[^\d+]/g, "")}`}
+              className="mt-0.5 flex w-fit items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Phone className="size-3.5 shrink-0" />
+              <span className="tabular-nums">{order.phone}</span>
+            </a>
+          )}
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
             <PaymentLine order={order} />
             {order.locationStatus === "aproximada" && <Badge variant="outline">Ubicación aproximada</Badge>}

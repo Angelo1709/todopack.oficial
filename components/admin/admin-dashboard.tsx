@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ManualOrderDialog } from "@/components/admin/manual-order-dialog"
 import { OrdersDateNav } from "@/components/admin/orders-date-nav"
 import { OrdersFilterChips, OrdersViewSwitch } from "@/components/admin/orders-filters"
 import { OrdersList } from "@/components/admin/orders-list"
@@ -88,7 +89,10 @@ export function AdminDashboard({
               {relative && <Badge variant="secondary">{relative}</Badge>}
             </p>
           </div>
-          <OrdersDateNav filters={filters} today={today} />
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <ManualOrderDialog filters={filters} today={today} />
+            <OrdersDateNav filters={filters} today={today} />
+          </div>
         </div>
 
         <OrdersPendingTransfers transfers={pendingTransfers} today={today} />
