@@ -17,9 +17,42 @@ export type PriceListResult = {
   priceCol: number
 }
 
-const NAME_HEADER_RE = /descrip|articulo|artículo|producto|detalle|nombre/i
-const PRICE_HEADER_RE = /precio|price|importe|valor|\$/i
 const HEADER_SCAN_ROWS = 30
+
+function headerKey(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9$]+/g, " ")
+    .trim()
+}
+
+// Algunos ERP exportan a la vez "Descripción" (el rubro: ALMACEN/BEBIDAS) y
+// "Descripción Artículo" (el nombre real). No alcanza con elegir la primera
+// columna que contenga "descrip": priorizamos encabezados específicos y
+// descartamos identificadores como "Código Artículo" o "IdArticulo".
+function nameHeaderScore(value: string): number {
+  const key = headerKey(value)
+  if (!key || /^(?:id|codigo|cod|sku|ean|barcode|rubro|categoria|proveedor)(?: |$)/.test(key)) return 0
+  if (/^(?:descripcion|nombre|detalle) (?:del )?(?:articulo|producto)$/.test(key)) return 120
+  if (/^(?:articulo|producto) (?:descripcion|nombre|detalle)$/.test(key)) return 115
+  if (/^(?:descripcion|nombre|producto|detalle)$/.test(key)) return 100
+  if (/^(?:articulo)$/.test(key)) return 90
+  if (/\b(?:descripcion|nombre|producto|detalle|articulo)\b/.test(key)) return 60
+  return 0
+}
+
+function priceHeaderScore(value: string): number {
+  const key = headerKey(value)
+  if (!key) return 0
+  if (/^precio (?:de )?venta$/.test(key)) return 120
+  if (/^(?:precio|price)$/.test(key)) return 110
+  if (/\b(?:precio|price)\b/.test(key)) return 100
+  if (/^(?:importe|valor)$/.test(key)) return 90
+  if (/\b(?:importe|valor)\b/.test(key)) return 70
+  return key === "$" ? 50 : 0
+}
 
 /** Convierte "15000", "15.000", "$ 15.000", "1.234,56" o un número de Excel a pesos enteros. */
 export function parsePrice(raw: unknown): number {
@@ -50,18 +83,32 @@ export function nameKey(name: string): string {
 
 function findHeader(rows: unknown[][]): { headerRow: number; nameCol: number; priceCol: number } | null {
   const limit = Math.min(rows.length, HEADER_SCAN_ROWS)
+  let best: { headerRow: number; nameCol: number; priceCol: number; score: number } | null = null
   for (let r = 0; r < limit; r++) {
     const row = rows[r] ?? []
     let nameCol = -1
     let priceCol = -1
+    let nameScore = 0
+    let priceScore = 0
     row.forEach((cell, c) => {
       if (typeof cell !== "string") return
-      if (nameCol === -1 && NAME_HEADER_RE.test(cell)) nameCol = c
-      else if (priceCol === -1 && PRICE_HEADER_RE.test(cell)) priceCol = c
+      const nextNameScore = nameHeaderScore(cell)
+      if (nextNameScore > nameScore) {
+        nameCol = c
+        nameScore = nextNameScore
+      }
+      const nextPriceScore = priceHeaderScore(cell)
+      if (nextPriceScore > priceScore) {
+        priceCol = c
+        priceScore = nextPriceScore
+      }
     })
-    if (nameCol !== -1 && priceCol !== -1) return { headerRow: r, nameCol, priceCol }
+    if (nameCol !== -1 && priceCol !== -1 && nameCol !== priceCol) {
+      const score = nameScore + priceScore
+      if (!best || score > best.score) best = { headerRow: r, nameCol, priceCol, score }
+    }
   }
-  return null
+  return best
 }
 
 /** Sin encabezado: la columna con más textos es la descripción y la con más números, el precio. */

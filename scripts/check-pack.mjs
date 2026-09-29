@@ -58,6 +58,7 @@ const PAIRS = [
   ["CELUSAL SAL GRUESA 500GR PACK X30", "CELUSAL SAL GRUESA 500GR UNIDAD", true],
   ["LA HOJA YERBA 500G PACK X10", "LA HOJA YERBA 500G UNIDAD", true],
   ["LA HUERTA PURE DE TOMATE 530G CAJA X12", "LA HUERTA PURE DE TOMATE 530G UNIDAD", true],
+  ["HELLMANNS MAYONESA 237G CAJA X24", "HELLMANNS MAYONESA 237GR UNIDAD", true],
   ["SOL MAYOR ROLLO DE COCINA 40P PACK  X12", "SOL MAYOR ROLLO DE COCINA 40P UNIDAD", true],
   ["COCA COLA 1,5 LTS UNIDAD", "COCA COLA 1.5L PACK X6", true],
   // "VINO" y la botella de 750 ml se ignoran al agrupar.
@@ -147,6 +148,30 @@ const sheet = [
 const extracted = extractPriceRows(sheet)
 check(extracted.headerRow === 2 && extracted.nameCol === 1 && extracted.priceCol === 2, "extractPriceRows detecta el encabezado")
 check(extracted.rows.length === 2 && extracted.skipped === 1, "extractPriceRows lee 2 filas y omite 1")
+const erpSheet = [
+  [
+    "Rubro",
+    "Descripcion",
+    "IdArticulo",
+    "Codigo Articulo",
+    "Codigo Barras",
+    "Descripcion Articulo",
+    "Precio",
+    "Codigo proveedor",
+    "Proveedor",
+  ],
+  [21, "BEBIDAS", 547, 2019, null, "COCA COLA 2.5L PACK X6", 32000, 1, "GENERAL"],
+  [21, "BEBIDAS", 723, 2490, null, "COCA COLA 2.5L UNIDAD", 6000, 1, "GENERAL"],
+]
+const extractedErp = extractPriceRows(erpSheet)
+check(
+  extractedErp.nameCol === 5 && extractedErp.priceCol === 6,
+  'extractPriceRows prioriza "Descripción Artículo" sobre el rubro "Descripción"',
+)
+check(
+  extractedErp.rows.map((r) => r.name).join("|") === "COCA COLA 2.5L PACK X6|COCA COLA 2.5L UNIDAD",
+  "extractPriceRows conserva las presentaciones pack y unidad del ERP",
+)
 const noHeader = extractPriceRows([["COCA COLA", 100], ["PEPSI", 90]])
 check(noHeader.rows.length === 2 && noHeader.headerRow === -1, "extractPriceRows sin encabezado")
 
