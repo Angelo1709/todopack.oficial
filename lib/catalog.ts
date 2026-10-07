@@ -55,10 +55,11 @@ function buildArticle(key: string, rows: ArticleRow[]): Article | null {
   // El nombre va sin "PACK X6" solo si lo que dice coincide con el pack guardado (uno sin clasificar
   // tiene pack_size 1 aunque diga "CAJA X12": ahí se muestra el nombre completo).
   const parsed = parsePresentation(base.name)
+  const display = rows.map(r=>parsePresentation(r.name)).find(p=>p.groupKey===key) ?? parsed
   return {
     key,
     baseId: base.id,
-    name: parsed.packSize === base.packSize ? parsed.baseName : base.name,
+    name: parsed.packSize === base.packSize ? display.baseName : base.name,
     category: base.category,
     imageUrl: rows.find((r) => r.imageUrl)?.imageUrl ?? null,
     tiers,

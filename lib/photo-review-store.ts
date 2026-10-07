@@ -8,6 +8,7 @@ export type PhotoProduct = { id: number; name: string; groupKey: string | null; 
 export type PhotoCandidate = {
   id: string; productId: number | null; filename: string; sourceTitle: string
   status: PhotoStatus; version: number; published: boolean
+  sha256: string
 }
 export type PhotoSnapshot = { products: PhotoProduct[]; candidates: PhotoCandidate[] }
 export class PhotoReviewError extends Error {}
@@ -24,7 +25,9 @@ export function photoMime(bytes: Uint8Array): string {
 
 export function publicPhotoUrl(id: string) { return `/api/fotos-productos/${id}` }
 const columns = `c.id, c.product_id AS "productId", c.filename, c.source_title AS "sourceTitle",
-  c.status, c.version, coalesce(p.image_url = '/api/fotos-productos/' || c.id::text AND c.status = 'confirmada', false) AS published`
+  c.status, c.version, c.sha256, c.status = 'confirmada' AND EXISTS (
+    SELECT 1 FROM products shown WHERE shown.image_url = '/api/fotos-productos/' || c.id::text
+  ) AS published`
 
 export class PhotoReviewStore {
   private pool: Pick<Pool, "query" | "connect">
@@ -64,7 +67,12 @@ export class PhotoReviewStore {
     return this.transaction(async (client) => {
       if (productId !== null && !(await client.query("SELECT id FROM products WHERE id=$1", [productId])).rowCount)
         throw new PhotoReviewError("El producto ya no existe.")
-      const existing = await client.query<{ id: string }>(`SELECT id FROM product_photo_candidates WHERE product_id IS NOT DISTINCT FROM $1 AND sha256=$2`, [productId, sha])
+      const existing = await client.query<{ id: string }>(`SELECT c.id FROM product_photo_candidates c
+        LEFT JOIN products p ON p.id=c.product_id
+        WHERE c.sha256=$2 AND (c.product_id IS NOT DISTINCT FROM $1 OR
+          ($1::integer IS NOT NULL AND coalesce(p.group_key,'id:'||p.id)=
+          (SELECT coalesce(group_key,'id:'||id) FROM products WHERE id=$1)))
+        ORDER BY (c.status='confirmada') DESC,c.updated_at DESC LIMIT 1`, [productId, sha])
       if (existing.rows.length) return { id: existing.rows[0].id, duplicate: true }
       const id = randomUUID()
       await client.query(`INSERT INTO product_photo_candidates
@@ -96,16 +104,20 @@ export class PhotoReviewStore {
       if (productId !== null && !(await client.query("SELECT id FROM products WHERE id=$1 FOR UPDATE", [productId])).rowCount)
         throw new PhotoReviewError("El producto ya no existe.")
       if (assigning) {
-        const duplicate = await client.query("SELECT id FROM product_photo_candidates WHERE product_id IS NOT DISTINCT FROM $1 AND sha256=(SELECT sha256 FROM product_photo_candidates WHERE id=$2) AND id<>$2", [productId, input.id])
+        const duplicate = await client.query(`SELECT c.id FROM product_photo_candidates c LEFT JOIN products p ON p.id=c.product_id
+          WHERE c.sha256=(SELECT sha256 FROM product_photo_candidates WHERE id=$2) AND c.id<>$2 AND
+          (c.product_id IS NOT DISTINCT FROM $1 OR ($1::integer IS NOT NULL AND coalesce(p.group_key,'id:'||p.id)=
+          (SELECT coalesce(group_key,'id:'||id) FROM products WHERE id=$1)))`, [productId, input.id])
         if (duplicate.rowCount) throw new PhotoReviewError("Esta foto ya está vinculada a ese producto.")
       }
       const url = publicPhotoUrl(input.id)
       if (status === "confirmada") {
-        // La foto es para ESTA presentación. No se aplica a todo el groupKey.
-        await client.query("UPDATE products SET image_url=$1, updated_at=now() WHERE id=$2", [url, productId])
+        // Unidad y pack son el mismo artículo: una sola publicación compartida.
+        await client.query(`UPDATE products SET image_url=$1, updated_at=now()
+          WHERE coalesce(group_key,'id:'||id)=(SELECT coalesce(group_key,'id:'||id) FROM products WHERE id=$2)`, [url, productId])
       } else {
         // Sólo retira esta foto: otra imagen publicada después queda intacta.
-        await client.query("UPDATE products SET image_url=NULL, updated_at=now() WHERE id=$1 AND image_url=$2", [row.product_id, url])
+        await client.query("UPDATE products SET image_url=NULL, updated_at=now() WHERE image_url=$1", [url])
       }
       await client.query(`UPDATE product_photo_candidates SET product_id=$2, status=$3, version=version+1,
         reviewed_by=$4, updated_at=now() WHERE id=$1`, [input.id, productId, status, input.userId])
@@ -116,8 +128,8 @@ export class PhotoReviewStore {
 
   async image(id: string, publicOnly: boolean) {
     const result = await this.pool.query<{ image_data: Buffer; mime_type: string }>(
-      `SELECT c.image_data, c.mime_type FROM product_photo_candidates c LEFT JOIN products p ON p.id=c.product_id
-       WHERE c.id=$1 ${publicOnly ? "AND c.status='confirmada' AND p.image_url='/api/fotos-productos/' || c.id::text" : ""}`, [id])
+      `SELECT c.image_data, c.mime_type FROM product_photo_candidates c
+       WHERE c.id=$1 ${publicOnly ? "AND c.status='confirmada' AND EXISTS (SELECT 1 FROM products p WHERE p.image_url='/api/fotos-productos/' || c.id::text)" : ""}`, [id])
     return result.rows[0] ?? null
   }
 }

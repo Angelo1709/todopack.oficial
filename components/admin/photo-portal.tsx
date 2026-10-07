@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { PhotoCandidate, PhotoSnapshot, PhotoStatus } from "@/lib/photo-review-store"
+import { photoArticles } from "@/lib/photo-articles"
 
 const labels = { pendiente: "Pendiente", confirmada: "Confirmada", errada: "Errada" }
 const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim()
@@ -23,9 +24,12 @@ export function PhotoPortal({ initial }: { initial: PhotoSnapshot }) {
   const [progress, setProgress] = useState("")
   const [uploading, setUploading] = useState(false)
   const [failures, setFailures] = useState<string[]>([])
+  const [choices, setChoices] = useState<Record<string, string>>({})
   const fileInput = useRef<HTMLInputElement>(null)
   const folderInput = useRef<HTMLInputElement>(null)
   const byId = new Map(data.products.map((p) => [p.id, p]))
+  const articles = photoArticles(data)
+  const articleById = new Map(articles.flatMap(a=>a.products.map(p=>[p.id,a] as const)))
 
   async function request(url: string, options?: RequestInit) {
     const response = await fetch(url, options)
@@ -63,7 +67,7 @@ export function PhotoPortal({ initial }: { initial: PhotoSnapshot }) {
         // Sólo un nombre de archivo idéntico vincula automáticamente. Cualquier
         // otra foto queda sin vincular para elegir el producto al revisarla.
         const exact = data.products.filter((p) => normalize(p.name) === fileKey(file.name))
-        const productId = uploadProduct || (exact.length === 1 ? String(exact[0].id) : "")
+        const productId = uploadProduct || (exact.length === 1 ? String(articleById.get(exact[0].id)?.id ?? exact[0].id) : "")
         if (productId) form.set("producto", productId)
         const result = await request("/api/admin/fotos", { method: "POST", body: form })
         if (result.duplicate) duplicate++
@@ -79,33 +83,39 @@ export function PhotoPortal({ initial }: { initial: PhotoSnapshot }) {
     if (added) toast.success("Fotos cargadas para revisar. Todavía no se publicaron.")
   }
   function downloadPending() {
-    const pending = data.products.filter((p) => !p.imageUrl).map((p) => ({
-      ...p, fotos: data.candidates.filter((c) => c.productId === p.id).map((c) => ({ id: c.id, archivo: c.filename, estado: c.status })),
+    const pending = articles.filter((p) => !p.imageUrl).map((p) => ({
+      id:p.id, articulo:p.name, grupo:p.key, presentaciones:p.products,
+      fotos: p.candidates.map((c) => ({ id: c.id, archivo: c.filename, estado: c.status })),
     }))
     const url = URL.createObjectURL(new Blob([JSON.stringify(pending, null, 2)], { type: "application/json" }))
     const link = document.createElement("a"); link.href = url; link.download = "productos-para-buscar-fotos.json"; link.click()
     URL.revokeObjectURL(url)
   }
   const term = normalize(search)
-  const visible = data.candidates.filter((c) => (!filter || c.status === filter || (filter === "sin-vincular" && !c.productId))
-    && normalize(`${c.filename} ${c.sourceTitle} ${byId.get(c.productId ?? 0)?.name ?? ""}`).includes(term))
-  const withoutPhoto = data.products.filter((p) => !p.imageUrl && normalize(p.name).includes(term))
+  const unassigned = data.candidates.filter(c=>!c.productId || !articleById.has(c.productId)).map(c=>({
+    key:`foto:${c.id}`,id:0,name:"Elegí a qué producto corresponde",products:[],imageUrl:null,presentations:"",candidates:[c],
+  }))
+  const visible = [...articles,...unassigned].map(a=>({...a,candidates:a.candidates.filter(c=>
+    (!filter || c.status===filter || (filter==="sin-vincular"&&!c.productId)) &&
+    normalize(`${a.name} ${a.products.map(p=>p.name).join(" ")} ${c.filename} ${c.sourceTitle}`).includes(term))
+  })).filter(a=>a.candidates.length)
+  const withoutPhoto = articles.filter((p) => !p.imageUrl && normalize(p.name).includes(term))
   const finding = filter === "por-buscar"
   const total = finding ? withoutPhoto.length : visible.length
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const currentPage = Math.min(page, pages)
   const start = (currentPage - 1) * PAGE_SIZE
   const stats = [
-    [data.candidates.filter((c) => c.status === "pendiente").length, "Por revisar"],
-    [data.candidates.filter((c) => c.published).length, "Publicadas"],
-    [data.candidates.filter((c) => c.status === "errada").length, "Erradas"],
-    [data.products.filter((p) => !p.imageUrl).length, "Productos sin foto"],
+    [[...articles,...unassigned].filter(a=>a.candidates.some(c=>c.status==="pendiente")).length, "Por revisar"],
+    [articles.filter(a=>a.imageUrl).length, "Artículos con foto"],
+    [[...articles,...unassigned].filter(a=>a.candidates.some(c=>c.status==="errada")).length, "Con fotos erradas"],
+    [articles.filter(a=>!a.imageUrl).length, "Artículos sin foto"],
   ]
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="font-serif text-2xl font-bold">Portal de fotos</h1><p className="mt-1 text-sm text-muted-foreground">Cargá, vinculá y revisá. Solo las fotos que confirmás se muestran en la tienda.</p></div>
+        <div><h1 className="font-serif text-2xl font-bold">Portal de fotos</h1><p className="mt-1 text-sm text-muted-foreground">Una foto por artículo, compartida entre unidad y packs. Solo se publica al confirmar.</p></div>
         <Button variant="outline" size="sm" onClick={refresh} disabled={!!busy || uploading}><RotateCcw className="size-4" /> Recargar</Button>
       </div>
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{stats.map(([count, label]) => <div key={label} className="rounded-xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-2 text-xl font-bold tabular-nums">{count}</p></div>)}</div>
@@ -124,7 +134,7 @@ export function PhotoPortal({ initial }: { initial: PhotoSnapshot }) {
           <label className="flex flex-col gap-1.5 text-sm">Vincular las fotos a un producto (opcional)
             <select className="h-10 w-full min-w-0 rounded-lg border border-border bg-background px-3" value={uploadProduct} disabled={uploading} onChange={(e) => setUploadProduct(e.target.value)}>
               <option value="">Usar el nombre del archivo o elegir al revisar</option>
-              {data.products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              {articles.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.presentations}</option>)}
             </select>
           </label>
           <Button className="self-start" disabled={uploading || !!busy} onClick={upload}><Upload className="size-4" />{uploading ? "Cargando…" : `Cargar ${files.length} fotos para revisar`}</Button>
@@ -139,22 +149,29 @@ export function PhotoPortal({ initial }: { initial: PhotoSnapshot }) {
       ].map(([value, label]) => <button key={value} className={`rounded-full border px-3 py-1.5 text-sm ${filter === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground"}`} onClick={() => { setFilter(value); setPage(1) }}>{label}</button>)}</div>
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" /><Input aria-label="Buscar fotos o productos" placeholder="Buscar producto, marca o archivo" className="pl-9" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} /></div>
-        <span className="text-sm text-muted-foreground tabular-nums">{total} {finding ? "productos" : "fotos"}</span>
+        <span className="text-sm text-muted-foreground tabular-nums">{total} artículos</span>
         <Button variant="outline" size="sm" onClick={downloadPending}><Download className="size-4" /> Pendientes</Button>
       </div>
-      {finding ? <div className="grid gap-3 sm:grid-cols-2">{withoutPhoto.slice(start, start + PAGE_SIZE).map((p) => <article key={p.id} className="rounded-xl border border-border bg-card p-4"><h2 className="text-sm font-semibold">{p.name}</h2><p className="mt-1 text-xs text-muted-foreground">Sin foto publicada · {data.candidates.filter((c) => c.productId === p.id).length} candidatas</p></article>)}</div>
-        : <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{visible.slice(start, start + PAGE_SIZE).map((photo) => {
+      {finding ? <div className="grid gap-3 sm:grid-cols-2">{withoutPhoto.slice(start, start + PAGE_SIZE).map((p) => <article key={p.id} className="rounded-xl border border-border bg-card p-4"><h2 className="text-sm font-semibold">{p.name}</h2><p className="mt-1 text-xs text-muted-foreground">{p.presentations} · Sin foto publicada · {p.candidates.length} candidatas</p></article>)}</div>
+        : <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{visible.slice(start, start + PAGE_SIZE).map((article) => {
+          const photo = article.candidates.find(c=>c.id===choices[article.key]) ?? article.candidates[0]
           const product = byId.get(photo.productId ?? 0)
-          return <article key={photo.id} className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card">
+          return <article key={article.key} className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card">
             <a href={`/api/admin/fotos/${photo.id}`} target="_blank" rel="noopener" aria-label={`Ampliar foto ${photo.filename}`} className="block aspect-square bg-muted p-4"><img src={`/api/admin/fotos/${photo.id}`} alt={photo.sourceTitle || photo.filename} loading="lazy" className="size-full object-contain" /></a>
             <div className="flex flex-1 flex-col gap-3 p-4">
               <div className="flex flex-wrap gap-2 text-xs"><span className={`rounded-full px-2 py-1 ${photo.status === "errada" ? "bg-destructive/10 text-destructive" : "bg-muted text-foreground"}`}>{labels[photo.status]}</span>{photo.published && <span className="rounded-full bg-primary/15 px-2 py-1 text-foreground">Publicada en la tienda</span>}</div>
-              <h2 className="text-sm font-semibold">{product?.name ?? "Elegí a qué producto corresponde"}</h2>
+              <h2 className="text-sm font-semibold">{article.name}</h2>
+              {article.presentations && <p className="text-xs text-muted-foreground">{article.presentations} · comparten esta foto</p>}
+              {article.candidates.length>1 && <label className="flex flex-col gap-1.5 text-xs">Foto a revisar
+                <select aria-label={`Foto de ${article.name}`} className="h-10 w-full min-w-0 rounded-lg border border-border bg-background px-2 text-sm" value={photo.id} onChange={e=>setChoices({...choices,[article.key]:e.target.value})}>
+                  {article.candidates.map((c,i)=><option key={c.id} value={c.id}>{i+1}. {labels[c.status]} · {c.sourceTitle||c.filename}</option>)}
+                </select>
+              </label>}
               {photo.sourceTitle && <p className="text-xs text-muted-foreground">Foto: {photo.sourceTitle}</p>}
               <p className="break-all text-xs text-muted-foreground">Archivo: {photo.filename}</p>
               <label className="flex min-w-0 flex-col gap-1.5 text-xs">Producto
-                <select aria-label={`Producto de ${photo.filename}`} className="h-10 w-full min-w-0 rounded-lg border border-border bg-background px-2 text-sm" value={photo.productId ?? ""} disabled={!!busy || uploading || photo.status === "confirmada"} onChange={(e) => decide(photo, { productId: e.target.value ? Number(e.target.value) : null })}>
-                  <option value="">Sin vincular</option>{data.products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                <select aria-label={`Producto de ${photo.filename}`} className="h-10 w-full min-w-0 rounded-lg border border-border bg-background px-2 text-sm" value={articleById.get(photo.productId??0)?.id ?? ""} disabled={!!busy || uploading || photo.status === "confirmada"} onChange={(e) => decide(photo, { productId: e.target.value ? Number(e.target.value) : null })}>
+                  <option value="">Sin vincular</option>{articles.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.presentations}</option>)}
                 </select>
               </label>
               {photo.status === "confirmada" && !photo.published && <p className="text-xs text-muted-foreground">Hay otra foto en el catálogo. Podés volver a publicar esta.</p>}

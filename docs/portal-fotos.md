@@ -3,7 +3,7 @@
 Ruta: `/admin/fotos`. Usa las cuentas administradoras existentes de TODO PACK.
 
 Las fotos se cargan como candidatas privadas. **Confirmada** publica la imagen en
-`products.image_url` de la presentación elegida y actualiza el catálogo. **Errada**
+`products.image_url` de todas las presentaciones del mismo artículo y actualiza el catálogo. **Errada**
 la conserva para revisión y retira esa imagen si sigue publicada. **Volver a
 pendiente** también retira la imagen cuando corresponde. Cambiar el producto de
 una foto requiere que no esté confirmada.
@@ -22,8 +22,11 @@ sobrescriban decisiones sin recargar. El historial está en `product_photo_revie
   de archivo que coincida exactamente con el nombre del producto (normalizado)
   lo vincula automáticamente. Las otras imágenes aparecen en **Sin vincular**.
 - Todas las cargas nuevas quedan pendientes. Vincular nunca confirma ni publica.
-- Los reintentos de la misma imagen y producto no duplican archivos ni cambian
-  decisiones existentes. No se asignan imágenes a todo un `groupKey`.
+- Unidad y packs del mismo `groupKey` comparten una única foto pública. El portal
+  muestra una tarjeta por artículo y permite elegir entre las fotos alternativas.
+- Los reintentos de la misma imagen para cualquier presentación del artículo no
+  duplican archivos ni cambian decisiones existentes. Los duplicados anteriores
+  se conservan en el historial, pero se revisan una sola vez por imagen/artículo.
 - **Productos por buscar** y la descarga de pendientes muestran productos sin
   imagen publicada, para trabajar con otra fuente.
 
@@ -47,11 +50,17 @@ respuesta pública cacheada por el portal. Las mutaciones requieren origen del s
 PHOTO_REVIEW_DIR=/ruta/fotos-carrefour DATABASE_URL=... node scripts/import-photo-review.mjs
 ```
 
-El importador cruza por nombre exacto, `groupKey` y `packSize`, nunca por el índice
+El importador cruza por nombre exacto, `groupKey` normalizado y `packSize`, nunca por el índice
 del JSON como ID de base. Conserva confirmaciones y rechazos humanos cuando la firma
 de la foto coincide con la revisión local. Las coincidencias automáticas quedan
 pendientes. Reejecutarlo no pisa revisiones hechas después en la nube. Guarda el
 informe en `importacion-nube.json` dentro de la carpeta fuente.
 
-La migración `0009_portal_fotos.sql` se aplica al iniciar el servicio con `pnpm start`.
+La migración `0010_fotos_por_articulo.mjs` unifica el orden del volumen en los grupos
+(por ejemplo, Baggio multifruta 1 L) y comparte las fotos ya aprobadas entre las
+presentaciones. Preserva tamaños, precios, sabores y variantes como FRÍA. Ante dos
+fotos aprobadas, prioriza una elección humana y luego la más reciente. La unidad
+7Up de 1,5 L rotulada FRÍA se unifica con el pack x6 por indicación expresa del
+usuario (07/10/2026); sus precios siguen siendo $2.700 y $15.000. No borra
+archivos ni decisiones. Ambas migraciones se aplican al iniciar con `pnpm start`.
 Verificación: `node scripts/check-photo-review.mjs`, `pnpm typecheck` y `pnpm build`.

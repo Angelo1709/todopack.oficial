@@ -18,6 +18,19 @@ check("ejemplo del cliente: 7 u. = 6000 + 1100", () => {
   assert.equal(b.total, 7100)
   assert.equal(describeBreakdown(b), "1 pack x6 + 1 u.")
 })
+check("11 u. = un pack x6 y cinco unidades, sin descuento sobre el sobrante", () => {
+  const b = priceFor([unidad, pack6], 11)
+  assert.equal(b.total, 11500)
+  assert.equal(describeBreakdown(b), "1 pack x6 + 5 u.")
+  assert.deepEqual(b.lines.map(({tier,count})=>[tier.packSize,count]),[[6,1],[1,5]])
+})
+check("7Up real: $2700 unidad, $15000 pack x6; 11 u. = $28500", () => {
+  const tiers=[t(689,1,2700,"Unidad"),t(688,6,15000,"Pack x6")]
+  assert.equal(priceFor(tiers,5).total,13500)
+  assert.equal(priceFor(tiers,6).total,15000)
+  assert.equal(priceFor(tiers,11).total,28500)
+  assert.equal(describeBreakdown(priceFor(tiers,11)),"1 pack x6 + 5 u.")
+})
 check("menos de un pack: todo por unidad", () => assert.equal(priceFor([unidad, pack6], 5).total, 5500))
 check("pack justo", () => assert.equal(priceFor([unidad, pack6], 6).total, 6000))
 check("13 u. = 2 packs + 1", () => assert.equal(priceFor([unidad, pack6], 13).total, 13100))

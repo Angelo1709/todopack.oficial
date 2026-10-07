@@ -147,7 +147,15 @@ export function normalizeGroupKey(text: string): string {
   }
   // "VINO" es relleno y 750 ml es la botella estándar: "PORTILLO MALBEC CAJA X6" = "PORTILLO VINO MALBEC 750CC".
   s = s.replace(/(^| )vino(?= |$)/g, "$1 ").replace(/(^| )750ml(?= |$)/g, "$1 ")
-  return collapse(s)
+  // El volumen no cambia la identidad por su posición: "BAGGIO 1L MULTIFRUTA"
+  // y "BAGGIO MULTIFRUTA 1L" deben compartir grupo. Mantiene sabores y FRÍA.
+  return canonicalVolumeOrder(s)
+}
+
+/** Cambia sólo la posición del volumen; conserva las demás palabras del grupo. */
+export function canonicalVolumeOrder(text: string): string {
+  const volumes = text.match(/\b\d+(?:\.\d+)?(?:ml|l)\b/g) ?? []
+  return collapse(volumes.length ? `${text.replace(/\b\d+(?:\.\d+)?(?:ml|l)\b/g, " ")} ${volumes.join(" ")}` : text)
 }
 
 /**

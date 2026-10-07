@@ -6,6 +6,7 @@ import { resolve, join, sep } from "node:path"
 import { createHash, randomUUID } from "node:crypto"
 import pg from "pg"
 import { PhotoReviewStore, photoMime } from "../lib/photo-review-store.ts"
+import { normalizeGroupKey } from "../lib/pack.ts"
 
 const root = resolve(process.env.PHOTO_REVIEW_DIR ?? "../fotos-carrefour")
 const connectionString = process.env.DATABASE_PUBLIC_URL ?? process.env.DATABASE_URL
@@ -29,7 +30,8 @@ try {
     if (!row.foto_local) continue
     const target = resolve(root, row.foto_local)
     if (!target.startsWith(root + sep)) throw new Error("Ruta de foto inválida.")
-    const products = catalog.filter((p) => p.name === row.nombre_original && p.groupKey === row.groupKey && p.packSize === row.packSize)
+    const products = catalog.filter((p) => p.name === row.nombre_original &&
+      normalizeGroupKey(p.groupKey ?? "") === normalizeGroupKey(row.groupKey ?? "") && p.packSize === row.packSize)
     if (products.length !== 1) { report.missing.push(row.nombre_original); continue }
     try {
       const data = readFileSync(target)
