@@ -32,20 +32,21 @@ const PACK_WORDS: Record<string, string> = {
 
 const KEYWORD = "PACK|CAJA|CAJ[OÓ]N|BULTO|FARDO|DISPLAY|DISPLEY|BOLS[OÓ]N|TIRA"
 // Palabras que pueden seguir a la cantidad: "X18U", "X20 SOBRES", "X4 BOTELLAS".
-const COUNT_SUFFIX = "(?: ?(?:U|UN|UNID|UNIDADES|SOBRES|BOTELLAS|LATAS))?"
+const COUNT_SUFFIX = "(?: ?(?:U|UN|UNID|UNIDS|UNIDADES|SOBRES|BOTELLAS|LATAS))?"
 // La cantidad no puede seguir con letras o dígitos: "X200ML" es un volumen, no un pack.
 const COUNT_END = "(?![\\p{L}\\d])"
 
 // "PACK X6", "CAJA X 15", "CAJON RETORN 2L X8" (hasta 3 palabras entre la palabra clave y "X N").
 // Grupo 1 = separador previo, 2 = palabra clave, 3 = palabras intermedias, 4 = cantidad.
 const KEYWORD_PACK_RE = new RegExp(
-  `(^|[^\\p{L}\\d])(${KEYWORD})((?: (?!X ?\\d)\\S+){0,3}?) X ?(\\d+)${COUNT_SUFFIX}${COUNT_END}`,
+  `(^|[^\\p{L}\\d])(${KEYWORD})((?: (?!X ?\\d)\\S+){0,3}?) ?X ?(\\d+)${COUNT_SUFFIX}${COUNT_END}`,
   "iu",
 )
 // "PACK12" / "PACK 12" (sin X, pegado a la palabra clave). Grupo 1 = separador, 2 = clave, 3 = cantidad.
 const KEYWORD_NUMBER_RE = new RegExp(`(^|[^\\p{L}\\d])(${KEYWORD}) ?(\\d+)(?![\\p{L}\\d.,])`, "iu")
-// "X N" al final sin palabra clave: "CORONA 710ML X12", "TIO NELIDO ALFAJOR MAICENA X15".
-const TRAILING_COUNT_RE = new RegExp(`(?:^| )X ?(\\d+)${COUNT_SUFFIX}$`, "iu")
+// Cantidad sin palabra clave: "200GR X20 UNIDADES", "X30U 15GR", "710ML X4 FRIA".
+const BARE_COUNT_RE = new RegExp(`(^| )X ?(\\d+)${COUNT_SUFFIX}${COUNT_END}`, "iu")
+const WEIGHT_RE = /\d(?:[.,]\d+)? ?(?:G|GR|GRS|GRAMOS|KG|KGS)(?![\p{L}])/iu
 // Volumen de bebida (o lata): con esto un "X N" final es un pack y no el contenido del envase.
 const DRINK_RE = /\d(?:[.,]\d+)? ?(?:ML|CC|L|LT|LTS|LITRO|LITROS)(?![\p{L}])|(?:^|[^\p{L}])LATAS?(?![\p{L}])/iu
 
@@ -78,7 +79,7 @@ export function parsePresentation(rawName: string): Presentation {
 
   const keyword = KEYWORD_PACK_RE.exec(name)
   const keywordNumber = keyword ? null : KEYWORD_NUMBER_RE.exec(name)
-  const trailing = keyword || keywordNumber ? null : TRAILING_COUNT_RE.exec(name)
+  const trailing = keyword || keywordNumber ? null : BARE_COUNT_RE.exec(name)
 
   if (keyword) {
     const n = Number(keyword[4])
@@ -98,10 +99,17 @@ export function parsePresentation(rawName: string): Presentation {
     const start = keywordNumber.index + keywordNumber[1].length
     base = `${name.slice(0, start)} ${name.slice(keywordNumber.index + keywordNumber[0].length)}`
   } else if (trailing) {
-    const n = Number(trailing[1])
-    const rest = name.slice(0, trailing.index)
-    // Sin volumen de bebida, "X20" describe el contenido (sobres, saquitos, alfajores): queda en el nombre.
-    if (DRINK_RE.test(rest) && validCount(n)) {
+    const n = Number(trailing[2])
+    const rest = collapse(`${name.slice(0, trailing.index)} ${name.slice(trailing.index + trailing[0].length)}`)
+    const explicitUnits = /(?:U|UN|UNID|UNIDS|UNIDADES)$/iu.test(trailing[0])
+    const atEnd = trailing.index + trailing[0].length === name.length
+    // Una medida por envase + cantidad final (200g x20), unidades explícitas
+    // (15g x18u), o cantidad antes del peso de yerba/bombones (x6 500g).
+    // Tripacks y cajas de saquitos describen el envase minorista: se conservan.
+    const weighedPack = WEIGHT_RE.test(rest) && !/TRIPACK|SAQUITOS?/iu.test(rest)
+      && (atEnd || explicitUnits || /(?:^| )(?:YERBA|BOMBONES)(?: |$)/iu.test(rest))
+    const looseDrinks = /(?:JUGO EN POLVO|JUGO DE LIMON|^SODA )/iu.test(rest)
+    if ((DRINK_RE.test(rest) || weighedPack || looseDrinks) && validCount(n)) {
       packSize = n
       label = `Pack x${n}`
       base = rest

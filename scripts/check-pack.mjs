@@ -31,10 +31,10 @@ const CASES = [
   ["LA QUESERA 40GR UNIDAD", 1, "Unidad", "la quesera 40g"],
   ["PAPEL HIG HIGIENOL FRESH 30MX4 PACK12", 12, "Pack x12", "papel hig higienol fresh 30mx4"],
   ["PAPEL HIG. HIGIENOL FRESH 30MX4 UNIDAD", 1, "Unidad", "papel hig higienol fresh 30mx4"],
-  // "X N" sin volumen de bebida = contenido del envase (queda en el nombre y en el grupo).
-  ["CLIGHT  LIMONADA ARANDANO JUGO EN POLVO  X20SOBRES", 1, "Unidad"],
-  ["CLIGHT MANZANA VERDE JUGO EN POLVO X20 SOBRES", 1, "Unidad"],
-  ["BON O BON BOMBONES X30 15GR NEGRO", 1, "Unidad"],
+  // Sin medida por envase, los saquitos y los envases minoristas conservan su contenido.
+  ["CLIGHT  LIMONADA ARANDANO JUGO EN POLVO  X20SOBRES", 20, "Pack x20"],
+  ["CLIGHT MANZANA VERDE JUGO EN POLVO X20 SOBRES", 20, "Pack x20"],
+  ["BON O BON BOMBONES X30 15GR NEGRO", 30, "Pack x30"],
   ["TIO NELIDO ALFAJOR MAICENA X15", 1, "Unidad", "tio nelido alfajor maicena x15"],
   ["TIO NELIDO ALFAJOR MAICENA X6", 1, "Unidad", "tio nelido alfajor maicena x6"],
   ["LA VIRGINIA CAFE SAQUITO X20", 1, "Unidad", "la virginia cafe saquito x20"],
@@ -44,6 +44,18 @@ const CASES = [
   // "PACK" sin cantidad no es un pack ("pack ahorro" es el envase).
   ["CAFE LA VIRGINIA CLAS PACK AHORRO 170G", 1, "Unidad", "cafe la virginia clas pack ahorro 170g"],
   ["BOLSON FAMILIAR NUMERO 1", 1, "Unidad"],
+  ["9 DE ORO AGRIDULCE 200GR X20 UNIDADES", 20, "Pack x20", "9 de oro agridulce 200g"],
+  ["9 DE ORO AZUCARADAS 210G CAJAX28", 28, "Caja x28", "9 de oro azucaradas 210g"],
+  ["9 DE ORO CLASICO 200GR X24 UNIDADES", 24, "Pack x24", "9 de oro clasico 200g"],
+  ["TALLARIN MAROLIO 500G X 20", 20, "Pack x20", "tallarin marolio 500g"],
+  ["LA MERCED YERBA BARBACUA X6 500GR", 6, "Pack x6", "la merced yerba barbacua 500g"],
+  ["BON O BON BOMBONES X30U 15GR BLANCO", 30, "Pack x30"],
+  ["CHOCOLATE COFLER BLOCK 38GR X20U", 20, "Pack x20"],
+  ["BRAHMA LATA 710ML X4 FRIA", 4, "Pack x4", "brahma lata fria 710ml"],
+  ["GALLETITA AMOR X3 330GR", 1, "Unidad"],
+  ["TRAVIATA ORIGINAL 108GR X3 TRIPACK", 1, "Unidad"],
+  ["CRIOLLITAS 100GR TRIPACK X3 ORIGINAL", 1, "Unidad"],
+  ["TANG MANZANA JUGO EN POLVO X20", 20, "Pack x20"],
   // Variantes de "unidad".
   ["PIATTELLI SALTA MALBEC 750ML U", 1, "Unidad", "piattelli salta malbec"],
   ["ENCUENTRO VINO MALBEC 750ML UNI", 1, "Unidad", "encuentro malbec"],

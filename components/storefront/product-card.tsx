@@ -31,7 +31,7 @@ export function ProductCard({ article }: { article: StoreArticle }) {
   }
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
+    <div className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
       <div className="relative aspect-square overflow-hidden bg-muted">
         <Image
           src={article.imageUrl || categoryImage(article.category)}
@@ -44,8 +44,8 @@ export function ProductCard({ article }: { article: StoreArticle }) {
           {article.category}
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-3">
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-tight">{article.name}</p>
+      <div className="flex min-w-0 flex-1 flex-col gap-2 p-3">
+        <p className="min-h-[2.5rem] wrap-anywhere text-sm font-medium leading-snug">{article.name}</p>
         <TierPrices tiers={article.tiers} />
 
         <div className="mt-auto flex flex-col gap-2 pt-1">

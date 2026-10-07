@@ -42,11 +42,12 @@ export function TierPrices({ tiers, className }: { tiers: Tier[]; className?: st
         return (
           <p
             key={t.productId}
-            className="flex w-fit items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium leading-tight tabular-nums text-foreground"
+            className="flex max-w-full items-start gap-1 rounded-lg bg-primary/15 px-2 py-0.5 text-[11px] font-medium leading-tight tabular-nums text-foreground"
           >
-            <TrendingDown className="size-3 shrink-0 text-primary" />
-            <span>
-              x{t.packSize}: {formatPrice(Math.round(unitPriceOf(t)))} c/u{pct > 0 ? ` · -${pct}%` : ""}
+            <TrendingDown className="mt-0.5 size-3 shrink-0 text-primary" />
+            <span className="min-w-0 wrap-anywhere">
+              <span className="block">{t.label}: {formatPrice(t.price)}</span>
+              <span className="block">≈ {formatPrice(Math.round(unitPriceOf(t)))} c/u{pct > 0 ? ` · -${pct}%` : ""}</span>
             </span>
           </p>
         )
