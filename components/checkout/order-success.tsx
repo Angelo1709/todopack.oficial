@@ -48,6 +48,7 @@ export function OrderSuccess({
           <dd className="text-right">
             {capitalize(formatDateAR(order.deliveryDate, { weekday: "long", day: "numeric", month: "long" }))} ·{" "}
             {DELIVERY_SLOT_LABEL[order.deliverySlot]}
+            {order.deliveryWindow && <span className="block text-xs text-muted-foreground">{order.deliveryWindow}</span>}
           </dd>
           <dt className="text-muted-foreground">Pago</dt>
           <dd className="flex justify-end">

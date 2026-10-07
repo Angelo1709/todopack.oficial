@@ -23,6 +23,8 @@ import {
 import { toast } from "sonner"
 import { ArrowLeft, Banknote, Landmark, Moon, ShoppingCart, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useDeliveryBooking } from "@/components/checkout/use-delivery-booking"
+import { canBookDelivery,closedDeliveryMessage,dateInArgentina,deliveryCutoff,deliveryWindow,formatCutoff,nextDelivery,validDeliveryDate,type DeliverySettings } from "@/lib/delivery-schedule"
 
 type Errors = Partial<Record<CheckoutField, string>>
 
@@ -68,7 +70,9 @@ export function CheckoutForm({
   bank,
   whatsappNumber,
   isGuest,
-  minDate,
+  minDate:initialMinDate,
+  deliverySettings,
+  serverNow,
 }: {
   defaults: { name: string; phone: string; email: string; address: string }
   bank: { alias: string; cbu: string; holder: string }
@@ -76,17 +80,33 @@ export function CheckoutForm({
   isGuest: boolean
   /** Hoy en hora argentina (yyyy-mm-dd), calculado en el servidor. */
   minDate: string
+  deliverySettings:DeliverySettings
+  serverNow:number
 }) {
   const { items, total, clear, remove } = useCart()
   const [mounted, setMounted] = useState(false)
   const [method, setMethod] = useState<PaymentMethod>("efectivo")
-  const [slot, setSlot] = useState<DeliverySlot | null>(null)
+  const {values:schedule,now,refreshBooking}=useDeliveryBooking(deliverySettings,serverNow)
+  const minDate=dateInArgentina(now) || initialMinDate
+  const [deliveryDate,setDeliveryDate]=useState(()=>nextDelivery(deliverySettings,serverNow).date)
+  const [slot, setSlot] = useState<DeliverySlot | null>(()=>nextDelivery(deliverySettings,serverNow).slot)
+  const [slotNotice,setSlotNotice]=useState("")
   const [errors, setErrors] = useState<Errors>({})
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState<{ order: CreatedOrder; contact: SignUpPrefill } | null>(null)
 
   // El carrito se lee de localStorage al montar: evitamos mostrar "carrito vacío" antes de tiempo.
   useEffect(() => setMounted(true), [])
+  useEffect(()=>{
+    if (slot && !canBookDelivery(schedule,deliveryDate,slot,now)) {
+      setSlotNotice(closedDeliveryMessage(schedule,deliveryDate,slot,now))
+      setSlot(null)
+    }
+  },[schedule,deliveryDate,slot,now])
+  function chooseDate(date:string) {
+    setDeliveryDate(date);setSlotNotice("");clearError("deliveryDate");clearError("deliverySlot")
+    setSlot(validDeliveryDate(date) ? DELIVERY_SLOTS.find(s=>canBookDelivery(schedule,date,s,now)) ?? null : null)
+  }
 
   function clearError(field: string) {
     if (field in errors) {
@@ -134,6 +154,7 @@ export function CheckoutForm({
     if (!values.deliveryDate) next.deliveryDate = "Elegí la fecha de entrega"
     else if (values.deliveryDate < minDate) next.deliveryDate = "La fecha de entrega no puede ser en el pasado"
     if (!slot) next.deliverySlot = "Elegí la franja de entrega"
+    else if (!canBookDelivery(schedule,values.deliveryDate,slot,now)) next.deliverySlot=closedDeliveryMessage(schedule,values.deliveryDate,slot,now)
     if (!values.address) next.address = "Completá la dirección de entrega"
     if (Object.keys(next).length > 0 || !slot) {
       showErrors(next)
@@ -146,9 +167,11 @@ export function CheckoutForm({
         items: items.map((i) => ({ id: i.id, quantity: i.quantity })),
         ...values,
         deliverySlot: slot,
+        deliveryWindow: deliveryWindow(schedule,slot),
         paymentMethod: method,
       })
       if (!res.ok) {
+        if (res.field==="deliverySlot") await refreshBooking()
         res.unavailableIds?.forEach((id) => remove(id))
         if (res.field && res.field !== "items") showErrors({ [res.field]: res.error })
         else toast.error(res.error)
@@ -299,14 +322,15 @@ export function CheckoutForm({
                     name="deliveryDate"
                     type="date"
                     min={minDate}
-                    defaultValue={minDate}
+                    value={deliveryDate}
+                    onChange={e=>chooseDate(e.target.value)}
                     required
                     aria-invalid={errors.deliveryDate ? true : undefined}
                     aria-describedby={errors.deliveryDate ? "deliveryDate-error" : undefined}
                   />
                   <FieldError id="deliveryDate-error" message={errors.deliveryDate} />
                 </div>
-                <div className="flex flex-col gap-1.5">
+                <div className="flex min-w-0 flex-col gap-1.5">
                   <span id="slot-label" className="text-sm font-medium leading-none">
                     Franja de entrega
                   </span>
@@ -319,6 +343,8 @@ export function CheckoutForm({
                     {DELIVERY_SLOTS.map((value) => {
                       const Icon = SLOT_ICON[value]
                       const active = slot === value
+                      const available=canBookDelivery(schedule,deliveryDate,value,now)
+                      const cutoff=validDeliveryDate(deliveryDate) ? formatCutoff(deliveryCutoff(schedule,deliveryDate,value),deliveryDate) : ""
                       return (
                         <button
                           key={value}
@@ -326,18 +352,35 @@ export function CheckoutForm({
                           type="button"
                           role="radio"
                           aria-checked={active}
+                          disabled={!available}
                           onClick={() => {
                             setSlot(value)
+                            setSlotNotice("")
                             clearError("deliverySlot")
                           }}
-                          className={cn(optionClass(active, Boolean(errors.deliverySlot)), "h-8 py-0")}
+                          className={cn(optionClass(active, Boolean(errors.deliverySlot)), "min-w-0 items-start gap-2 p-3 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground")}
                         >
-                          <Icon className="size-4 text-primary" />
-                          <span className="text-sm font-medium">{DELIVERY_SLOT_LABEL[value]}</span>
+                          <Icon className="mt-0.5 size-4 shrink-0 text-primary" />
+                          <span className="min-w-0 wrap-anywhere">
+                            <span className="block text-sm font-medium">{DELIVERY_SLOT_LABEL[value]}</span>
+                            <span className="block text-xs">{deliveryWindow(schedule,value)}</span>
+                            <span className="mt-1 block text-xs text-muted-foreground">{available ? "Pedí antes de" : "Cerrada · límite"} {cutoff || "elegí una fecha"}</span>
+                          </span>
                         </button>
                       )
                     })}
                   </div>
+                  <p className="text-xs text-muted-foreground">Horarios de Argentina. Anticipación mínima: {schedule.deliveryLeadMinutes} minutos antes del inicio.</p>
+                  {slotNotice && <p role="status" className="rounded-lg bg-muted p-3 text-xs">{slotNotice}</p>}
+                  {validDeliveryDate(deliveryDate) && !DELIVERY_SLOTS.some(s=>canBookDelivery(schedule,deliveryDate,s,now)) && (
+                    <div className="rounded-lg bg-muted p-3 text-xs">
+                      <p>Ya cerraron las franjas de esta fecha.</p>
+                      <Button type="button" variant="outline" size="sm" className="mt-2 h-auto max-w-full whitespace-normal text-left" onClick={()=>{
+                        const next=nextDelivery(schedule,now,deliveryDate);chooseDate(next.date);setSlot(next.slot)
+                      }}>Elegir próximo turno disponible</Button>
+                    </div>
+                  )}
+                  {deliveryDate>minDate && <p className="text-xs text-muted-foreground">Entrega programada para el {deliveryDate.split("-").reverse().join("/")}. Podés cambiar la fecha.</p>}
                   <FieldError id="deliverySlot-error" message={errors.deliverySlot} />
                 </div>
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
@@ -442,6 +485,7 @@ export function CheckoutForm({
                 <span>Total</span>
                 <span className="tabular-nums">{formatPrice(total)}</span>
               </div>
+              {slot && <p className="mt-3 text-sm">Entrega: <span className="font-medium">{deliveryDate.split("-").reverse().join("/")} · {DELIVERY_SLOT_LABEL[slot]} · {deliveryWindow(schedule,slot)}</span></p>}
               <Button type="submit" size="lg" className="mt-4 w-full" disabled={loading}>
                 {loading ? "Enviando..." : "Confirmar pedido"}
               </Button>

@@ -135,6 +135,7 @@ export default async function OrderPage({ params }: { params: Promise<{ token: s
                   <span>
                     {capitalize(formatDateAR(order.deliveryDate, { weekday: "long", day: "numeric", month: "long" }))}{" "}
                     · {DELIVERY_SLOT_LABEL[slot] ?? order.deliverySlot}
+                    {order.deliveryWindow && <span className="block text-xs text-muted-foreground">{order.deliveryWindow}</span>}
                   </span>
                 </li>
                 <li className="flex items-start gap-2">

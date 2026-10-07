@@ -30,6 +30,7 @@ export function OrderCard({ order }: { order: OrderSummary }) {
         <span className="inline-flex items-center gap-1.5">
           <CalendarDays className="size-3.5 shrink-0" />
           {formatDateAR(order.deliveryDate)} · {DELIVERY_SLOT_LABEL[order.deliverySlot] ?? order.deliverySlot}
+          {order.deliveryWindow && ` · ${order.deliveryWindow}`}
         </span>
         <PaymentMethodLabel method={order.paymentMethod} />
         <span className="tabular-nums">

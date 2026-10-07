@@ -3,6 +3,7 @@ import { inArray } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { settings } from "@/lib/db/schema"
 import { isRouteEnd, isRoutePlace, parseLatLng, type RouteConfig } from "@/lib/route"
+import { DELIVERY_SETTINGS_DEFAULTS, DELIVERY_SETTING_KEYS, type DeliverySettings, type DeliverySettingKey } from "@/lib/delivery-schedule"
 
 // Valores por defecto hasta que el admin los cargue en /admin/configuracion.
 export const SETTINGS_DEFAULTS = {
@@ -24,6 +25,13 @@ export async function getSettings(): Promise<Settings> {
     if (row.key in SETTINGS_DEFAULTS) result[row.key as SettingKey] = row.value
   }
   return result
+}
+
+export async function getDeliverySettings(): Promise<DeliverySettings> {
+  const rows=await db.select().from(settings).where(inArray(settings.key,DELIVERY_SETTING_KEYS))
+  const values:DeliverySettings={...DELIVERY_SETTINGS_DEFAULTS}
+  for (const row of rows) values[row.key as DeliverySettingKey]=row.value
+  return values
 }
 
 // ---- Recorrido de reparto (se guarda aparte: tiene su propio formulario en /admin/configuracion) ----

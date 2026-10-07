@@ -20,6 +20,8 @@ import { isOrderToken, MAX_REMEMBERED_ORDERS } from "@/lib/guest-orders"
 import { loadArticlesForProducts, type Article } from "@/lib/catalog"
 import { MAX_UNITS, priceFor, stepUnits } from "@/lib/pricing"
 import { locateOrder } from "@/lib/order-location"
+import { getDeliverySettings } from "@/lib/settings"
+import { canBookDelivery,closedDeliveryMessage,deliveryWindow,validDeliveryDate,validateDeliverySettings } from "@/lib/delivery-schedule"
 
 type CheckoutItem = { id: number; quantity: number }
 
@@ -31,6 +33,7 @@ export type CheckoutInput = {
   address: string
   deliveryDate: string // yyyy-mm-dd
   deliverySlot: DeliverySlot
+  deliveryWindow?: string // horario mostrado al cliente; el servidor compara con la configuración actual
   paymentMethod: PaymentMethod
   notes?: string
 }
@@ -55,6 +58,7 @@ export type CreatedOrder = {
   deliveryDate: string
   deliverySlot: DeliverySlot
   customerName: string
+  deliveryWindow?: string | null
 }
 
 // Los errores esperados se devuelven (no se tiran): en producción Next oculta el mensaje de los throw.
@@ -73,6 +77,7 @@ export type OrderSummary = {
   total: number
   itemCount: number
   createdAt: string
+  deliveryWindow?: string | null
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -110,11 +115,15 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
   if (!address) return fail("Completá la dirección de entrega", "address")
   if (address.length > 300) return fail("La dirección es demasiado larga", "address")
   if (notes.length > 1000) return fail("Las notas son demasiado largas", "notes")
-  if (!deliveryDate || !isIsoDate(deliveryDate)) return fail("Elegí la fecha de entrega", "deliveryDate")
+  if (!deliveryDate || !isIsoDate(deliveryDate) || !validDeliveryDate(deliveryDate)) return fail("Elegí la fecha de entrega", "deliveryDate")
   // Fechas "yyyy-mm-dd" se comparan como texto; "hoy" es en hora argentina.
   if (deliveryDate < todayAR()) return fail("La fecha de entrega no puede ser en el pasado", "deliveryDate")
   if (!isDeliverySlot(input.deliverySlot)) return fail("Elegí la franja de entrega", "deliverySlot")
   if (!isPaymentMethod(input.paymentMethod)) return fail("Elegí el medio de pago", "paymentMethod")
+  const initialSchedule=await getDeliverySettings()
+  if (!validateDeliverySettings(initialSchedule).ok) return fail("Los horarios de entrega están en revisión. Contactanos para coordinar.","deliverySlot")
+  if (input.deliveryWindow && text(input.deliveryWindow)!==deliveryWindow(initialSchedule,input.deliverySlot)) return fail("Los horarios de entrega cambiaron. Revisá la franja y confirmá de nuevo.","deliverySlot")
+  if (!canBookDelivery(initialSchedule,deliveryDate,input.deliverySlot,Date.now())) return fail(closedDeliveryMessage(initialSchedule,deliveryDate,input.deliverySlot,Date.now()),"deliverySlot")
 
   // Normalizar cantidades (unidades por artículo) y descartar lo inválido.
   const cleaned = new Map<number, number>()
@@ -169,6 +178,13 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     }
   }
 
+  // Relee la configuración y el reloj justo antes de guardar: un formulario viejo
+  // o una consulta de precios que cruzó el límite no puede tomar una franja cerrada.
+  const schedule=await getDeliverySettings()
+  if (!validateDeliverySettings(schedule).ok) return fail("Los horarios de entrega están en revisión. Contactanos para coordinar.","deliverySlot")
+  if (input.deliveryWindow && text(input.deliveryWindow)!==deliveryWindow(schedule,input.deliverySlot)) return fail("Los horarios de entrega cambiaron. Revisá la franja y confirmá de nuevo.","deliverySlot")
+  if (!canBookDelivery(schedule,deliveryDate,input.deliverySlot,Date.now())) return fail(closedDeliveryMessage(schedule,deliveryDate,input.deliverySlot,Date.now()),"deliverySlot")
+  const bookedWindow=deliveryWindow(schedule,input.deliverySlot)
   const [order] = await db
     .insert(orders)
     .values({
@@ -180,6 +196,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       address,
       deliveryDate,
       deliverySlot: input.deliverySlot,
+      deliveryWindow: bookedWindow,
       paymentMethod: input.paymentMethod,
       status: initialStatus(input.paymentMethod),
       total,
@@ -210,6 +227,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       paymentMethod: input.paymentMethod,
       deliveryDate,
       deliverySlot: input.deliverySlot,
+      deliveryWindow: bookedWindow,
       customerName,
     },
   }
@@ -235,6 +253,7 @@ async function toSummaries(rows: Order[]): Promise<OrderSummary[]> {
     total: o.total,
     itemCount: countById.get(o.id) ?? 0,
     createdAt: o.createdAt.toISOString(),
+    deliveryWindow: o.deliveryWindow,
   }))
 }
 

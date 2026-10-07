@@ -103,6 +103,7 @@ export const orders = pgTable(
     address: text("address").notNull(),
     deliveryDate: date("delivery_date").notNull(),
     deliverySlot: text("delivery_slot").notNull(), // ver DELIVERY_SLOTS en lib/order-status.ts
+    deliveryWindow: text("delivery_window"), // horario acordado al confirmar; null en pedidos anteriores
     paymentMethod: text("payment_method").notNull(), // 'efectivo' | 'transferencia'
     status: text("status").notNull(), // ver ORDER_STATUSES en lib/order-status.ts
     total: integer("total").notNull(),
