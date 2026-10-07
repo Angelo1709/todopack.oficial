@@ -451,7 +451,8 @@ function ProductForm({ product, focusLink,onDone }: { product: AdminProduct | nu
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <Input
                 id="product-image"
-                type="url"
+                type="text"
+                inputMode="url"
                 value={form.imageUrl}
                 onChange={(e) => {
                   setImageError(false)
@@ -462,7 +463,7 @@ function ProductForm({ product, focusLink,onDone }: { product: AdminProduct | nu
               <p className={cn("text-xs", imageError ? "text-destructive" : "text-muted-foreground")}>
                 {imageError
                   ? "No pudimos cargar esa imagen. Revisá el link."
-                  : "Pegá el link de una imagen. Sin imagen se usa la de la categoría."}
+                  : "Admite links https:// y fotos internas del portal. Sin imagen se usa la de la categoría."}
               </p>
             </div>
           </div>
