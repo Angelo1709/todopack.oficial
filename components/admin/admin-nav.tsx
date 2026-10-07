@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ClipboardList, Package, Settings, Users } from "lucide-react"
+import { ClipboardList, Package, Settings, Users, Images } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
   { href: "/admin", label: "Pedidos", icon: ClipboardList },
   { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/fotos", label: "Fotos", icon: Images },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ]
 
