@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { Eye, EyeOff, PackageSearch, Pencil } from "lucide-react"
+import { Eye, EyeOff, Link2,PackageSearch, Pencil } from "lucide-react"
 
 export type AdminProductRow = AdminProduct & {
   /** "Unidad", "Pack x6"... */
@@ -24,11 +24,13 @@ export function ProductList({ products }: { products: AdminProductRow[] }) {
   const router = useRouter()
   const [editing, setEditing] = useState<AdminProduct | null>(null)
   const [open, setOpen] = useState(false)
+  const [linking,setLinking]=useState(false)
   const [pendingId, setPendingId] = useState<number | null>(null)
   const [, startTransition] = useTransition()
 
-  function edit(product: AdminProduct) {
+  function edit(product: AdminProduct,link=false) {
     setEditing(product)
+    setLinking(link)
     setOpen(true)
   }
 
@@ -116,11 +118,14 @@ export function ProductList({ products }: { products: AdminProductRow[] }) {
               <Button size="sm" variant="outline" onClick={() => edit(p)} aria-label={`Editar ${p.name}`}>
                 <Pencil className="size-3.5" /> Editar
               </Button>
+              <Button size="sm" variant="outline" onClick={()=>edit(p,true)} aria-label={`Vincular unitario y pack de ${p.name}`} disabled={!p.active}>
+                <Link2 className="size-3.5"/> Vincular pack
+              </Button>
             </div>
           </li>
         ))}
       </ul>
-      <ProductDialog open={open} onOpenChange={setOpen} product={editing} />
+      <ProductDialog open={open} onOpenChange={setOpen} product={editing} focusLink={linking} />
     </>
   )
 }

@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { startTransition as transition,useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import {
   getProductGroup,
   saveProduct,
   searchProductsForLink,
+  unlinkProductPresentation,
   type ProductOption,
 } from "@/app/actions/catalog"
 import { CATEGORY_ORDER, categorize } from "@/lib/categorize"
@@ -78,29 +79,35 @@ export function ProductDialog({
   open,
   onOpenChange,
   product,
+  focusLink=false,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   /** null = producto nuevo */
   product: AdminProduct | null
+  focusLink?:boolean
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-xl">
         {/* key: al abrir otro producto el formulario arranca de cero */}
-        {open && <ProductForm key={product?.id ?? "nuevo"} product={product} onDone={() => onOpenChange(false)} />}
+        {open && <ProductForm key={product?.id ?? "nuevo"} product={product} focusLink={focusLink} onDone={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>
   )
 }
 
-function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone: () => void }) {
+function ProductForm({ product, focusLink,onDone }: { product: AdminProduct | null; focusLink:boolean;onDone: () => void }) {
   const router = useRouter()
   const isNew = product === null
   const [form, setForm] = useState<FormState>(() => initialState(product))
   // En un producto nuevo, categoría / presentación / grupo se detectan del nombre hasta que se tocan a mano.
   const [autoDetect, setAutoDetect] = useState(isNew)
   const [linkTo, setLinkTo] = useState<ProductOption | null>(null)
+  const [currentIsPack,setCurrentIsPack]=useState(true)
+  const [linkUnits,setLinkUnits]=useState("")
+  const [searching,setSearching]=useState(false)
+  const [searchError,setSearchError]=useState("")
   const [search, setSearch] = useState("")
   const [results, setResults] = useState<ProductOption[]>([])
   const [group, setGroup] = useState<ProductOption[]>([])
@@ -136,9 +143,15 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
     const q = debouncedSearch.trim()
     if (q.length < 2) {
       setResults([])
+      setSearching(false);setSearchError("")
       return
     }
-    searchProductsForLink(q, product?.id).then((r) => !cancelled && setResults(r))
+    setSearching(true);setSearchError("");setResults([])
+    transition(async()=>{
+      try {const r=await searchProductsForLink(q,product?.id);if(!cancelled)setResults(r)}
+      catch {if(!cancelled)setSearchError("No pudimos buscar. Revisá la conexión o tu sesión y probá de nuevo.")}
+      finally {if(!cancelled)setSearching(false)}
+    })
     return () => {
       cancelled = true
     }
@@ -150,7 +163,10 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
       setGroup([])
       return
     }
-    getProductGroup(debouncedGroupKey).then((r) => !cancelled && setGroup(r))
+    transition(async()=>{
+      try {const r=await getProductGroup(debouncedGroupKey);if(!cancelled)setGroup(r)}
+      catch {if(!cancelled)setGroup([])}
+    })
     return () => {
       cancelled = true
     }
@@ -159,7 +175,10 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
   function chooseLink(option: ProductOption) {
     setAutoDetect(false)
     setLinkTo(option)
-    set("groupKey", option.groupKey ?? parsePresentation(option.name).groupKey)
+    const isPack=Number(form.packSize)>1
+    setCurrentIsPack(isPack)
+    const count=isPack ? Number(form.packSize) : option.packSize
+    setLinkUnits(count>1 ? String(count) : "")
     setSearch("")
     setResults([])
   }
@@ -171,6 +190,7 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
     if (!form.name.trim()) return toast.error("Escribí el nombre del producto.")
     if (!Number.isInteger(price) || price <= 0) return toast.error("El precio tiene que ser un número entero mayor a 0.")
     if (!Number.isInteger(packSize) || packSize < 1) return toast.error("Las unidades por presentación tienen que ser 1 o más.")
+    if (linkTo && (!Number.isInteger(Number(linkUnits))||Number(linkUnits)<2||Number(linkUnits)>1000)) return toast.error("Indicá cuántas unidades trae el pack: entre 2 y 1.000.")
     startTransition(async () => {
       try {
         const res = await saveProduct({
@@ -183,12 +203,14 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
           imageUrl: form.imageUrl,
           active: form.active,
           linkToId: linkTo?.id ?? null,
+          linkCurrentIsPack:currentIsPack,
+          linkPackSize:linkTo ? Number(linkUnits) : undefined,
         })
         if (!res.ok) {
           toast.error(res.error)
           return
         }
-        toast.success(isNew ? "Producto creado" : "Cambios guardados")
+        toast.success(linkTo ? "Unitario y pack vinculados: una tarjeta y una foto" : isNew ? "Producto creado" : "Cambios guardados")
         onDone()
         router.refresh()
       } catch {
@@ -203,13 +225,21 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
   const siblings = group.filter((g) => g.id !== product?.id)
   const nameChanged = product !== null && form.name.trim() !== product.name
   const previewSrc = form.imageUrl.trim() && !imageError ? form.imageUrl.trim() : categoryImage(form.category)
+  function unlink() {
+    if(!product)return
+    startTransition(async()=>{
+      try {const res=await unlinkProductPresentation(product.id);if(!res.ok){toast.error(res.error);return}
+        toast.success("Producto separado: conserva su precio y su foto");onDone();router.refresh()}
+      catch {toast.error("No pudimos separar el producto. Probá de nuevo.")}
+    })
+  }
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <DialogHeader>
-        <DialogTitle>{isNew ? "Nuevo producto" : "Editar producto"}</DialogTitle>
+        <DialogTitle>{focusLink ? "Vincular unitario y pack" : isNew ? "Nuevo producto" : "Editar producto"}</DialogTitle>
         <DialogDescription>
-          {isNew
+          {focusLink ? "Buscá el otro producto, elegí cuál es el pack y indicá cuántas unidades trae. Revisá los precios y guardá el vínculo." : isNew
             ? "Categoría, presentación y grupo se completan solos a partir del nombre; podés corregirlos."
             : "Los cambios se ven en la tienda al guardar. Los productos no se borran: se desactivan."}
         </DialogDescription>
@@ -259,11 +289,12 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
             max={1000}
             step={1}
             value={form.packSize}
+            disabled={Boolean(linkTo)||pending}
             onChange={(e) => touchDetected("packSize", e.target.value)}
             className="tabular-nums"
           />
           <p className="text-xs text-muted-foreground tabular-nums">
-            {showUnit
+            {linkTo ? "Las unidades se definen abajo, en el vínculo entre unitario y pack." : showUnit
               ? `${presentationLabel(form.name, packSize)} · ≈ ${formatPrice(unitPrice(price, packSize))} c/u`
               : "1 = unidad suelta; 6 = pack x6."}
           </p>
@@ -314,19 +345,36 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
               className="bg-background font-mono text-xs"
             />
             <p className="text-xs text-muted-foreground">
-              Los productos con el mismo grupo se muestran en una sola tarjeta con selector de presentación.
+              Un mismo artículo se muestra en una tarjeta, con una foto y precios según la cantidad de unidades.
             </p>
           </div>
 
           {linkTo ? (
-            <div className="flex items-center gap-2 rounded-lg border border-primary bg-primary/5 px-3 py-2 text-sm">
+            <div className="rounded-lg border border-primary bg-primary/5 p-3 text-sm">
+              <div className="flex items-start gap-2">
               <Link2 className="size-4 shrink-0 text-primary" />
-              <span className="min-w-0 flex-1 truncate">
+              <span className="min-w-0 flex-1 wrap-anywhere">
                 Se vincula con <strong>{linkTo.name}</strong>
               </span>
-              <Button type="button" variant="ghost" size="icon-xs" onClick={() => setLinkTo(null)} aria-label="Quitar vínculo">
+              <Button type="button" variant="ghost" size="icon-xs" onClick={() => setLinkTo(null)} aria-label="Cancelar este vínculo" disabled={pending}>
                 <X />
               </Button>
+              </div>
+              <p id="pack-role-label" className="mt-3 text-sm font-medium">¿Cuál es el pack?</p>
+              <div role="radiogroup" aria-labelledby="pack-role-label" className="mt-2 grid gap-2">
+                {[true,false].map(role=><button key={String(role)} type="button" role="radio" aria-checked={currentIsPack===role} disabled={pending}
+                  onClick={()=>{setCurrentIsPack(role);const count=role ? Number(form.packSize) : linkTo.packSize;setLinkUnits(count>1?String(count):"")}}
+                  className={cn("min-w-0 rounded-lg border p-2 text-left text-xs wrap-anywhere",currentIsPack===role ? "border-primary bg-primary/5" : "border-border bg-background")}>
+                  <span className="block font-medium">{role ? "Este producto es el pack" : "El producto elegido es el pack"}</span>
+                  <span className="block mt-1">{role ? form.name : linkTo.name} · {formatPrice(role ? price : linkTo.price)}</span>
+                </button>)}
+              </div>
+              <div className="mt-3 flex flex-col gap-1.5">
+                <Label htmlFor="link-pack-units">¿Cuántas unidades trae ese pack?</Label>
+                <Input id="link-pack-units" type="number" inputMode="numeric" min={2} max={1000} step={1} value={linkUnits} onChange={e=>setLinkUnits(e.target.value)} placeholder="Ej: 6 o 20" disabled={pending}/>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">El otro producto será el unitario (1 unidad). Al guardar, comparten la foto del unitario; si no tiene, se usa la del pack. Los dos precios se conservan.</p>
+              {Number(linkUnits)>=2 && <p className="mt-2 text-xs font-medium">Una tarjeta: unidad {formatPrice(currentIsPack ? linkTo.price : price)} · pack x{linkUnits} {formatPrice(currentIsPack ? price : linkTo.price)}.</p>}
             </div>
           ) : (
             <div className="relative">
@@ -337,7 +385,12 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
                 placeholder="Vincular con otro producto: buscalo por nombre..."
                 className="bg-background pl-8"
                 aria-label="Buscar producto para vincular"
+                autoFocus={focusLink}
+                disabled={pending}
               />
+              {searching && <p role="status" className="mt-2 text-xs text-muted-foreground">Buscando productos...</p>}
+              {searchError && <p role="alert" className="mt-2 text-xs text-destructive">{searchError}</p>}
+              {!searching && !searchError && debouncedSearch.trim().length>=2 && !results.length && <p className="mt-2 text-xs text-muted-foreground">No encontramos productos activos con ese nombre.</p>}
               {results.length > 0 && (
                 <ul className="mt-1 max-h-48 divide-y divide-border overflow-y-auto rounded-lg border border-border bg-card">
                   {results.map((r) => (
@@ -347,7 +400,7 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
                         onClick={() => chooseLink(r)}
                         className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted"
                       >
-                        <span className="min-w-0 truncate">{r.name}</span>
+                        <span className="min-w-0 wrap-anywhere">{r.name}</span>
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
                           {r.label} · {formatPrice(r.price)}
                         </span>
@@ -367,7 +420,7 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
               <ul className="flex flex-col gap-1">
                 {siblings.map((s) => (
                   <li key={s.id} className="flex items-center justify-between gap-2 rounded-md bg-background px-2 py-1.5 text-xs">
-                    <span className="min-w-0 truncate">
+                    <span className="min-w-0 wrap-anywhere">
                       <span className="font-medium">{s.label}</span> · {s.name}
                     </span>
                     <span className="flex shrink-0 items-center gap-1.5 tabular-nums">
@@ -378,6 +431,10 @@ function ProductForm({ product, onDone }: { product: AdminProduct | null; onDone
                 ))}
               </ul>
             )}
+            {product && siblings.length>0 && !linkTo && <div className="mt-2">
+              <Button type="button" variant="outline" size="sm" onClick={unlink} disabled={pending}>Separar este producto de la tarjeta</Button>
+              <p className="mt-1 text-xs text-muted-foreground">Conserva su precio, unidades por presentación y foto. Después podés volver a vincularlo.</p>
+            </div>}
           </div>
         </section>
 

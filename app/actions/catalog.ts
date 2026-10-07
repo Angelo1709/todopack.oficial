@@ -9,6 +9,7 @@ import { nameKey } from "@/lib/price-list"
 import { persistImage } from "@/lib/storage"
 import { and, asc, eq, gt, ilike, isNull, ne, notInArray, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { linkPresentationPair,separatePresentation,PresentationLinkError } from "@/lib/presentation-links"
 
 // Los errores esperables se devuelven como { ok: false, error } (en producción Next oculta
 // el mensaje de las excepciones que salen de una server action).
@@ -22,6 +23,7 @@ const MAX_IMPORT_ROWS = 5000
 function revalidateCatalog() {
   revalidatePath("/")
   revalidatePath("/admin/productos")
+  revalidatePath("/admin/fotos")
 }
 
 function likePattern(q: string) {
@@ -253,11 +255,15 @@ export type ProductInput = {
   groupKey: string
   imageUrl: string
   active: boolean
-  /** Vincular con otro producto: toma su grupo. */
+  /** Vincular un unitario y un pack con equivalencia explícita. */
   linkToId?: number | null
+  linkCurrentIsPack?: boolean
+  linkPackSize?: number
 }
 
+const INTERNAL_PHOTO = /^\/api\/fotos-productos\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i
 function validImageUrl(url: string) {
+  if (INTERNAL_PHOTO.test(url)) return true
   try {
     const u = new URL(url)
     return (u.protocol === "https:" || u.protocol === "http:") && url.length <= 2000
@@ -289,9 +295,14 @@ export async function saveProduct(input: ProductInput): Promise<ActionResult<{ i
     return { ok: false, error: "La URL de la imagen tiene que empezar con https:// (o http://)." }
   }
   const linkToId = input.linkToId ? Number(input.linkToId) : null
+  if (linkToId !== null && (!Number.isSafeInteger(linkToId)||linkToId<1||linkToId===id)) return {ok:false,error:"Elegí otro producto válido para vincular."}
+  const currentIsPack=input.linkCurrentIsPack ?? packSize>1
+  const linkedPackSize=Number(input.linkPackSize ?? packSize)
+  if (linkToId && (!Number.isInteger(linkedPackSize)||linkedPackSize<2||linkedPackSize>MAX_PACK)) return {ok:false,error:"Indicá cuántas unidades trae el pack: entre 2 y 1.000."}
 
   try {
     const savedId = await db.transaction(async (tx) => {
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(9137301)`)
       const [current] = id
         ? await tx.select({ id: products.id, imageUrl: products.imageUrl }).from(products).where(eq(products.id, id))
         : []
@@ -299,38 +310,35 @@ export async function saveProduct(input: ProductInput): Promise<ActionResult<{ i
 
       // El grupo nunca queda vacío: si no se indica, se calcula a partir del nombre.
       let groupKey = normalizeGroupKey(input.groupKey ?? "")
-      if (linkToId) {
-        const [target] = await tx
-          .select({ id: products.id, name: products.name, groupKey: products.groupKey })
-          .from(products)
-          .where(eq(products.id, linkToId))
-        if (!target) throw new Error("LINK_NOT_FOUND")
-        groupKey = target.groupKey ?? parsePresentation(target.name).groupKey
-        if (!target.groupKey) {
-          await tx.update(products).set({ groupKey, updatedAt: new Date() }).where(eq(products.id, target.id))
-        }
-      }
       if (!groupKey) groupKey = parsePresentation(name).groupKey || normalizeGroupKey(name)
 
       let imageUrl: string | null = imageInput || null
-      if (imageUrl && imageUrl !== current?.imageUrl) {
+      if (imageUrl && INTERNAL_PHOTO.test(imageUrl)) {
+        const photo=await tx.execute(sql`SELECT id FROM product_photo_candidates WHERE id=${imageUrl.split("/").pop()}::uuid AND status='confirmada'`)
+        if (!photo.rows.length) throw new PresentationLinkError("La foto ya no está confirmada. Recargá el producto antes de guardar.")
+      } else if (imageUrl && imageUrl !== current?.imageUrl) {
         imageUrl = await persistImage(imageUrl, `${id ?? "nuevo"}-${name}`)
       }
 
-      const values = { name, price, category, packSize, groupKey, imageUrl, active: Boolean(input.active) }
+      const values = { name, price, category, packSize:linkToId ? (currentIsPack ? linkedPackSize : 1) : packSize, groupKey, imageUrl, active: Boolean(input.active) }
+      let savedId:number
       if (id) {
         await tx
           .update(products)
           .set({ ...values, updatedAt: new Date() })
           .where(eq(products.id, id))
-        return id
+        savedId=id
+      } else {
+        const [row] = await tx.insert(products).values(values).returning({ id: products.id })
+        savedId=row.id
       }
-      const [row] = await tx.insert(products).values(values).returning({ id: products.id })
-      return row.id
+      if (linkToId) await linkPresentationPair(tx,{unitId:currentIsPack ? linkToId : savedId,packId:currentIsPack ? savedId : linkToId,packSize:linkedPackSize})
+      return savedId
     })
     revalidateCatalog()
     return { ok: true, id: savedId }
   } catch (e) {
+    if (e instanceof PresentationLinkError) return {ok:false,error:e.message}
     if (isUniqueViolation(e)) return { ok: false, error: "Ya existe otro producto con ese nombre." }
     const message = e instanceof Error ? e.message : ""
     if (message === "NOT_FOUND") return { ok: false, error: "El producto ya no existe." }
@@ -338,6 +346,13 @@ export async function saveProduct(input: ProductInput): Promise<ActionResult<{ i
     if (message === "La URL no devolvió una imagen") return { ok: false, error: "La URL no devolvió una imagen." }
     throw e
   }
+}
+
+/** Deshacer la agrupación conserva el precio, la cantidad del pack y la foto. */
+export async function unlinkProductPresentation(id:number):Promise<ActionResult> {
+  await requireAdmin()
+  try {await db.transaction(tx=>separatePresentation(tx,id));revalidateCatalog();return {ok:true}}
+  catch(e) {if(e instanceof PresentationLinkError)return {ok:false,error:e.message};throw e}
 }
 
 export async function setProductActive(id: number, active: boolean): Promise<ActionResult> {
@@ -384,7 +399,7 @@ export async function searchProductsForLink(query: string, excludeId?: number | 
   const rows = await db
     .select(optionColumns)
     .from(products)
-    .where(and(ilike(products.name, likePattern(q)), excludeId ? ne(products.id, Number(excludeId)) : undefined))
+    .where(and(eq(products.active,true),ilike(products.name, likePattern(q)), excludeId ? ne(products.id, Number(excludeId)) : undefined))
     .orderBy(asc(products.name))
     .limit(8)
   return rows.map(toOption)
