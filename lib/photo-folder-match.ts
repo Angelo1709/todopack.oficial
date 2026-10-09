@@ -77,7 +77,12 @@ function sameWord(a: string, b: string): boolean {
   if (/\d/.test(a) || /\d/.test(b)) {
     // "170" y "170g": el número sin unidad acepta la medida del otro lado.
     const num = (w: string) => w.replace(/^x/, "").replace(/(ml|g)$/, "")
-    return (!isSize(a) || !isSize(b)) && num(a) === num(b)
+    if (isSize(a) && isSize(b)) {
+      // Mismo envase rotulado distinto: "995ML" y "1L" (se toleran diferencias de hasta 1 %).
+      const [x, y] = [Number(num(a)), Number(num(b))]
+      return a.slice(-1) === b.slice(-1) && Math.abs(x - y) <= Math.max(x, y) * 0.01
+    }
+    return num(a) === num(b)
   }
   if (a.length >= 3 && b.length >= 3 && (a.startsWith(b) || b.startsWith(a))) return true
   const n = Math.min(a.length, b.length)

@@ -32,6 +32,7 @@ check("abreviaturas, C/ y S/, tildes y medidas escritas distinto", () => {
   same("CHIZITOS QUESO 700G COP´S", "CHIZITO QUESO x 700G UNIDAD")
   same("PAPAS FRITAS 400GR", "PAPAS FRITAS x 400 g UNIDAD")
   same("ALAMOS MALBEC 750ML", "ALAMOS MALBEC 750 UNIDAD")
+  same("POWERADE MANZANA 995ML", "POWERADE MANZANA 1L")
   same("LA HOJA MATE COCIDO 25 SAQ", "LA HOJA MATECOCIDO 25SAQ UNIDAD")
 })
 
@@ -53,6 +54,7 @@ check("otra variedad, otro tamaño u otro envase no es el mismo producto", () =>
   differ("GANCIA LATA CON ALCOHOL 473CC", "GANCIA CERO LATA 473CC X6")
   differ("COCA COLA RETORNABLE VIDRIO 1.25L", "COCA COLA DESCART 1.25L")
   differ("OLD SMUGGLER 750ML WHISKY", "OLD SMUGGLER WHISKY 1L")
+  differ("BRAHMA LATA 473ML", "BRAHMA LATA 500ML")
   differ("ALMA MORA BLANCO 750ML", "ALMA MORA MALBEC 750ML")
 })
 
