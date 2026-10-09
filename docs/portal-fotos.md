@@ -44,6 +44,29 @@ almacenamiento de objetos sin cambiar el flujo de confirmación.
 en `products.image_url`. Se usa `no-store` para que retirar una foto no deje una
 respuesta pública cacheada por el portal. Las mutaciones requieren origen del sitio.
 
+## Cargar la carpeta del dueño (fuente de verdad)
+
+El dueño junta fotos en una carpeta cuyo nombre de archivo es el del producto
+("COCA COLA RETORNABLE VIDRIO 1.25L.jpg"). Esa carpeta manda sobre cualquier otra foto:
+
+```sh
+PHOTO_FOLDER=~/Desktop/"PAGINA TDP" DATABASE_URL=... node scripts/import-photo-folder.mjs           # sólo muestra qué haría
+PHOTO_FOLDER=~/Desktop/"PAGINA TDP" DATABASE_URL=... APLICAR=1 node scripts/import-photo-folder.mjs # carga
+```
+
+`lib/photo-folder-match.ts` compara el nombre del archivo con los de los productos activos palabra
+por palabra: tolera abreviaturas (CAB / CABERNET, C/ / CON, 3/4 / 750 ML), errores de una letra,
+palabras de relleno (UNIDAD, VINO, FRÍA, CAJA…) y la cantidad del pack; no tolera otra variedad,
+otro tamaño ni retornable contra descartable o lata contra botella.
+
+- **Exacta:** se confirma y se publica en todo el artículo, aunque tuviera otra foto. Si coincide con
+  más de un artículo (la versión FRÍA, o el mismo artículo cargado dos veces) va a todos.
+- **Dudosa** (hasta 3 palabras distintas): queda pendiente en el portal, vinculada al más parecido.
+- **Sin producto:** queda pendiente sin vincular.
+
+Reejecutarlo no duplica fotos ni decisiones. El informe queda en `importacion-carpeta.json` dentro
+de la carpeta (o en `PHOTO_IMPORT_REPORT`). Verificación: `node scripts/check-photo-folder.mjs`.
+
 ## Importar la revisión de Carrefour
 
 ```sh

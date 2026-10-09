@@ -25,7 +25,7 @@ pnpm db:migrate     # aplica lib/db/migrations/*.sql pendientes
 pnpm db:seed        # carga data/products.json
 pnpm dev            # http://localhost:3000
 pnpm typecheck      # tsc --noEmit (el build también falla con errores de tipos)
-pnpm check          # verificaciones de packs/categorías, precios por tramos, recorrido y mapa de calles
+pnpm check          # verificaciones de packs/categorías, precios por tramos, recorrido, mapa de calles y cruce de fotos
 pnpm build
 pnpm make-admin email@x.com   # o registrarse con un email listado en ADMIN_EMAILS
 ```
@@ -38,6 +38,7 @@ Otros scripts de datos:
 node scripts/parse-products.mjs [ruta.xlsx]   # lista de precios Excel -> data/products.json
 node scripts/gen-seed-sql.mjs                  # genera data/seed-N.sql
 node scripts/import-product-images.mjs         # busca imágenes en Wikimedia (IMAGE_BATCH=n)
+PHOTO_FOLDER=... [APLICAR=1] node scripts/import-photo-folder.mjs  # carpeta de fotos del dueño (docs/portal-fotos.md)
 ```
 
 No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alfabético, se registran en `schema_migrations` y corren al arrancar (`pnpm start`). `NNNN_descripcion.sql` para esquema; `NNNN_descripcion.mjs` para migraciones de datos (exporta `default async (client) => {}`, puede importar `lib/*.ts`). Todo cambio en `lib/db/schema.ts` lleva su migración nueva; nunca editar una migración ya aplicada.
