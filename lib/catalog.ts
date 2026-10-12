@@ -4,6 +4,7 @@ import { products } from "@/lib/db/schema"
 import { and, eq, inArray, sql } from "drizzle-orm"
 import { parsePresentation, presentationLabel } from "@/lib/pack"
 import { normalizeTiers, type Tier } from "@/lib/pricing"
+import { stockAvailableCondition } from "@/lib/stock-availability"
 
 // Un artículo = productos activos con el mismo group_key (sus presentaciones = tramos de precio).
 // Un producto sin group_key es un artículo solo.
@@ -72,7 +73,7 @@ export async function loadArticles(keys: string[]): Promise<Article[]> {
   const rows = await db
     .select(articleColumns)
     .from(products)
-    .where(and(eq(products.active, true), inArray(articleKey, keys)))
+    .where(and(eq(products.active, true), stockAvailableCondition(), inArray(articleKey, keys)))
   const byKey = new Map<string, ArticleRow[]>()
   for (const row of rows) byKey.set(row.key, [...(byKey.get(row.key) ?? []), row])
   return keys.flatMap((k) => {

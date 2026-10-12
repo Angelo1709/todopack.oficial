@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Storefront } from "@/components/storefront/storefront"
 import { CATEGORY_ORDER } from "@/lib/categorize"
 import { articleKey, loadArticles } from "@/lib/catalog"
+import { stockAvailableCondition } from "@/lib/stock-availability"
 
 export const dynamic = "force-dynamic"
 
@@ -21,6 +22,7 @@ export default async function HomePage({
   const category = params.category?.trim() ?? "Todos"
   const where = and(
     eq(products.active, true),
+    stockAvailableCondition(),
     query ? ilike(products.name, `%${query.replace(/[\\%_]/g, "\\$&")}%`) : undefined,
     category !== "Todos" ? eq(products.category, category) : undefined,
   )
@@ -28,7 +30,7 @@ export default async function HomePage({
   // Conteo de artículos (no de filas) y categorías con productos activos.
   const [[{ total }], categoryRows] = await Promise.all([
     db.select({ total: sql<number>`count(distinct ${articleKey})::int` }).from(products).where(where),
-    db.selectDistinct({ category: products.category }).from(products).where(eq(products.active, true)),
+    db.selectDistinct({ category: products.category }).from(products).where(and(eq(products.active, true), stockAvailableCondition())),
   ])
   const totalArticles = Number(total)
   const totalPages = Math.max(1, Math.ceil(totalArticles / PAGE_SIZE))
