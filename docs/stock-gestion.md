@@ -4,6 +4,10 @@ El instalador, el script de Windows y las instrucciones de puesta en marcha est�
 
 Flujo: `Gestion.mdb` → tarea de Windows cada 5 minutos → `POST /api/stock/sync` por HTTPS → PostgreSQL → catálogo y validación del carrito.
 
+El panel **Stock** (`/admin/stock`, sólo administradores) compara cantidades de Gestión y de la web, muestra ID/código/nombre del origen, última lectura y recepción, y alerta cuando pasan 15 minutos sin recibir datos. Permite buscar y filtrar positivos, agotados, artículos sin producto web y cantidades diferentes. Los artículos nuevos se reciben aunque no exista aún un producto web; la sincronización no inventa precios ni publica productos automáticamente. En **Productos** también se ve la cantidad y el ID de Gestión.
+
+La cantidad actual conserva la unidad de medida de cada artículo del sistema antiguo. Cuando el programador termine el cambio a un SKU con stock en unidades, habrá que confirmar el nuevo esquema, los IDs y las escalas de precios antes de adaptar la conversión y sincronizar precios. Hoy los precios de la web se conservan.
+
 `STOCK_SYNC_REQUIRED=true` activa la disponibilidad obligatoria; debe habilitarse después del primer envío y de revisar los vínculos. No utiliza `active` para representar stock: las decisiones del administrador se conservan.
 
 Las pruebas con la copia local y el catálogo inicial del repositorio verificaron 954 artículos recibidos, 673 productos vinculados automáticamente y 9 que requieren revisión. Esos conteos corresponden a la copia de prueba, no certifican el catálogo actual de producción. Los reportes y snapshots locales no se publican en Git.

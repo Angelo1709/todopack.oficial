@@ -18,6 +18,8 @@ export type AdminProductRow = AdminProduct & {
   unitPrice: number
   /** Cantidad de productos con el mismo group_key (incluido este). */
   groupSize: number
+  stockQuantity: number | null
+  gestionArticleId: number | null
 }
 
 export function ProductList({ products }: { products: AdminProductRow[] }) {
@@ -96,6 +98,10 @@ export function ProductList({ products }: { products: AdminProductRow[] }) {
               </p>
               <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground" title="Grupo">
                 {p.groupKey ?? "sin grupo"}
+              </p>
+              <p className="mt-1 text-xs tabular-nums">
+                Stock: {p.stockQuantity === null ? "sin vincular" : p.stockQuantity.toLocaleString("es-AR")}
+                {p.gestionArticleId !== null && <span className="text-muted-foreground"> · Gestión #{p.gestionArticleId}</span>}
               </p>
             </div>
             <div className="col-start-2 text-left sm:col-start-auto sm:text-right">

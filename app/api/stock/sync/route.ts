@@ -53,6 +53,7 @@ export async function POST(request: Request) {
     } finally { client.release() }
     revalidatePath("/")
     revalidatePath("/admin/productos")
+    revalidatePath("/admin/stock")
     return response({ ok: true, snapshotId: snapshot.snapshotId, ...result })
   } catch (error) {
     if (error instanceof StockSyncError) return response({ ok: false, error: error.message }, error.status)
