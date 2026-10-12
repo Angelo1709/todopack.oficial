@@ -36,3 +36,11 @@ next-env.d.ts
 
 # worktrees de agentes de Claude Code
 /.claude/worktrees/
+
+# Datos, claves y diagnósticos locales de la sincronización de stock.
+/tools/stock-sync/config.json
+/tools/stock-sync/secret.txt
+/tools/stock-sync/logs/
+/tools/stock-sync/sync.lock
+/tools/stock-sync/last-success.json
+/tools/stock-sync/*.snapshot.json

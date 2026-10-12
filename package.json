@@ -12,6 +12,7 @@
     "build": "next build",
     "start": "node --env-file-if-exists=.env.local scripts/migrate.mjs && next start",
     "typecheck": "tsc --noEmit",
+    "check:stock": "node scripts/check-stock-sync.mjs",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "db:seed": "node --env-file-if-exists=.env.local scripts/seed-products.mjs",
     "make-admin": "node --env-file-if-exists=.env.local scripts/make-admin.mjs",
