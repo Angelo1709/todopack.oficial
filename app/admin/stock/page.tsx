@@ -14,7 +14,10 @@ type Row = {
   updated_at: Date; current: boolean; linked: number; differences: number
   web: { id: number; name: string; quantity: number | null; active: boolean }[]
 }
-const date = (value: Date) => value.toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" })
+const date = (value: Date) => value.toLocaleString("es-AR", {
+  timeZone: "America/Argentina/Buenos_Aires", hourCycle: "h23",
+  year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit",
+})
 
 export default async function StockPage({ searchParams }: { searchParams: Promise<Params> }) {
   const user = await getSessionUser()
