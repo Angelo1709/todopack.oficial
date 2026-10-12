@@ -9,6 +9,8 @@ const stub = code=>`data:text/javascript,${encodeURIComponent(code)}`
 const mocks={
   "@/lib/session":stub(`export async function getSessionUser(){return null} export async function requireUser(){throw Error('Unauthorized')} export async function requireAdmin(){if(!globalThis.__deliveryActionChecks.admin)throw Error('Forbidden');return {id:'test-admin'}}`),
   "@/lib/settings":stub(`export async function getDeliverySettings(){return {...globalThis.__deliveryActionChecks.values}}`),
+  // Date.now() no modifica new Date(): fijar también la fecha usada por todayAR.
+  "@/lib/dates":stub(`export {isIsoDate,addDays,formatDateAR} from ${JSON.stringify(new URL("../lib/dates.ts",import.meta.url).href)};export function todayAR(){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires'}).format(new Date(globalThis.__deliveryActionChecks.clock))}`),
   "@/lib/db/schema":stub(`export const orders={name:'orders',id:'id',publicToken:'publicToken'};export const orderItems={name:'order_items'};export const settings={name:'settings',key:'key'};`),
   "@/lib/db":stub(`export const db={insert(table){return {values(values){const s=globalThis.__deliveryActionChecks;s.writes.push({table:table.name,values});return {async returning(){return [{id:1,publicToken:'test-token'}]},async onConflictDoUpdate(){for(const v of values)s.values[v.key]=v.value}}}}}}`),
   "@/lib/catalog":stub(`export async function loadArticlesForProducts(){const s=globalThis.__deliveryActionChecks;s.clock+=s.shift;if(s.changed)s.values=s.changed;return new Map([[2,{key:'9oro',name:'9 DE ORO',baseId:2,tiers:[{productId:2,name:'UNIDAD',label:'Unidad',packSize:1,price:1200},{productId:692,name:'PACK X20',label:'Pack x20',packSize:20,price:22000}]}]])}`),

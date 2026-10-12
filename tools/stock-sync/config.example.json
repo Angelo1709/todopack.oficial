@@ -1,0 +1,8 @@
+{
+  "databasePath": "C:\\Gestion\\Gestion.mdb",
+  "endpoint": "https://todopackoficial-production.up.railway.app/api/stock/sync",
+  "sourceId": "gestion-principal",
+  "stockColumn": "ExistenciaActual",
+  "intervalMinutes": 5,
+  "allowLoopbackHttp": false
+}

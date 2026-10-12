@@ -9,6 +9,7 @@ import {
   index,
   doublePrecision,
   jsonb,
+  uuid,
 } from "drizzle-orm/pg-core"
 import type { StreetGraph } from "../street-graph"
 
@@ -80,6 +81,9 @@ export const products = pgTable(
     category: text("category").notNull().default("Otros"),
     imageUrl: text("image_url"),
     active: boolean("active").notNull().default(true),
+    gestionArticleId: integer("gestion_article_id"),
+    stockQuantity: doublePrecision("stock_quantity"),
+    stockUpdatedAt: timestamp("stock_updated_at", { withTimezone: true }),
     // Presentaciones: "COCA COLA 1.5L UNIDAD" y "COCA COLA 1.5L PACK X6" comparten
     // groupKey; packSize = unidades que incluye el precio (1 = unidad suelta).
     groupKey: text("group_key"),
@@ -87,8 +91,28 @@ export const products = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("products_category_idx").on(t.category), index("products_group_key_idx").on(t.groupKey)],
+  (t) => [index("products_category_idx").on(t.category), index("products_group_key_idx").on(t.groupKey), index("products_gestion_article_idx").on(t.gestionArticleId)],
 )
+
+export const gestionStock = pgTable("gestion_stock", {
+  articleId: integer("article_id").primaryKey(),
+  code: text("code").notNull(),
+  name: text("name").notNull(),
+  nameKey: text("name_key").notNull(),
+  quantity: doublePrecision("quantity").notNull(),
+  snapshotId: uuid("snapshot_id").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+export const stockSyncState = pgTable("stock_sync_state", {
+  id: integer("id").primaryKey().default(1),
+  sourceId: text("source_id").notNull(),
+  snapshotId: uuid("snapshot_id").notNull(),
+  capturedAt: timestamp("captured_at", { withTimezone: true }).notNull(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).notNull().defaultNow(),
+  itemCount: integer("item_count").notNull(),
+  matchedProducts: integer("matched_products").notNull(),
+})
 
 export const orders = pgTable(
   "orders",
