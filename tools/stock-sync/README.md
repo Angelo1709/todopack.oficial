@@ -40,6 +40,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-StockSync.ps1 
 
 El intervalo inicial es 5 minutos. La tarea se ejecuta también al iniciar sesión, se recupera de ejecuciones omitidas y evita ejecuciones superpuestas. **Funciona mientras la PC esté encendida y ese usuario tenga sesión iniciada** (puede bloquear la pantalla). Si está apagada o sin Internet, reenvía un inventario nuevo en la siguiente ejecución disponible. No escribe ceros por un error de lectura o conexión.
 
+Para instalar en otra carpeta accesible desde el Programador de tareas, usar `-InstallDirectory "RUTA_COMPLETA"`. El instalador permite reinstalar con el mismo usuario sin pedir permisos de administrador. Al pasar a la PC del propietario, ejecutar `Uninstall-StockSync.ps1` en la PC de prueba para que sólo una PC envíe el inventario.
+
 La clave queda cifrada con DPAPI para ese usuario de Windows. En la PC del propietario hay que **volver a ejecutar el instalador e ingresar la clave**: no copiar `secret.txt` desde la PC de prueba. Reinstalar con el mismo usuario permite cambiar la URL, la clave o el intervalo.
 
 ## 3. Revisar los vínculos y activar el stock

@@ -30,16 +30,20 @@ $config | ConvertTo-Json | Set-Content -LiteralPath $configPath -Encoding UTF8
 # DPAPI del usuario actual: se vuelve a ingresar la clave en la PC del propietario.
 $token | ConvertFrom-SecureString | Set-Content -LiteralPath (Join-Path $InstallDirectory 'secret.txt') -Encoding ASCII
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
-$acl = Get-Acl -LiteralPath $InstallDirectory
+$installDirectoryInfo = New-Object IO.DirectoryInfo($InstallDirectory)
+# Modifica sólo la DACL: al reinstalar, Set-Acl puede intentar escribir también
+# información de auditoría y exigir SeSecurityPrivilege (administrador).
+$acl = $installDirectoryInfo.GetAccessControl([Security.AccessControl.AccessControlSections]::Access)
 $acl.SetAccessRuleProtection($true, $false)
 $acl.SetAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($identity, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')))
 $acl.SetAccessRule((New-Object Security.AccessControl.FileSystemAccessRule('SYSTEM', 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')))
-Set-Acl -LiteralPath $InstallDirectory -AclObject $acl
+$installDirectoryInfo.SetAccessControl($acl)
 $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
 & $powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $InstallDirectory 'Sync-Stock.ps1') -ConfigPath $configPath -DryRun
 if ($LASTEXITCODE -ne 0) { throw 'No se pudo leer Gestion.mdb. No se registro la tarea.' }
 if (-not $SkipTask) {
-    $action = New-ScheduledTaskAction -Execute $powershell -Argument ('-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{0}" -ConfigPath "{1}"' -f (Join-Path $InstallDirectory 'Sync-Stock.ps1'), $configPath) -WorkingDirectory $InstallDirectory
+    # Las rutas son absolutas; no requiere un directorio de trabajo del usuario.
+    $action = New-ScheduledTaskAction -Execute $powershell -Argument ('-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{0}" -ConfigPath "{1}"' -f (Join-Path $InstallDirectory 'Sync-Stock.ps1'), $configPath)
     $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes)
     $logon = New-ScheduledTaskTrigger -AtLogOn -User $identity
     $settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 4)
