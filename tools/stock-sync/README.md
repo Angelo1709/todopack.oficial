@@ -1,12 +1,14 @@
 # Stock de Gestión → Todo Pack
 
-Este paquete lee `Gestion.mdb` cada **5 minutos** y envía el inventario por HTTPS a la web. Usa Windows PowerShell 5.1 y Jet 4.0 de 32 bits, incluidos en la PC de prueba. No requiere Python, Node, Microsoft Access ni un driver PostgreSQL en la PC del negocio.
+Este paquete lee `Gestion.mdb` cada **5 minutos** y envía el inventario y los precios por HTTPS a la web. Usa Windows PowerShell 5.1 y Jet 4.0 de 32 bits, incluidos en la PC de prueba. No requiere Python, Node, Microsoft Access ni un driver PostgreSQL en la PC del negocio.
 
-La base se abre con `Mode=Read`. Sólo se leen `Articulos.IdArticulo`, `CodigoArticulo`, `Nombre` y `ExistenciaActual`. No se envían clientes, ventas, proveedores, precios ni el archivo MDB. No se convierte ni modifica la base.
+La base se abre con `Mode=Read`. Sólo se leen `Articulos.IdArticulo`, `CodigoArticulo`, `Nombre`, `ExistenciaActual`, `PrecioUnitario`, `IvaExento` y la tasa de `Iva`. No se envían clientes, ventas, proveedores, costos ni el archivo MDB.
+
+**Precio:** se envía el precio final de cada artículo, `PrecioUnitario × (1 + IVA)`, y la web lo guarda en pesos enteros en los productos vinculados. Desde ese momento el precio de esos productos se cambia en Gestión: lo que se edite a mano o se importe por Excel en la web se pisa en la siguiente sincronización. Un artículo sin precio (o en cero) conserva el precio de la web. No se convierte ni modifica la base.
 
 ## 1. Preparar la web
 
-Aplicar la rama/PR que incorpora la API y la migración `0013_stock_gestion.sql`. Railway aplica las migraciones al arrancar con `pnpm start`.
+Aplicar la rama/PR que incorpora la API y las migraciones `0013_stock_gestion.sql` y `0014_precio_gestion.sql`. Railway aplica las migraciones al arrancar con `pnpm start`.
 
 Configurar en las variables del servicio **de la web**:
 
@@ -60,13 +62,15 @@ Verificar que cada presentación esté vinculada con su equivalente real, especi
 
 Una vez revisado el reporte, cambiar **`STOCK_SYNC_REQUIRED=true` en Railway**. Desde ese momento:
 
-- Se muestran únicamente presentaciones activas con stock positivo confirmado.
-- Stock cero, negativo, artículos eliminados del inventario y productos sin vínculo se ocultan.
+- Se venden únicamente presentaciones activas con stock positivo confirmado.
+- Stock cero, negativo y artículos eliminados del inventario se muestran en gris con el aviso **Sin stock**, al final del listado, y no se pueden sumar al carrito.
+- Los productos sin vínculo (stock desconocido) se ocultan.
+- Los artículos sin foto no se muestran, tengan o no stock.
 - Las categorías y la paginación usan el mismo filtro.
 - Un carrito previo vuelve a consultar la disponibilidad al confirmar.
-- Si reponen stock, el producto vuelve a aparecer en la próxima sincronización.
+- Si reponen stock, el producto vuelve a estar disponible en la próxima sincronización.
 
-Con `false` se permite revisar los productos sin vínculo antes de activar el control obligatorio; los ceros y negativos conocidos igualmente se ocultan. La sincronización conserva precios, fotos, categorías, agrupaciones y la desactivación manual.
+Con `false` se permite revisar los productos sin vínculo antes de activar el control obligatorio; los ceros y negativos conocidos igualmente figuran sin stock. La sincronización conserva fotos, categorías, agrupaciones y la desactivación manual.
 
 ## 4. Diagnóstico y mantenimiento
 

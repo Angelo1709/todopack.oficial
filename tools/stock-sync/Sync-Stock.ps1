@@ -55,7 +55,8 @@ try {
     $connection.Open()
     $command = $connection.CreateCommand()
     $command.CommandTimeout = 30
-    $command.CommandText = "SELECT [IdArticulo], [CodigoArticulo], [Nombre], [$stockColumn] AS [Quantity] FROM [Articulos] ORDER BY [IdArticulo]"
+    # Precio final = PrecioUnitario (neto) + IVA del articulo. La tasa sale de la tabla Iva.
+    $command.CommandText = "SELECT a.[IdArticulo], a.[CodigoArticulo], a.[Nombre], a.[$stockColumn] AS [Quantity], a.[PrecioUnitario], a.[IvaExento], i.[Iva] AS [TasaIva] FROM [Articulos] AS a LEFT JOIN [Iva] AS i ON a.[IdIva] = i.[IdIva] ORDER BY a.[IdArticulo]"
     $reader = $command.ExecuteReader()
     $items = New-Object 'System.Collections.Generic.List[object]'
     $ids = New-Object 'System.Collections.Generic.HashSet[int]'
@@ -69,7 +70,15 @@ try {
                 throw 'Articulo o cantidad invalida. No se enviara un inventario incompleto.'
             }
             $code = if ($reader.IsDBNull(1)) { '' } else { ([string]$reader.GetValue(1)).Trim() }
-            $items.Add([ordered]@{ articleId = $id; code = $code; name = $name; quantity = $quantity })
+            # Sin precio o sin tasa de IVA conocida se envia null: la web conserva el precio que tenia.
+            $price = $null
+            $exempt = (-not $reader.IsDBNull(5)) -and [bool]$reader.GetValue(5)
+            if (-not $reader.IsDBNull(4) -and ($exempt -or -not $reader.IsDBNull(6))) {
+                $rate = if ($exempt) { 0.0 } else { [double]$reader.GetValue(6) }
+                $gross = [Math]::Round([double]$reader.GetValue(4) * (1 + $rate / 100), 2)
+                if ($rate -ge 0 -and $rate -le 100 -and $gross -gt 0 -and $gross -le 100000000) { $price = $gross }
+            }
+            $items.Add([ordered]@{ articleId = $id; code = $code; name = $name; quantity = $quantity; price = $price })
         }
     } finally { $reader.Dispose(); $command.Dispose(); $connection.Dispose(); $connection = $null }
     if ($items.Count -lt 1 -or $items.Count -gt 10000) { throw 'Inventario vacio o demasiado grande. No se enviara.' }
@@ -79,8 +88,9 @@ try {
     $body = [Text.Encoding]::UTF8.GetBytes($json)
     if ($body.Length -gt 4000000) { throw 'El inventario supera el limite de 4 MB.' }
     $positive = @($items | Where-Object { $_.quantity -gt 0 }).Count
+    $priced = @($items | Where-Object { $null -ne $_.price }).Count
     if ($ExportPath) { [IO.File]::WriteAllText([IO.Path]::GetFullPath($ExportPath), $json, (New-Object Text.UTF8Encoding($false))) }
-    if ($DryRun) { Write-SyncLog "PRUEBA: $($items.Count) articulos; $positive con stock positivo. Sin enviar a la nube."; exit 0 }
+    if ($DryRun) { Write-SyncLog "PRUEBA: $($items.Count) articulos; $positive con stock positivo; $priced con precio. Sin enviar a la nube."; exit 0 }
 
     $endpoint = [Uri]$config.endpoint
     if (-not $endpoint.IsAbsoluteUri -or $endpoint.UserInfo -or $endpoint.Query -or $endpoint.Fragment) { throw 'URL de API invalida.' }
@@ -110,9 +120,9 @@ try {
             Start-Sleep -Seconds (2 * $attempt)
         }
     }
-    $state = [ordered]@{ lastSuccessUtc = [DateTime]::UtcNow.ToString('o'); snapshotId = $snapshotId; rows = $items.Count; positive = $positive; matched = $ack.matched; unmatched = $ack.unmatched }
+    $state = [ordered]@{ lastSuccessUtc = [DateTime]::UtcNow.ToString('o'); snapshotId = $snapshotId; rows = $items.Count; positive = $positive; priced = $priced; matched = $ack.matched; unmatched = $ack.unmatched; pricesUpdated = $ack.pricesUpdated }
     [IO.File]::WriteAllText((Join-Path $configDirectory 'last-success.json'), ($state | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
-    Write-SyncLog "OK: $($items.Count) articulos recibidos; $($ack.matched) productos vinculados; $($ack.unmatched) activos sin vinculo."
+    Write-SyncLog "OK: $($items.Count) articulos recibidos; $($ack.matched) productos vinculados; $($ack.unmatched) activos sin vinculo; $([int]$ack.pricesUpdated) precios actualizados."
     exit 0
 } catch {
     Write-SyncLog ('ERROR: ' + $_.Exception.Message)

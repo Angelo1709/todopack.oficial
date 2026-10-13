@@ -100,6 +100,7 @@ export const gestionStock = pgTable("gestion_stock", {
   name: text("name").notNull(),
   nameKey: text("name_key").notNull(),
   quantity: doublePrecision("quantity").notNull(),
+  price: integer("price"), // precio final con IVA; null si Gestión no lo informó
   snapshotId: uuid("snapshot_id").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })

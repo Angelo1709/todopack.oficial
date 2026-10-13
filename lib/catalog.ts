@@ -4,11 +4,25 @@ import { products } from "@/lib/db/schema"
 import { and, eq, inArray, sql } from "drizzle-orm"
 import { parsePresentation, presentationLabel } from "@/lib/pack"
 import { normalizeTiers, type Tier } from "@/lib/pricing"
-import { stockAvailableCondition } from "@/lib/stock-availability"
+import { stockAvailableCondition, stockVisibleCondition } from "@/lib/stock-availability"
 
 // Un artículo = productos activos con el mismo group_key (sus presentaciones = tramos de precio).
 // Un producto sin group_key es un artículo solo.
 export const articleKey = sql<string>`coalesce(${products.groupKey}, 'id:' || ${products.id})`
+
+/** La tienda sólo publica artículos con foto: alcanza con que la tenga una de sus presentaciones activas. */
+export const articleHasPhoto = sql`exists (select 1 from products photo where photo.active and photo.image_url <> ''
+  and coalesce(photo.group_key, 'id:' || photo.id) = ${articleKey})`
+
+/** Filas que la tienda muestra: activas, con foto y con stock conocido (disponible o agotado). */
+export function storefrontCondition() {
+  return and(eq(products.active, true), stockVisibleCondition(), articleHasPhoto)
+}
+
+/** true si la presentación se puede vender ahora. */
+export function availableColumn() {
+  return sql<boolean>`coalesce(${stockAvailableCondition()}, false)`
+}
 
 type ArticleRow = {
   id: number
@@ -18,6 +32,7 @@ type ArticleRow = {
   imageUrl: string | null
   packSize: number
   key: string
+  available: boolean
 }
 
 export type Article = {
@@ -27,11 +42,13 @@ export type Article = {
   name: string
   category: string
   imageUrl: string | null
-  /** Presentaciones de menor a mayor (ver lib/pricing.ts). */
+  /** Presentaciones de menor a mayor (ver lib/pricing.ts). Con stock, sólo las disponibles. */
   tiers: Tier[]
+  /** false = agotado: se muestra en gris con sus precios, pero no se puede pedir. */
+  available: boolean
 }
 
-const articleColumns = {
+const articleColumns = () => ({
   id: products.id,
   name: products.name,
   price: products.price,
@@ -39,11 +56,14 @@ const articleColumns = {
   imageUrl: products.imageUrl,
   packSize: products.packSize,
   key: articleKey,
-}
+  available: availableColumn(),
+})
 
 function buildArticle(key: string, rows: ArticleRow[]): Article | null {
+  // Una presentación agotada no participa del precio por tramos mientras quede otra con stock.
+  const inStock = rows.filter((r) => r.available)
   const tiers = normalizeTiers(
-    rows.map((r) => ({
+    (inStock.length ? inStock : rows).map((r) => ({
       productId: r.id,
       name: r.name,
       label: presentationLabel(r.name, r.packSize),
@@ -64,16 +84,17 @@ function buildArticle(key: string, rows: ArticleRow[]): Article | null {
     category: base.category,
     imageUrl: rows.find((r) => r.imageUrl)?.imageUrl ?? null,
     tiers,
+    available: inStock.length > 0,
   }
 }
 
-/** Artículos (con todas sus presentaciones activas) para las claves pedidas, en el mismo orden. */
+/** Artículos que muestra la tienda (disponibles y agotados) para las claves pedidas, en el mismo orden. */
 export async function loadArticles(keys: string[]): Promise<Article[]> {
   if (!keys.length) return []
   const rows = await db
-    .select(articleColumns)
+    .select(articleColumns())
     .from(products)
-    .where(and(eq(products.active, true), stockAvailableCondition(), inArray(articleKey, keys)))
+    .where(and(storefrontCondition(), inArray(articleKey, keys)))
   const byKey = new Map<string, ArticleRow[]>()
   for (const row of rows) byKey.set(row.key, [...(byKey.get(row.key) ?? []), row])
   return keys.flatMap((k) => {
@@ -82,7 +103,7 @@ export async function loadArticles(keys: string[]): Promise<Article[]> {
   })
 }
 
-/** Para cada id de producto (activo), el artículo al que pertenece. Los inactivos o inexistentes no aparecen. */
+/** Para cada id de producto, el artículo al que pertenece si hoy se puede pedir. Inactivos, agotados, sin foto o inexistentes no aparecen. */
 export async function loadArticlesForProducts(ids: number[]): Promise<Map<number, Article>> {
   if (!ids.length) return new Map()
   const rows = await db
@@ -90,7 +111,7 @@ export async function loadArticlesForProducts(ids: number[]): Promise<Map<number
     .from(products)
     .where(and(eq(products.active, true), inArray(products.id, ids)))
   const articles = await loadArticles([...new Set(rows.map((r) => r.key))])
-  const byKey = new Map(articles.map((a) => [a.key, a]))
+  const byKey = new Map(articles.filter((a) => a.available).map((a) => [a.key, a]))
   const result = new Map<number, Article>()
   for (const r of rows) {
     const article = byKey.get(r.key)

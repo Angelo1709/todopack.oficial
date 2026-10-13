@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useCart } from "@/components/cart/cart-provider"
 import { QuantityStepper, TierPrices, TierSummary } from "@/components/storefront/tier-pricing"
 import { stepUnits } from "@/lib/pricing"
+import { categoryImage } from "@/lib/categories"
 import { formatPrice } from "@/lib/format"
 import {
   Sheet,
@@ -45,8 +47,15 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
             <ul className="flex flex-col gap-3">
               {items.map((item) => (
                 <li key={item.id} className="flex flex-col gap-2 rounded-lg border border-border p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="line-clamp-2 text-sm font-medium leading-tight">{item.name}</p>
+                  <div className="flex items-start gap-3">
+                    <Image
+                      src={item.imageUrl || categoryImage(item.category)}
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="size-12 shrink-0 rounded-lg border border-border bg-muted object-cover"
+                    />
+                    <p className="line-clamp-2 min-w-0 flex-1 text-sm font-medium leading-tight">{item.name}</p>
                     <button
                       type="button"
                       onClick={() => remove(item.id)}

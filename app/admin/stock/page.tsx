@@ -5,14 +5,15 @@ import { isAdminRole } from "@/lib/roles"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { formatPrice } from "@/lib/format"
 
 export const dynamic = "force-dynamic"
 const PAGE_SIZE = 40
 type Params = { q?: string; estado?: string; page?: string }
 type Row = {
-  article_id: number; code: string; name: string; quantity: number
+  article_id: number; code: string; name: string; quantity: number; price: number | null
   updated_at: Date; current: boolean; linked: number; differences: number
-  web: { id: number; name: string; quantity: number | null; active: boolean }[]
+  web: { id: number; name: string; quantity: number | null; price: number; active: boolean }[]
 }
 const date = (value: Date) => value.toLocaleString("es-AR", {
   timeZone: "America/Argentina/Buenos_Aires", hourCycle: "h23",
@@ -40,7 +41,7 @@ export default async function StockPage({ searchParams }: { searchParams: Promis
     SELECT g.*, g.snapshot_id=s.snapshot_id AS current,
       count(p.id)::int AS linked,
       count(p.id) FILTER(WHERE p.stock_quantity IS DISTINCT FROM g.quantity)::int AS differences,
-      coalesce(jsonb_agg(jsonb_build_object('id',p.id,'name',p.name,'quantity',p.stock_quantity,'active',p.active)
+      coalesce(jsonb_agg(jsonb_build_object('id',p.id,'name',p.name,'quantity',p.stock_quantity,'price',p.price,'active',p.active)
         ORDER BY p.name) FILTER(WHERE p.id IS NOT NULL),'[]'::jsonb) AS web
     FROM gestion_stock g LEFT JOIN stock_sync_state s ON s.id=1
     LEFT JOIN products p ON p.gestion_article_id=g.article_id
@@ -64,7 +65,7 @@ export default async function StockPage({ searchParams }: { searchParams: Promis
   return <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h1 className="font-serif text-2xl font-bold">Control de stock</h1>
-        <p className="text-sm text-muted-foreground">Compará lo recibido de Gestión con las cantidades de la web.</p></div>
+        <p className="text-sm text-muted-foreground">Compará lo recibido de Gestión con las cantidades y los precios de la web.</p></div>
       <Button render={<Link href={href(page)} />} nativeButton={false} variant="outline">Actualizar vista</Button>
     </div>
     <section className="rounded-xl border border-border bg-card p-4 text-sm">
@@ -73,7 +74,7 @@ export default async function StockPage({ searchParams }: { searchParams: Promis
       </p>
       {state && <><p>Última lectura en la PC: {date(new Date(state.captured_at))}</p>
         <p>Recibida en la nube: {date(new Date(state.received_at))} · Origen: {state.source_id}</p></>}
-      <p className="mt-2 text-muted-foreground">Actualización cada 5 minutos. La cantidad corresponde al artículo tal como lo guarda Gestión; hoy cada presentación puede tener su propio stock.</p>
+      <p className="mt-2 text-muted-foreground">Actualización cada 5 minutos. La cantidad corresponde al artículo tal como lo guarda Gestión; hoy cada presentación puede tener su propio stock. El precio de Gestión (con IVA) reemplaza al de la web en lo vinculado.</p>
     </section>
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {[["Artículos recibidos",counts.total],["Con stock",counts.positive],["Sin producto web",counts.unlinked],["Presentaciones vinculadas",state?.matched_products ?? 0]].map(([label,value]) =>
@@ -91,13 +92,14 @@ export default async function StockPage({ searchParams }: { searchParams: Promis
       {rows.map(row => <li key={row.article_id} className="p-4">
         <div className="flex flex-wrap justify-between gap-2"><div><p className="text-sm font-semibold">{row.name}</p>
           <p className="text-xs text-muted-foreground">Gestión #{row.article_id} · Código: {row.code || "sin código"}</p></div>
-          <p className="text-sm font-semibold tabular-nums">Stock Gestión: {row.quantity.toLocaleString("es-AR")}</p></div>
+          <p className="text-right text-sm font-semibold tabular-nums">Stock Gestión: {row.quantity.toLocaleString("es-AR")}
+            <span className="block font-normal text-muted-foreground">Precio Gestión: {row.price ? formatPrice(row.price) : "sin informar"}</span></p></div>
         {!row.current && <p className="mt-1 text-sm text-destructive">Ausente en la última lectura; stock puesto en cero.</p>}
         {!row.linked && <p className="mt-2 text-sm text-muted-foreground">Sin producto vinculado en la web.</p>}
         {row.web.map(p => <div key={p.id} className="mt-2 rounded-lg bg-muted p-3 text-sm">
           <Link href={`/admin/productos?q=${encodeURIComponent(p.name)}&estado=todos`} className="underline">{p.name}</Link>
-          <p className="tabular-nums">Stock web: {p.quantity === null ? "desconocido" : p.quantity.toLocaleString("es-AR")} · {p.quantity === row.quantity ? "Coincide" : "Cantidad diferente"}
-            {!p.active ? " · Desactivado manualmente" : (p.quantity ?? 0) <= 0 ? " · Oculto por stock" : " · Con stock disponible"}</p>
+          <p className="tabular-nums">Stock web: {p.quantity === null ? "desconocido" : p.quantity.toLocaleString("es-AR")} · {p.quantity === row.quantity ? "Coincide" : "Cantidad diferente"} · Precio web: {formatPrice(p.price)}
+            {!p.active ? " · Desactivado manualmente" : (p.quantity ?? 0) <= 0 ? " · Sin stock en la tienda" : " · Con stock disponible"}</p>
         </div>)}
         <p className="mt-2 text-xs text-muted-foreground">Última actualización: {date(new Date(row.updated_at))}</p>
       </li>)}
