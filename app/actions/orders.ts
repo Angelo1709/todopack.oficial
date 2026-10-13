@@ -27,6 +27,7 @@ type CheckoutItem = { id: number; quantity: number }
 
 export type CheckoutInput = {
   items: CheckoutItem[]
+  expectedTotal?: number
   customerName: string
   phone: string
   email?: string
@@ -178,6 +179,10 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     }
   }
 
+  if (input.expectedTotal !== undefined && input.expectedTotal !== total) {
+    return fail("Los precios u ofertas cambiaron. Actualizamos tu carrito: revisá el total y confirmá de nuevo.", "items")
+  }
+
   // Relee la configuración y el reloj justo antes de guardar: un formulario viejo
   // o una consulta de precios que cruzó el límite no puede tomar una franja cerrada.
   const schedule=await getDeliverySettings()
@@ -313,4 +318,14 @@ export async function claimOrders(tokens: string[]): Promise<{ claimed: number; 
     revalidatePath("/admin")
   }
   return { claimed: claimed.length, tokens: owned.map((o) => o.publicToken) }
+}
+
+/** Precios vigentes del carrito; sólo datos públicos del catálogo. */
+export async function refreshCartArticles(ids: number[]) {
+  if (!Array.isArray(ids) || ids.length > MAX_LINES || ids.some((id) => !Number.isSafeInteger(id) || id <= 0)) return []
+  const articles = await loadArticlesForProducts(ids)
+  return ids.flatMap((id) => {
+    const article = articles.get(id)
+    return article ? [{ id, name: article.name, category: article.category, imageUrl: article.imageUrl, tiers: article.tiers }] : []
+  })
 }

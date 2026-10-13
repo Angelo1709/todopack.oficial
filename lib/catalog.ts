@@ -32,6 +32,7 @@ type ArticleRow = {
   imageUrl: string | null
   packSize: number
   key: string
+  offer: import("./offers").Offer | null
   available: boolean
 }
 
@@ -56,6 +57,7 @@ const articleColumns = () => ({
   imageUrl: products.imageUrl,
   packSize: products.packSize,
   key: articleKey,
+  offer: products.offer,
   available: availableColumn(),
 })
 
@@ -69,6 +71,7 @@ function buildArticle(key: string, rows: ArticleRow[]): Article | null {
       label: presentationLabel(r.name, r.packSize),
       packSize: r.packSize,
       price: r.price,
+      offer: r.offer,
     })),
   )
   if (!tiers.length) return null

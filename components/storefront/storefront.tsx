@@ -28,6 +28,7 @@ export function Storefront({
   query,
   selectedCategory,
   sort,
+  offersOnly,
 }: {
   articles: StoreArticle[]
   categories: string[]
@@ -37,6 +38,7 @@ export function Storefront({
   query: string
   selectedCategory: string
   sort: SortOption
+  offersOnly: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -44,14 +46,15 @@ export function Storefront({
   const { count, total } = useCart()
   const category = selectedCategory
   const tabs = ["Todos", ...categories]
-  const isHome = category === "Todos" && !query && page === 1
+  const isHome = category === "Todos" && !query && page === 1 && !offersOnly
 
-  function navigate(next: { page?: number; q?: string; category?: string; sort?: SortOption }) {
+  function navigate(next: { page?: number; q?: string; category?: string; sort?: SortOption; offers?: boolean }) {
     const params = new URLSearchParams()
     const nextQuery = next.q ?? query
     const nextCategory = next.category ?? category
     const nextSort = next.sort ?? sort
     const nextPage = next.page ?? 1
+    if (next.offers ?? offersOnly) params.set("offers", "1")
     if (nextQuery.trim()) params.set("q", nextQuery.trim())
     if (nextCategory !== "Todos") params.set("category", nextCategory)
     if (nextSort !== "nombre") params.set("orden", nextSort)
@@ -85,6 +88,7 @@ export function Storefront({
 
       <div className="sticky top-28 z-30 -mx-4 mb-4 bg-background/90 px-4 py-3 backdrop-blur sm:top-16">
         <div className="flex gap-2 overflow-x-auto [scrollbar-width:none]">
+          <button type="button" aria-pressed={offersOnly} onClick={() => navigate({ offers: !offersOnly })} className={cn("whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-semibold", offersOnly ? "border-primary bg-primary text-primary-foreground" : "border-primary bg-primary/5 text-foreground")}>Ofertas</button>
           {tabs.map((t) => (
             <button
               key={t}
@@ -106,7 +110,7 @@ export function Storefront({
       <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
           <h2 className="font-serif text-xl font-bold wrap-anywhere">
-            {query ? `Resultados para “${query}”` : category === "Todos" ? "Todos los productos" : category}
+            {offersOnly ? `Ofertas${category === "Todos" ? "" : ` · ${category}`}` : query ? `Resultados para “${query}”` : category === "Todos" ? "Todos los productos" : category}
           </h2>
           <p className="flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground tabular-nums">
             <span>
@@ -145,7 +149,7 @@ export function Storefront({
           <PackageSearch className="size-10 opacity-40" />
           <p>No encontramos productos para tu búsqueda.</p>
           {!isHome && (
-            <Button variant="outline" className="mt-2" onClick={() => navigate({ q: "", category: "Todos" })}>
+            <Button variant="outline" className="mt-2" onClick={() => navigate({ q: "", category: "Todos", offers: false })}>
               Ver todos los productos
             </Button>
           )}

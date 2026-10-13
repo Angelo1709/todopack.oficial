@@ -21,7 +21,7 @@ const BENEFITS = [
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; category?: string; orden?: string }>
+  searchParams: Promise<{ page?: string; q?: string; category?: string; orden?: string; offers?: string }>
 }) {
   const params = await searchParams
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1)
@@ -30,8 +30,10 @@ export default async function HomePage({
   const sort = isSortOption(params.orden) ? params.orden : "nombre"
   // Activos, con foto y con stock conocido: lo agotado se muestra en gris al final.
   const visible = storefrontCondition()
+  const offersOnly = params.offers === "1"
   const where = and(
     visible,
+    offersOnly ? sql`${products.offer}->>'active' = 'true'` : undefined,
     query ? ilike(products.name, `%${query.replace(/[\\%_]/g, "\\$&")}%`) : undefined,
     category !== "Todos" ? eq(products.category, category) : undefined,
   )
@@ -72,7 +74,7 @@ export default async function HomePage({
     <main className="min-h-dvh bg-background">
       <SiteHeader search query={query} />
       {/* La portada sólo en el inicio: buscando o filtrando se va directo a los productos. */}
-      {!query && category === "Todos" && safePage === 1 && (
+      {!offersOnly && !query && category === "Todos" && safePage === 1 && (
         <>
           <section className="border-b border-border bg-sidebar text-sidebar-foreground">
             <div className="mx-auto max-w-7xl px-4 py-8">
@@ -111,6 +113,7 @@ export default async function HomePage({
         query={query}
         selectedCategory={category}
         sort={sort}
+        offersOnly={offersOnly}
       />
     </main>
   )

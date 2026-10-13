@@ -7,6 +7,7 @@ import { categoryImage } from "@/lib/categories"
 import { savingsPercent, stepUnits, type Tier } from "@/lib/pricing"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { offerLabel } from "@/lib/offers"
 import { Plus } from "lucide-react"
 
 /** Un artículo del catálogo con sus presentaciones (tramos de precio). Ver lib/catalog.ts. */
@@ -54,6 +55,7 @@ export function ProductCard({ article }: { article: StoreArticle }) {
             soldOut ? "opacity-50 grayscale" : "group-hover:scale-105",
           )}
         />
+        {!soldOut && article.tiers.some((t) => t.offer?.active) && <span className="absolute bottom-2 left-2 rounded-lg bg-primary px-3 py-1.5 text-lg font-bold text-primary-foreground shadow-sm">{[...new Set(article.tiers.filter((t) => t.offer?.active).map((t) => offerLabel(t.offer!)))].join(" · ")}</span>}
         <span className="absolute left-2 top-2 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur">
           {article.category}
         </span>
@@ -72,6 +74,7 @@ export function ProductCard({ article }: { article: StoreArticle }) {
         <p className={cn("min-h-[2.5rem] wrap-anywhere text-sm font-medium leading-snug", soldOut && "text-muted-foreground")}>
           {article.name}
         </p>
+        {article.tiers.some((t) => t.offer?.active) && <p className="text-xs font-semibold text-foreground">{[...new Set(article.tiers.filter((t) => t.offer?.active).map((t) => t.offer!.title))].join(" · ")}</p>}
         <TierPrices tiers={article.tiers} className={cn(soldOut && "opacity-60")} />
 
         <div className="mt-auto flex flex-col gap-2 pt-1">
