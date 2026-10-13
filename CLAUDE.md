@@ -45,7 +45,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 
 ## Estructura
 
-- `app/page.tsx` — catálogo público (búsqueda, filtro por categoría, paginación de 24).
+- `app/page.tsx` — catálogo público (búsqueda desde el header, filtro por categoría, orden por nombre/precio, paginación de 24). Muestra sólo artículos con foto; lo agotado va en gris al final ("Sin stock").
 - `app/checkout`, `app/mis-pedidos` — compra y pedidos del cliente.
 - `app/admin/` — panel (layout con guard de rol + `AdminNav`): `/admin` pedidos, `/admin/productos` catálogo, `/admin/configuracion` WhatsApp, datos bancarios y salida/llegada del recorrido, `/admin/usuarios` (solo superadmin). Componentes en `components/admin/`.
 - `app/actions/` — server actions: `orders.ts` (cliente; `createOrder` acepta invitados), `admin-orders.ts` (pedidos y alta de pedidos manuales, `requireAdmin()`), `catalog.ts` (productos, importación Excel, imágenes, `requireAdmin()`), `users.ts` (usuarios, `requireSuperadmin()`), `reparto.ts` (recorrido: buscar ubicaciones, corregir la de un pedido, salida/llegada; `requireAdmin()`). Ojo: un archivo `route.ts` dentro de `app/` es un Route Handler, no usar ese nombre para acciones.
@@ -79,6 +79,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 - **Recorrido de reparto** (pestaña Recorrido del panel, un solo vehículo): sale del local o del depósito y termina en uno de los dos o en la última entrega (`/admin/configuracion`, claves `route*`/`local*`/`depot*` de `settings`). Entran los pedidos todavía por entregar (`!isFinalStatus`). Cada pedido se ubica una sola vez (`orders.lat/lng/location_status`): al crearlo (`after()`), reusando la de otro pedido con la misma dirección, o a mano desde el panel. Distancias **por calle respetando las manos** con el mapa de OpenStreetMap guardado (se baja/actualiza con "Actualizar calles" en Configuración, p. ej. después de corregir manos en OSM); sin mapa, o para direcciones a más de 300 m de una calle del mapa, en línea recta. `planRoute` acepta distancias asimétricas. El link de Google Maps usa los datos de Google: sólo el orden de las paradas es nuestro. Por eso la pestaña Recorrido tiene su propio **mapa** (`components/admin/route-map.tsx`, Leaflet + baldosas de openstreetmap.org con atribución): paradas numeradas, el camino calle por calle de `streetPaths` (mismo grafo que las distancias) y la ubicación del repartidor por GPS (se pide al tocar "Mi ubicación"). Los textos de los cartelitos van como `textContent` (datos de clientes, nunca HTML). `app/globals.css` corrige el reset de Tailwind sobre las imágenes de Leaflet.
 - La fecha de entrega no puede ser pasada. Los ítems del pedido guardan copia de nombre, precio y pack al momento de compra.
 - Los productos no se borran: se desactivan con `active = false`.
+- **Stock y precios de Gestión** (`docs/stock-gestion.md`): la PC del local envía cada 5 minutos stock y precio final de cada artículo a `POST /api/stock/sync`. En los productos vinculados (`gestion_article_id`) el precio lo pone Gestión. `lib/catalog.ts` decide qué muestra la tienda (`storefrontCondition`: activo, con foto, stock conocido) y qué se puede pedir (`Article.available`).
 
 ## Variables de entorno
 

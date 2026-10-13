@@ -3,8 +3,10 @@ import type { PoolClient } from "pg"
 
 export const MAX_SNAPSHOT_BYTES = 4_000_000
 export const MAX_STOCK_ITEMS = 10_000
+export const MAX_STOCK_PRICE = 100_000_000
 
-export type StockItem = { articleId: number; code: string; name: string; quantity: number }
+/** `price`: precio final de la presentación (con IVA) en pesos enteros; null si el origen no lo envía o es cero. */
+export type StockItem = { articleId: number; code: string; name: string; quantity: number; price: number | null }
 export type StockSnapshot = {
   version: 1
   sourceId: string
@@ -57,8 +59,13 @@ export function validateStockSnapshot(value: unknown, sourceId: string, now = Da
     if (typeof item.quantity !== "number" || !Number.isFinite(item.quantity) || Math.abs(item.quantity) > 1_000_000_000) {
       throw new StockSyncError("Stock inválido; no se aceptan cantidades desconocidas")
     }
+    // Las versiones anteriores del sincronizador no envían precio: se conserva el de la web.
+    if (item.price !== undefined && item.price !== null && (typeof item.price !== "number" || !Number.isFinite(item.price) || item.price < 0 || item.price > MAX_STOCK_PRICE)) {
+      throw new StockSyncError("Precio inválido")
+    }
+    const price = typeof item.price === "number" ? Math.round(item.price) : 0
     seen.add(item.articleId)
-    return { articleId: item.articleId, code: item.code.trim(), name: item.name.trim(), quantity: item.quantity }
+    return { articleId: item.articleId, code: item.code.trim(), name: item.name.trim(), quantity: item.quantity, price: price > 0 ? price : null }
   })
   return { version: 1, sourceId, snapshotId: v.snapshotId, capturedAt: v.capturedAt, rowCount: items.length, items }
 }
@@ -71,18 +78,18 @@ export async function applyStockSnapshot(client: Pick<PoolClient, "query">, snap
   if (previous && previous.source_id !== snapshot.sourceId) throw new StockSyncError("La base ya recibe otro origen de stock", 409)
   if (previous?.snapshot_id === snapshot.snapshotId) {
     const unmatched = Number((await client.query("SELECT count(*)::int AS n FROM products WHERE active AND stock_quantity IS NULL")).rows[0].n)
-    return { applied: false, duplicate: true, received: previous.item_count, matched: previous.matched_products, unmatched }
+    return { applied: false, duplicate: true, received: previous.item_count, matched: previous.matched_products, unmatched, pricesUpdated: 0 }
   }
   if (previous && Date.parse(snapshot.capturedAt) <= new Date(previous.captured_at).getTime()) {
     throw new StockSyncError("La captura es anterior al último stock recibido", 409)
   }
 
   const records = snapshot.items.map(i => ({ ...i, nameKey: stockNameKey(i.name) }))
-  await client.query(`INSERT INTO gestion_stock(article_id,code,name,name_key,quantity,snapshot_id)
-    SELECT x."articleId",x.code,x.name,x."nameKey",x.quantity,$2::uuid
-    FROM jsonb_to_recordset($1::jsonb) AS x("articleId" integer,code text,name text,"nameKey" text,quantity double precision)
+  await client.query(`INSERT INTO gestion_stock(article_id,code,name,name_key,quantity,price,snapshot_id)
+    SELECT x."articleId",x.code,x.name,x."nameKey",x.quantity,x.price,$2::uuid
+    FROM jsonb_to_recordset($1::jsonb) AS x("articleId" integer,code text,name text,"nameKey" text,quantity double precision,price integer)
     ON CONFLICT(article_id) DO UPDATE SET code=excluded.code,name=excluded.name,name_key=excluded.name_key,
-      quantity=excluded.quantity,snapshot_id=excluded.snapshot_id,updated_at=now()`, [JSON.stringify(records), snapshot.snapshotId])
+      quantity=excluded.quantity,price=coalesce(excluded.price,gestion_stock.price),snapshot_id=excluded.snapshot_id,updated_at=now()`, [JSON.stringify(records), snapshot.snapshotId])
   // Una baja en Gestión también deja de estar disponible en la web.
   await client.query("UPDATE gestion_stock SET quantity=0,updated_at=now() WHERE snapshot_id<>$1::uuid", [snapshot.snapshotId])
 
@@ -110,11 +117,15 @@ export async function applyStockSnapshot(client: Pick<PoolClient, "query">, snap
     WHERE p.id=x."productId" AND p.gestion_article_id IS NULL`, [JSON.stringify(links)])
   await client.query(`UPDATE products p SET stock_quantity=s.quantity,stock_updated_at=now()
     FROM gestion_stock s WHERE p.gestion_article_id=s.article_id`)
+  // Gestión manda en el precio de lo vinculado. Sin precio en el origen (o cero) se conserva el de la web.
+  const pricesUpdated = (await client.query(`UPDATE products p SET price=s.price,updated_at=now()
+    FROM gestion_stock s WHERE p.gestion_article_id=s.article_id AND s.snapshot_id=$1::uuid
+      AND s.price>0 AND p.price<>s.price`, [snapshot.snapshotId])).rowCount ?? 0
   const matched = Number((await client.query("SELECT count(*)::int AS n FROM products WHERE gestion_article_id IS NOT NULL AND stock_quantity IS NOT NULL")).rows[0].n)
   const unmatched = Number((await client.query("SELECT count(*)::int AS n FROM products WHERE active AND stock_quantity IS NULL")).rows[0].n)
   await client.query(`INSERT INTO stock_sync_state(id,source_id,snapshot_id,captured_at,item_count,matched_products)
     VALUES(1,$1,$2,$3,$4,$5) ON CONFLICT(id) DO UPDATE SET source_id=excluded.source_id,snapshot_id=excluded.snapshot_id,
     captured_at=excluded.captured_at,received_at=now(),item_count=excluded.item_count,matched_products=excluded.matched_products`,
     [snapshot.sourceId, snapshot.snapshotId, snapshot.capturedAt, snapshot.rowCount, matched])
-  return { applied: true, duplicate: false, received: snapshot.rowCount, matched, unmatched }
+  return { applied: true, duplicate: false, received: snapshot.rowCount, matched, unmatched, pricesUpdated }
 }
