@@ -19,3 +19,9 @@ for (let qty = 1; qty <= 30; qty++) {
 }
 assert.equal(priceFor([{ ...unit, price: 101, offer: { ...offer, kind: "percent" } }],3).total,243)
 console.log("OK: ofertas, pausa, cantidades impares, packs, redondeo y reconciliación de stock/importe")
+// Una oferta no debe desaparecer cuando otra fila tiene el mismo tamaño y precio de lista menor.
+const duplicate = { ...unit, productId: 3, price: 120, offer: { ...offer, kind: "percent" } }
+assert.equal(priceFor([{ ...unit, offer: null }, duplicate], 2).total,192)
+const comboDuplicate = { ...unit, productId: 4, price: 150, offer }
+assert.equal(priceFor([{ ...unit, offer: null }, comboDuplicate], 1).total,100)
+assert.equal(priceFor([{ ...unit, offer: null }, comboDuplicate], 2).total,150)

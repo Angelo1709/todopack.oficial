@@ -24,6 +24,15 @@ export function availableColumn() {
   return sql<boolean>`coalesce(${stockAvailableCondition()}, false)`
 }
 
+/** El filtro y el orden consideran la misma oferta que puede mostrarse y comprarse. */
+export function offerArticleCondition() {
+  const keys = db.select({ key: articleKey }).from(products).where(and(
+    storefrontCondition(), availableColumn(), sql`${products.price} > 0`,
+    sql`${products.offer}->>'active' = 'true'`,
+  ))
+  return sql<boolean>`${articleKey} in (${keys})`
+}
+
 type ArticleRow = {
   id: number
   name: string

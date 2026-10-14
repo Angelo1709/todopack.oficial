@@ -36,16 +36,24 @@ export type Breakdown = {
 /** Tope de unidades por artículo en un pedido. */
 export const MAX_UNITS = 5000
 
-/** Ordena por tamaño y, si dos presentaciones tienen el mismo tamaño, se queda con la más barata. */
+/** Conserva el precio más bajo por tamaño y las ofertas alternativas para comparar combos. */
 export function normalizeTiers(tiers: Tier[]): Tier[] {
   const bySize = new Map<number, Tier>()
   for (const t of tiers) {
     const size = Math.max(1, Math.floor(t.packSize || 1))
     if (!(t.price > 0)) continue
     const current = bySize.get(size)
-    if (!current || t.price < current.price) bySize.set(size, { ...t, packSize: size })
+    if (!current || effectivePrice(t.price, t.offer) < effectivePrice(current.price, current.offer)) bySize.set(size, { ...t, packSize: size })
   }
-  return [...bySize.values()].sort((a, b) => a.packSize - b.packSize)
+  const selected = [...bySize.values()]
+  const selectedIds = new Set(selected.map((t) => t.productId))
+  for (const tier of tiers) {
+    if (tier.price > 0 && tier.offer?.active && !selectedIds.has(tier.productId)) {
+      selected.push({ ...tier, packSize: Math.max(1, Math.floor(tier.packSize || 1)) })
+      selectedIds.add(tier.productId)
+    }
+  }
+  return selected.sort((a, b) => a.packSize - b.packSize || effectivePrice(a.price, a.offer) - effectivePrice(b.price, b.offer))
 }
 
 /** De a cuántas unidades se compra (tamaño de la presentación más chica). */

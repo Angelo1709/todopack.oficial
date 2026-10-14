@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Storefront } from "@/components/storefront/storefront"
 import { CATEGORY_ORDER } from "@/lib/categorize"
 import { Banknote, Tags, Truck } from "lucide-react"
-import { articleKey, availableColumn, loadArticles, storefrontCondition } from "@/lib/catalog"
+import { articleKey, availableColumn, loadArticles, offerArticleCondition, storefrontCondition } from "@/lib/catalog"
 import { isSortOption } from "@/lib/sort-options"
 
 export const dynamic = "force-dynamic"
@@ -33,7 +33,7 @@ export default async function HomePage({
   const offersOnly = params.offers === "1"
   const where = and(
     visible,
-    offersOnly ? sql`${products.offer}->>'active' = 'true'` : undefined,
+    offersOnly ? offerArticleCondition() : undefined,
     query ? ilike(products.name, `%${query.replace(/[\\%_]/g, "\\$&")}%`) : undefined,
     category !== "Todos" ? eq(products.category, category) : undefined,
   )
@@ -58,7 +58,7 @@ export default async function HomePage({
           .from(products)
           .where(where)
           .groupBy(articleKey)
-          .orderBy(sql`bool_or(${availableColumn()}) desc`, order, sql`min(${products.name})`, articleKey)
+          .orderBy(sql`bool_or(${offerArticleCondition()}) desc`, sql`bool_or(${availableColumn()}) desc`, order, sql`min(${products.name})`, articleKey)
           .limit(PAGE_SIZE)
           .offset((safePage - 1) * PAGE_SIZE)
       ).map((r) => r.key)

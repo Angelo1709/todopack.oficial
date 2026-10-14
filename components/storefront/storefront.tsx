@@ -47,6 +47,9 @@ export function Storefront({
   const category = selectedCategory
   const tabs = ["Todos", ...categories]
   const isHome = category === "Todos" && !query && page === 1 && !offersOnly
+  const featured = isHome ? articles.filter((article) => article.available && article.tiers.some((tier) => tier.offer?.active)).slice(0, 8) : []
+  const featuredKeys = new Set(featured.map((article) => article.key))
+  const remaining = articles.filter((article) => !featuredKeys.has(article.key))
 
   function navigate(next: { page?: number; q?: string; category?: string; sort?: SortOption; offers?: boolean }) {
     const params = new URLSearchParams()
@@ -65,6 +68,20 @@ export function Storefront({
 
   return (
     <div className={cn("mx-auto max-w-7xl px-4 py-6", count > 0 && "pb-24 sm:pb-6")}>
+      {featured.length > 0 && (
+        <section className="mb-6" aria-label="Ofertas destacadas">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="font-serif text-xl font-bold">Ofertas destacadas</h2>
+              <p className="text-sm text-muted-foreground">Aprovechá los descuentos y promociones de hoy.</p>
+            </div>
+            <Button variant="outline" onClick={() => navigate({ offers: true })}>Ver todas las ofertas</Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {featured.map((article) => <ProductCard key={article.key} article={article} />)}
+          </div>
+        </section>
+      )}
       {isHome && categories.length > 0 && (
         <section className="mb-6" aria-label="Categorías">
           <h2 className="mb-3 font-serif text-xl font-bold">Comprá por categoría</h2>
@@ -93,10 +110,10 @@ export function Storefront({
             <button
               key={t}
               type="button"
-              onClick={() => navigate({ category: t })}
+              onClick={() => navigate({ category: t, offers: t === "Todos" ? false : offersOnly })}
               className={cn(
                 "whitespace-nowrap rounded-full border px-3 py-1.5 text-sm transition-colors",
-                category === t
+                category === t && !offersOnly
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-muted-foreground hover:text-foreground",
               )}
@@ -107,14 +124,15 @@ export function Storefront({
         </div>
       </div>
 
+      {(remaining.length > 0 || featured.length === 0) && <>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
           <h2 className="font-serif text-xl font-bold wrap-anywhere">
-            {offersOnly ? `Ofertas${category === "Todos" ? "" : ` · ${category}`}` : query ? `Resultados para “${query}”` : category === "Todos" ? "Todos los productos" : category}
+            {offersOnly ? `Ofertas${category === "Todos" ? "" : ` · ${category}`}` : query ? `Resultados para “${query}”` : category === "Todos" ? featured.length ? "Más productos" : "Todos los productos" : category}
           </h2>
           <p className="flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground tabular-nums">
             <span>
-              {totalArticles} producto{totalArticles === 1 ? "" : "s"}
+              {totalArticles - featured.length} producto{totalArticles - featured.length === 1 ? "" : "s"}
               {query && category !== "Todos" ? ` en ${category}` : ""}
             </span>
             {query && (
@@ -163,7 +181,7 @@ export function Storefront({
               pending && "opacity-60",
             )}
           >
-            {articles.map((a) => (
+            {remaining.map((a) => (
               <ProductCard key={a.key} article={a} />
             ))}
           </div>
@@ -211,6 +229,7 @@ export function Storefront({
         </>
       )}
 
+      </>}
       {count > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 p-3 backdrop-blur sm:hidden">
           <CartSheet>

@@ -26,7 +26,7 @@ const hooks=registerHooks({resolve(specifier,context,next){
 }})
 try {
  const {saveOffer,toggleOffer,listOffers,searchOfferProducts}=await import("../app/actions/offers.ts")
- const {loadArticlesForProducts}=await import("../lib/catalog.ts")
+ const {loadArticlesForProducts, loadArticles, articleKey, offerArticleCondition}=await import("../lib/catalog.ts")
  const offer={title:"Promo",kind:"bundle",percent:20,buy:2,pay:1,active:true}
  await assert.rejects(()=>saveOffer([1],offer),/Forbidden/)
  await assert.rejects(()=>toggleOffer(1,false),/Forbidden/)
@@ -44,5 +44,20 @@ try {
  articles=await loadArticlesForProducts([2]);assert.equal(priceFor(articles.get(2).tiers,6).total,3000,'El cliente recibe la combinación más barata')
  assert.equal((await searchOfferProducts("%" )).length,0)
  assert.ok(state.paths.includes("/"));assert.ok(state.paths.includes("/admin/productos"))
+ // Reproduce cuatro artículos: la oferta está en una presentación duplicada más cara.
+ await memory.exec("INSERT INTO products(id,name,price,pack_size,group_key,image_url) SELECT i,'OFERTA BASE '||i,100,6,'promo-'||i,'/test.png' FROM generate_series(10,13) i; INSERT INTO products(id,name,price,pack_size,group_key,image_url) SELECT i+10,'OFERTA ALTERNATIVA '||i,120,6,'promo-'||i,'/test.png' FROM generate_series(10,13) i; INSERT INTO products(id,name,price,pack_size,group_key,image_url) VALUES(99,'AAA SIN OFERTA',50,1,'sin-oferta','/test.png')")
+ await saveOffer([20,21,22,23],{...offer,kind:"percent"})
+ const promos=await loadArticles(["promo-10","promo-11","promo-12","promo-13"])
+ assert.equal(promos.length,4)
+ for(const a of promos){assert.ok(a.tiers.some(t=>t.offer?.active));assert.equal(priceFor(a.tiers,6).total,96)}
+ const {products}=await import("../lib/db/schema.ts")
+ const {sql,eq,and}=await import("drizzle-orm")
+ const keys=await state.db.select({key:articleKey}).from(products).where(eq(products.active,true)).groupBy(articleKey).orderBy(sql`bool_or(${offerArticleCondition()}) desc`,sql`min(${products.name})`)
+ assert.notEqual(keys[0].key,"sin-oferta","Ofertas antes del artículo que sería primero alfabéticamente")
+ const filtered=await state.db.select({key:articleKey}).from(products).where(offerArticleCondition()).groupBy(articleKey)
+ assert.ok(!filtered.some(r=>r.key==="sin-oferta"))
+ await memory.exec("UPDATE products SET stock_quantity=0 WHERE id=20")
+ const after=await state.db.select({key:articleKey}).from(products).where(offerArticleCondition()).groupBy(articleKey)
+ assert.ok(!after.some(r=>r.key==="promo-10"),"Una oferta agotada no anuncia un descuento en otra presentación disponible")
  console.log("OK: migración, permisos admin, validación, guardado, pausa/reactivación y catálogo real con ofertas")
 } finally {hooks.deregister();delete globalThis.__offerActionQA;await memory.close()}
