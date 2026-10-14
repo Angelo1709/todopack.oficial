@@ -24,6 +24,15 @@ export function availableColumn() {
   return sql<boolean>`coalesce(${stockAvailableCondition()}, false)`
 }
 
+/** El filtro y el orden consideran la misma oferta que puede mostrarse y comprarse. */
+export function offerArticleCondition() {
+  const keys = db.select({ key: articleKey }).from(products).where(and(
+    storefrontCondition(), availableColumn(), sql`${products.price} > 0`,
+    sql`${products.offer}->>'active' = 'true'`,
+  ))
+  return sql<boolean>`${articleKey} in (${keys})`
+}
+
 type ArticleRow = {
   id: number
   name: string
@@ -32,6 +41,7 @@ type ArticleRow = {
   imageUrl: string | null
   packSize: number
   key: string
+  offer: import("./offers").Offer | null
   available: boolean
 }
 
@@ -56,6 +66,7 @@ const articleColumns = () => ({
   imageUrl: products.imageUrl,
   packSize: products.packSize,
   key: articleKey,
+  offer: products.offer,
   available: availableColumn(),
 })
 
@@ -69,6 +80,7 @@ function buildArticle(key: string, rows: ArticleRow[]): Article | null {
       label: presentationLabel(r.name, r.packSize),
       packSize: r.packSize,
       price: r.price,
+      offer: r.offer,
     })),
   )
   if (!tiers.length) return null

@@ -6,9 +6,12 @@
 //
 // La presentación más chica marca el paso: si solo hay "Pack x6", se compran múltiplos de 6.
 // Lo usan el catálogo y el carrito (navegador) y createOrder (servidor, que recalcula siempre).
-// Sin imports: tiene que funcionar igual en los dos lados.
+// Dependencias puras: funciona igual en navegador y servidor.
+
+import { effectivePrice, type Offer } from "./offers.ts"
 
 export type Tier = {
+  offer?: Offer | null
   /** Producto (fila de products) de esta presentación. */
   productId: number
   /** Nombre tal cual la lista de precios, ej. "7UP 1.5 LT DESCARTABLE PACK X6". */
@@ -33,16 +36,24 @@ export type Breakdown = {
 /** Tope de unidades por artículo en un pedido. */
 export const MAX_UNITS = 5000
 
-/** Ordena por tamaño y, si dos presentaciones tienen el mismo tamaño, se queda con la más barata. */
+/** Conserva el precio más bajo por tamaño y las ofertas alternativas para comparar combos. */
 export function normalizeTiers(tiers: Tier[]): Tier[] {
   const bySize = new Map<number, Tier>()
   for (const t of tiers) {
     const size = Math.max(1, Math.floor(t.packSize || 1))
     if (!(t.price > 0)) continue
     const current = bySize.get(size)
-    if (!current || t.price < current.price) bySize.set(size, { ...t, packSize: size })
+    if (!current || effectivePrice(t.price, t.offer) < effectivePrice(current.price, current.offer)) bySize.set(size, { ...t, packSize: size })
   }
-  return [...bySize.values()].sort((a, b) => a.packSize - b.packSize)
+  const selected = [...bySize.values()]
+  const selectedIds = new Set(selected.map((t) => t.productId))
+  for (const tier of tiers) {
+    if (tier.price > 0 && tier.offer?.active && !selectedIds.has(tier.productId)) {
+      selected.push({ ...tier, packSize: Math.max(1, Math.floor(tier.packSize || 1)) })
+      selectedIds.add(tier.productId)
+    }
+  }
+  return selected.sort((a, b) => a.packSize - b.packSize || effectivePrice(a.price, a.offer) - effectivePrice(b.price, b.offer))
 }
 
 /** De a cuántas unidades se compra (tamaño de la presentación más chica). */
@@ -71,15 +82,22 @@ export function priceFor(tiers: Tier[], units: number): Breakdown | null {
   if (!sorted.length || !(n > 0) || n > MAX_UNITS) return null
 
   // Mochila sin límite, costo mínimo con suma exacta. En empate gana la presentación más grande.
-  const desc = [...sorted].reverse()
+  const desc = [...sorted].reverse().flatMap((tier) => {
+    const price = effectivePrice(tier.price, tier.offer)
+    const paidTier = { ...tier, price }
+    const regular = { tier: paidTier, units: tier.packSize, cost: price, paid: 1, free: 0 }
+    if (!tier.offer?.active || tier.offer.kind !== "bundle") return [regular]
+    return [{ tier: paidTier, units: tier.packSize * tier.offer.buy, cost: price * tier.offer.pay,
+      paid: tier.offer.pay, free: tier.offer.buy - tier.offer.pay }, regular]
+  })
   const cost = new Array<number>(n + 1).fill(Infinity)
   const pick = new Array<number>(n + 1).fill(-1)
   cost[0] = 0
   for (let u = 1; u <= n; u++) {
     for (let i = 0; i < desc.length; i++) {
       const t = desc[i]
-      if (t.packSize > u || cost[u - t.packSize] === Infinity) continue
-      const c = cost[u - t.packSize] + t.price
+      if (t.units > u || cost[u - t.units] === Infinity) continue
+      const c = cost[u - t.units] + t.cost
       if (c < cost[u]) {
         cost[u] = c
         pick[u] = i
@@ -89,10 +107,14 @@ export function priceFor(tiers: Tier[], units: number): Breakdown | null {
   if (cost[n] === Infinity) return null
 
   const counts = new Map<number, number>()
-  for (let u = n; u > 0; u -= desc[pick[u]].packSize) counts.set(pick[u], (counts.get(pick[u]) ?? 0) + 1)
+  for (let u = n; u > 0; u -= desc[pick[u]].units) counts.set(pick[u], (counts.get(pick[u]) ?? 0) + 1)
   const lines = [...counts.entries()]
     .sort((a, b) => a[0] - b[0])
-    .map(([i, count]) => ({ tier: desc[i], count }))
+    .flatMap(([i, count]) => {
+      const choice = desc[i]
+      return [{ tier: choice.tier, count: count * choice.paid },
+        ...(choice.free ? [{ tier: { ...choice.tier, price: 0 }, count: count * choice.free }] : [])]
+    })
   return { units: n, total: cost[n], lines }
 }
 
@@ -104,7 +126,7 @@ export function averageUnitPrice(breakdown: Breakdown): number {
 /** "1 pack x6 + 1 u." */
 export function describeBreakdown(breakdown: Breakdown): string {
   return breakdown.lines
-    .map(({ tier, count }) => (tier.packSize === 1 ? `${count} u.` : `${count} ${tier.label.toLowerCase()}`))
+    .map(({ tier, count }) => (tier.packSize === 1 ? `${count} u.${tier.price === 0 ? " bonificadas" : ""}` : `${count} ${tier.label.toLowerCase()}${tier.price === 0 ? " bonificados" : ""}`))
     .join(" + ")
 }
 

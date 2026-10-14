@@ -28,6 +28,7 @@ export function Storefront({
   query,
   selectedCategory,
   sort,
+  offersOnly,
 }: {
   articles: StoreArticle[]
   categories: string[]
@@ -37,6 +38,7 @@ export function Storefront({
   query: string
   selectedCategory: string
   sort: SortOption
+  offersOnly: boolean
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -44,14 +46,18 @@ export function Storefront({
   const { count, total } = useCart()
   const category = selectedCategory
   const tabs = ["Todos", ...categories]
-  const isHome = category === "Todos" && !query && page === 1
+  const isHome = category === "Todos" && !query && page === 1 && !offersOnly
+  const featured = isHome ? articles.filter((article) => article.available && article.tiers.some((tier) => tier.offer?.active)).slice(0, 8) : []
+  const featuredKeys = new Set(featured.map((article) => article.key))
+  const remaining = articles.filter((article) => !featuredKeys.has(article.key))
 
-  function navigate(next: { page?: number; q?: string; category?: string; sort?: SortOption }) {
+  function navigate(next: { page?: number; q?: string; category?: string; sort?: SortOption; offers?: boolean }) {
     const params = new URLSearchParams()
     const nextQuery = next.q ?? query
     const nextCategory = next.category ?? category
     const nextSort = next.sort ?? sort
     const nextPage = next.page ?? 1
+    if (next.offers ?? offersOnly) params.set("offers", "1")
     if (nextQuery.trim()) params.set("q", nextQuery.trim())
     if (nextCategory !== "Todos") params.set("category", nextCategory)
     if (nextSort !== "nombre") params.set("orden", nextSort)
@@ -62,6 +68,20 @@ export function Storefront({
 
   return (
     <div className={cn("mx-auto max-w-7xl px-4 py-6", count > 0 && "pb-24 sm:pb-6")}>
+      {featured.length > 0 && (
+        <section className="mb-6" aria-label="Ofertas destacadas">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="font-serif text-xl font-bold">Ofertas destacadas</h2>
+              <p className="text-sm text-muted-foreground">Aprovechá los descuentos y promociones de hoy.</p>
+            </div>
+            <Button variant="outline" onClick={() => navigate({ offers: true })}>Ver todas las ofertas</Button>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {featured.map((article) => <ProductCard key={article.key} article={article} />)}
+          </div>
+        </section>
+      )}
       {isHome && categories.length > 0 && (
         <section className="mb-6" aria-label="Categorías">
           <h2 className="mb-3 font-serif text-xl font-bold">Comprá por categoría</h2>
@@ -85,14 +105,15 @@ export function Storefront({
 
       <div className="sticky top-28 z-30 -mx-4 mb-4 bg-background/90 px-4 py-3 backdrop-blur sm:top-16">
         <div className="flex gap-2 overflow-x-auto [scrollbar-width:none]">
+          <button type="button" aria-pressed={offersOnly} onClick={() => navigate({ offers: !offersOnly })} className={cn("whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-semibold", offersOnly ? "border-primary bg-primary text-primary-foreground" : "border-primary bg-primary/5 text-foreground")}>Ofertas</button>
           {tabs.map((t) => (
             <button
               key={t}
               type="button"
-              onClick={() => navigate({ category: t })}
+              onClick={() => navigate({ category: t, offers: t === "Todos" ? false : offersOnly })}
               className={cn(
                 "whitespace-nowrap rounded-full border px-3 py-1.5 text-sm transition-colors",
-                category === t
+                category === t && !offersOnly
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card text-muted-foreground hover:text-foreground",
               )}
@@ -103,14 +124,15 @@ export function Storefront({
         </div>
       </div>
 
+      {(remaining.length > 0 || featured.length === 0) && <>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
           <h2 className="font-serif text-xl font-bold wrap-anywhere">
-            {query ? `Resultados para “${query}”` : category === "Todos" ? "Todos los productos" : category}
+            {offersOnly ? `Ofertas${category === "Todos" ? "" : ` · ${category}`}` : query ? `Resultados para “${query}”` : category === "Todos" ? featured.length ? "Más productos" : "Todos los productos" : category}
           </h2>
           <p className="flex flex-wrap items-center gap-x-3 text-sm text-muted-foreground tabular-nums">
             <span>
-              {totalArticles} producto{totalArticles === 1 ? "" : "s"}
+              {totalArticles - featured.length} producto{totalArticles - featured.length === 1 ? "" : "s"}
               {query && category !== "Todos" ? ` en ${category}` : ""}
             </span>
             {query && (
@@ -145,7 +167,7 @@ export function Storefront({
           <PackageSearch className="size-10 opacity-40" />
           <p>No encontramos productos para tu búsqueda.</p>
           {!isHome && (
-            <Button variant="outline" className="mt-2" onClick={() => navigate({ q: "", category: "Todos" })}>
+            <Button variant="outline" className="mt-2" onClick={() => navigate({ q: "", category: "Todos", offers: false })}>
               Ver todos los productos
             </Button>
           )}
@@ -159,7 +181,7 @@ export function Storefront({
               pending && "opacity-60",
             )}
           >
-            {articles.map((a) => (
+            {remaining.map((a) => (
               <ProductCard key={a.key} article={a} />
             ))}
           </div>
@@ -207,6 +229,7 @@ export function Storefront({
         </>
       )}
 
+      </>}
       {count > 0 && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 p-3 backdrop-blur sm:hidden">
           <CartSheet>

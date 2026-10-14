@@ -8,7 +8,7 @@ import { authorizedStockRequest, stockNameKey, validateStockSnapshot } from "../
 import { DELIVERY_SETTINGS_DEFAULTS } from "../lib/delivery-schedule.ts"
 
 const memory = new PGlite()
-for (const file of ["0001_init.sql", "0013_stock_gestion.sql", "0014_precio_gestion.sql"]) await memory.exec(readFileSync(new URL(`../lib/db/migrations/${file}`, import.meta.url), "utf8"))
+for (const file of ["0001_init.sql", "0013_stock_gestion.sql", "0014_precio_gestion.sql", "0015_ofertas.sql"]) await memory.exec(readFileSync(new URL(`../lib/db/migrations/${file}`, import.meta.url), "utf8"))
 const state = globalThis.__stockChecks = { db: drizzle(memory), paths: [], fail: false, deliverySettings: DELIVERY_SETTINGS_DEFAULTS }
 state.pool = {
   query: (...args) => memory.query(...args),
