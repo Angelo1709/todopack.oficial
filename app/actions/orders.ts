@@ -11,7 +11,7 @@ import {
   type OrderStatus,
   type PaymentMethod,
 } from "@/lib/order-status"
-import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm"
+import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { after } from "next/server"
 import { randomBytes } from "node:crypto"
@@ -286,6 +286,30 @@ export async function getOrdersByTokens(tokens: string[]): Promise<OrderSummary[
     .where(inArray(orders.publicToken, valid))
     .orderBy(desc(orders.createdAt))
   return toSummaries(rows)
+}
+
+export type MyPendingTransfer = { id: number; publicToken: string; total: number }
+
+/**
+ * Pedidos con la transferencia todavía sin confirmar, de este navegador (tokens) o de la cuenta
+ * logueada. Alimenta el aviso "Ver alias y enviar comprobante" del header.
+ */
+export async function getMyPendingTransfers(tokens: string[]): Promise<MyPendingTransfer[]> {
+  const valid = cleanTokens(tokens)
+  const user = await getSessionUser()
+  const owner = [
+    ...(valid.length ? [inArray(orders.publicToken, valid)] : []),
+    ...(user ? [eq(orders.userId, user.id)] : []),
+  ]
+  if (!owner.length) return []
+  return db
+    .select({ id: orders.id, publicToken: orders.publicToken, total: orders.total })
+    .from(orders)
+    .where(
+      and(eq(orders.paymentMethod, "transferencia"), eq(orders.status, "pendiente_validacion"), or(...owner)),
+    )
+    .orderBy(desc(orders.createdAt))
+    .limit(5)
 }
 
 /**
