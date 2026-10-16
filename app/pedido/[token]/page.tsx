@@ -5,6 +5,7 @@ import { asc, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { orderItems, orders } from "@/lib/db/schema"
 import { getSettings } from "@/lib/settings"
+import { getSessionUser } from "@/lib/session"
 import { AR_TIME_ZONE, formatDateAR } from "@/lib/dates"
 import { formatOrderNumber, formatPrice } from "@/lib/format"
 import { isOrderToken } from "@/lib/guest-orders"
@@ -19,8 +20,9 @@ import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { OrderProgress } from "@/components/orders/order-progress"
 import { OrderStatusBadge, PaymentMethodLabel } from "@/components/orders/order-meta"
-import { WhatsappProofButton } from "@/components/orders/whatsapp-proof"
-import { ArrowLeft, CalendarDays, MapPin, Phone, StickyNote, User } from "lucide-react"
+import { TransferInstructions } from "@/components/orders/transfer-instructions"
+import { CreateAccountOffer } from "@/components/orders/create-account-offer"
+import { ArrowLeft, CalendarDays, Check, Landmark, MapPin, Phone, StickyNote, User } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -44,10 +46,19 @@ async function findOrder(token: string) {
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
-export default async function OrderPage({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params
+export default async function OrderPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>
+  searchParams: Promise<{ nuevo?: string }>
+}) {
+  const [{ token }, { nuevo }] = await Promise.all([params, searchParams])
   const data = await findOrder(token)
   if (!data) notFound()
+  // Recién confirmado desde el checkout: esta página hace de pantalla de éxito.
+  const isNew = nuevo === "1"
+  const sessionUser = isNew ? await getSessionUser() : null
 
   const { order, items } = data
   const method = order.paymentMethod as PaymentMethod
@@ -79,6 +90,20 @@ export default async function OrderPage({ params }: { params: Promise<{ token: s
           <ArrowLeft className="size-4" /> Mis pedidos
         </Link>
 
+        {isNew && (
+          <div className="mb-6 rounded-xl border border-border bg-card p-5 text-center">
+            <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-primary/15 text-primary">
+              <Check className="size-6" />
+            </div>
+            <p className="font-serif text-2xl font-bold">¡Pedido recibido!</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {showProof
+                ? "Te dejamos abajo los datos para transferir. Esta página queda guardada en Mis pedidos."
+                : "Guardamos tu pedido en Mis pedidos. Podés volver a esta página cuando quieras."}
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
             <h1 className="font-serif text-2xl font-bold">Pedido #{formatOrderNumber(order.id)}</h1>
@@ -89,15 +114,33 @@ export default async function OrderPage({ params }: { params: Promise<{ token: s
           <OrderStatusBadge status={status} className="mt-1" />
         </div>
 
+        {showProof && settings && (
+          <section className="mt-6 rounded-xl border border-primary bg-primary/5 p-5">
+            <h2 className="flex items-center gap-2 font-semibold">
+              <Landmark className="size-5 text-primary" /> Falta tu transferencia
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Transferí el total a estos datos y mandanos el comprobante por WhatsApp. Cuando lo confirmemos,
+              preparamos tu pedido.
+            </p>
+            <TransferInstructions
+              className="mt-4 sm:max-w-md"
+              bank={{
+                alias: settings.bankAlias.trim(),
+                cbu: settings.bankCbu.trim(),
+                holder: settings.bankHolder.trim(),
+              }}
+              amount={order.total}
+              order={{ id: order.id, total: order.total, customerName: order.customerName }}
+              whatsappNumber={settings.whatsappNumber}
+            />
+          </section>
+        )}
+
         <section className="mt-6 rounded-xl border border-border bg-card p-5">
           <h2 className="mb-4 font-semibold">Estado del pedido</h2>
           <OrderProgress method={method} status={status} />
           <p className="mt-4 text-sm text-muted-foreground">{orderStatusHint(method, status)}</p>
-          {showProof && settings && (
-            <div className="mt-4 flex flex-col gap-2 sm:max-w-sm">
-              <WhatsappProofButton whatsappNumber={settings.whatsappNumber} order={order} />
-            </div>
-          )}
         </section>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -166,6 +209,8 @@ export default async function OrderPage({ params }: { params: Promise<{ token: s
             </section>
           </aside>
         </div>
+
+        {isNew && !sessionUser && <CreateAccountOffer />}
 
         <div className="mt-6 flex flex-wrap gap-2">
           <Button render={<Link href="/" />} nativeButton={false} variant="outline" size="lg">

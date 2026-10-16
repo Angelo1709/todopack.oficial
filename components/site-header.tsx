@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { LogOut, ReceiptText, Search, ShieldCheck, ShoppingCart, User as UserIcon, X } from "lucide-react"
 import { isAdminRole } from "@/lib/roles"
+import { PendingTransferNotice } from "@/components/orders/pending-transfer-notice"
 
 /** Buscador del catálogo: lleva a la tienda con `?q=`. */
 function CatalogSearch({ initial, className }: { initial: string; className?: string }) {
@@ -89,6 +90,7 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
   }
 
   return (
+    <>
     <header className="sticky top-0 z-40 border-b border-border bg-sidebar text-sidebar-foreground">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
         <Link href="/" className="flex items-center gap-3">
@@ -177,5 +179,7 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
         </div>
       )}
     </header>
+    <PendingTransferNotice signedIn={!isPending && Boolean(user)} />
+    </>
   )
 }

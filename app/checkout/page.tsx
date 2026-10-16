@@ -25,7 +25,6 @@ export default async function CheckoutPage() {
           cbu: settings.bankCbu.trim(),
           holder: settings.bankHolder.trim(),
         }}
-        whatsappNumber={settings.whatsappNumber}
         isGuest={!user}
         minDate={todayAR()}
         deliverySettings={deliverySettings}

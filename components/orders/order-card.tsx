@@ -5,10 +5,11 @@ import { OrderStatusBadge, PaymentMethodLabel } from "@/components/orders/order-
 import { AR_TIME_ZONE, formatDateAR } from "@/lib/dates"
 import { formatOrderNumber, formatPrice } from "@/lib/format"
 import { DELIVERY_SLOT_LABEL } from "@/lib/order-status"
-import { CalendarDays, ChevronRight } from "lucide-react"
+import { CalendarDays, ChevronRight, Landmark } from "lucide-react"
 
 /** Tarjeta de un pedido en las listas de "Mis pedidos". */
 export function OrderCard({ order }: { order: OrderSummary }) {
+  const awaitingTransfer = order.paymentMethod === "transferencia" && order.status === "pendiente_validacion"
   const createdAt = new Date(order.createdAt).toLocaleDateString("es-AR", {
     timeZone: AR_TIME_ZONE,
     day: "numeric",
@@ -40,14 +41,20 @@ export function OrderCard({ order }: { order: OrderSummary }) {
 
       <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
         <span className="text-base font-bold tabular-nums">{formatPrice(order.total)}</span>
-        <Button
-          render={<Link href={`/pedido/${order.publicToken}`} />}
-          nativeButton={false}
-          variant="outline"
-          size="sm"
-        >
-          Ver detalle <ChevronRight className="size-3.5" />
-        </Button>
+        {awaitingTransfer ? (
+          <Button render={<Link href={`/pedido/${order.publicToken}`} />} nativeButton={false} size="sm">
+            <Landmark className="size-3.5" /> Ver alias y enviar comprobante
+          </Button>
+        ) : (
+          <Button
+            render={<Link href={`/pedido/${order.publicToken}`} />}
+            nativeButton={false}
+            variant="outline"
+            size="sm"
+          >
+            Ver detalle <ChevronRight className="size-3.5" />
+          </Button>
+        )}
       </div>
     </li>
   )
