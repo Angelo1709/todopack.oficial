@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { lineTotal, useCart } from "@/components/cart/cart-provider"
 import { formatPrice } from "@/lib/format"
-import { createOrder, type CheckoutField, type CreatedOrder } from "@/app/actions/orders"
+import { createOrder, type CheckoutField } from "@/app/actions/orders"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CopyButton } from "@/components/checkout/copy-button"
-import { OrderSuccess } from "@/components/checkout/order-success"
-import { rememberOrderToken, type SignUpPrefill } from "@/lib/guest-orders"
+import { TransferInstructions } from "@/components/orders/transfer-instructions"
+import { rememberOrderToken, saveSignUpPrefill } from "@/lib/guest-orders"
 import { describeBreakdown, describeQuantity, priceFor } from "@/lib/pricing"
 import {
   DELIVERY_SLOTS,
@@ -68,7 +68,6 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 export function CheckoutForm({
   defaults,
   bank,
-  whatsappNumber,
   isGuest,
   minDate:initialMinDate,
   deliverySettings,
@@ -76,13 +75,13 @@ export function CheckoutForm({
 }: {
   defaults: { name: string; phone: string; email: string; address: string }
   bank: { alias: string; cbu: string; holder: string }
-  whatsappNumber: string
   isGuest: boolean
   /** Hoy en hora argentina (yyyy-mm-dd), calculado en el servidor. */
   minDate: string
   deliverySettings:DeliverySettings
   serverNow:number
 }) {
+  const router = useRouter()
   const { items, total, clear, remove, refresh } = useCart()
   const [mounted, setMounted] = useState(false)
   const [method, setMethod] = useState<PaymentMethod>("efectivo")
@@ -93,7 +92,7 @@ export function CheckoutForm({
   const [slotNotice,setSlotNotice]=useState("")
   const [errors, setErrors] = useState<Errors>({})
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState<{ order: CreatedOrder; contact: SignUpPrefill } | null>(null)
+  const [placed, setPlaced] = useState(false)
 
   // El carrito se lee de localStorage al montar: evitamos mostrar "carrito vacío" antes de tiempo.
   useEffect(() => setMounted(true), [])
@@ -181,26 +180,31 @@ export function CheckoutForm({
         return
       }
       // Solo recordamos en el navegador los pedidos sin cuenta (los de la cuenta se ven al ingresar).
-      if (isGuest) rememberOrderToken(res.order.publicToken)
+      if (isGuest) {
+        rememberOrderToken(res.order.publicToken)
+        // Para precargar el registro si acepta crear cuenta (sessionStorage, nunca por URL).
+        saveSignUpPrefill({ name: values.customerName, phone: values.phone, email: values.email, address: values.address })
+      }
+      setPlaced(true)
       clear()
-      setDone({
-        order: res.order,
-        contact: { name: values.customerName, phone: values.phone, email: values.email, address: values.address },
-      })
-      window.scrollTo({ top: 0 })
+      // La confirmación es la página del pedido: si recarga, cierra o vuelve más tarde,
+      // sigue viendo el alias y el botón del comprobante.
+      router.replace(`/pedido/${res.order.publicToken}?nuevo=1`)
     } catch {
       toast.error("No pudimos enviar el pedido. Revisá tu conexión e intentá de nuevo.")
       setLoading(false)
     }
   }
 
-  if (done) {
+  if (placed) {
     return (
-      <OrderSuccess order={done.order} whatsappNumber={whatsappNumber} isGuest={isGuest} contact={done.contact} />
+      <div className="mx-auto max-w-lg px-4 py-16 text-center text-muted-foreground">
+        <p className="font-serif text-xl font-bold text-foreground">¡Pedido recibido!</p>
+        <p className="mt-2 text-sm">Abriendo tu pedido...</p>
+      </div>
     )
   }
 
-  const hasBankInfo = Boolean(bank.alias || bank.cbu || bank.holder)
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
@@ -422,41 +426,11 @@ export function CheckoutForm({
               </div>
 
               {method === "transferencia" && (
-                <div className="mt-4 rounded-lg bg-muted p-4 text-sm">
-                  <p className="mb-2 font-medium">Datos para transferir</p>
-                  {hasBankInfo ? (
-                    <dl className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1 text-muted-foreground">
-                      {bank.alias && (
-                        <>
-                          <dt>Alias</dt>
-                          <dd className="flex min-w-0 items-center gap-1">
-                            <span className="break-all font-mono tracking-tight text-foreground">{bank.alias}</span>
-                            <CopyButton value={bank.alias} label="alias" />
-                          </dd>
-                        </>
-                      )}
-                      {bank.cbu && (
-                        <>
-                          <dt>CBU</dt>
-                          <dd className="flex min-w-0 items-center gap-1">
-                            <span className="break-all font-mono tracking-tight text-foreground">{bank.cbu}</span>
-                            <CopyButton value={bank.cbu} label="CBU" />
-                          </dd>
-                        </>
-                      )}
-                      {bank.holder && (
-                        <>
-                          <dt>Titular</dt>
-                          <dd className="py-1 text-foreground">{bank.holder}</dd>
-                        </>
-                      )}
-                    </dl>
-                  ) : (
-                    <p className="text-muted-foreground">Pedinos los datos bancarios por WhatsApp.</p>
-                  )}
-                  <p className="mt-3 text-xs text-muted-foreground">
+                <div className="mt-4">
+                  <TransferInstructions bank={bank} amount={total} />
+                  <p className="mt-2 text-xs text-muted-foreground">
                     Transferí el total y, al confirmar el pedido, te damos un botón para mandarnos el comprobante
-                    por WhatsApp.
+                    por WhatsApp. El alias también queda en la página de tu pedido.
                   </p>
                 </div>
               )}
