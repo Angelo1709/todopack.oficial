@@ -51,8 +51,12 @@ const FIELD_ORDER: CheckoutField[] = [
 
 function optionClass(active: boolean, invalid = false) {
   return cn(
-    "flex items-center gap-3 rounded-lg border p-3 text-left transition-colors",
-    active ? "border-primary bg-primary/5" : invalid ? "border-destructive" : "border-border hover:bg-muted/50",
+    "flex min-h-14 items-center gap-3 rounded-xl border p-3 text-left transition-colors",
+    active
+      ? "border-primary bg-primary/10 ring-1 ring-primary"
+      : invalid
+        ? "border-destructive"
+        : "border-border bg-card hover:border-foreground/30",
   )
 }
 
@@ -62,6 +66,21 @@ function FieldError({ id, message }: { id: string; message?: string }) {
     <p id={id} className="text-xs text-destructive">
       {message}
     </p>
+  )
+}
+
+/** Título de sección numerado: el checkout se lee como pasos. */
+function StepTitle({ n, children }: { n: number; children: React.ReactNode }) {
+  return (
+    <h2 className="mb-4 flex items-center gap-2.5 font-serif text-lg font-semibold">
+      <span
+        aria-hidden="true"
+        className="grid size-7 shrink-0 place-items-center rounded-full bg-sidebar text-sm font-bold text-sidebar-foreground"
+      >
+        {n}
+      </span>
+      {children}
+    </h2>
   )
 }
 
@@ -210,11 +229,11 @@ export function CheckoutForm({
     <div className="mx-auto max-w-5xl px-4 py-6">
       <Link
         href="/"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="-ml-1 mb-3 inline-flex min-h-10 items-center gap-1.5 rounded-full px-1 text-sm font-medium text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" /> Volver al catálogo
+        <ArrowLeft aria-hidden="true" className="size-4" /> Volver al catálogo
       </Link>
-      <h1 className="font-serif text-2xl font-bold">Finalizar pedido</h1>
+      <h1 className="font-serif text-2xl font-bold sm:text-3xl">Finalizar pedido</h1>
       {isGuest ? (
         <p className="mt-1 text-sm text-muted-foreground">
           No hace falta tener cuenta.{" "}
@@ -246,11 +265,11 @@ export function CheckoutForm({
           onSubmit={onSubmit}
           onInput={(e) => clearError((e.target as HTMLInputElement).name)}
           noValidate
-          className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]"
+          className="store-form mt-6 grid gap-5 pb-28 lg:grid-cols-[1fr_380px] lg:gap-6 lg:pb-0"
         >
           <div className="flex flex-col gap-6">
-            <section className="rounded-xl border border-border bg-card p-5">
-              <h2 className="mb-4 font-semibold">Datos de entrega</h2>
+            <section className="rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
+              <StepTitle n={1}>Datos de entrega</StepTitle>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5 sm:col-span-2">
                   <Label htmlFor="customerName">Nombre y apellido</Label>
@@ -404,8 +423,8 @@ export function CheckoutForm({
               </div>
             </section>
 
-            <section className="rounded-xl border border-border bg-card p-5">
-              <h2 className="mb-4 font-semibold">Medio de pago</h2>
+            <section className="rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
+              <StepTitle n={2}>Medio de pago</StepTitle>
               <div role="radiogroup" aria-label="Medio de pago" className="grid gap-3 sm:grid-cols-2">
                 {PAYMENT_OPTIONS.map((opt) => (
                   <button
@@ -438,8 +457,8 @@ export function CheckoutForm({
           </div>
 
           <aside className="lg:sticky lg:top-20 lg:self-start">
-            <div className="rounded-xl border border-border bg-card p-5">
-              <h2 className="mb-4 font-semibold">Tu pedido</h2>
+            <div className="rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
+              <StepTitle n={3}>Revisá tu pedido</StepTitle>
               <ul className="mb-4 flex max-h-64 flex-col gap-2 overflow-y-auto">
                 {items.map((i) => {
                   const breakdown = priceFor(i.tiers, i.quantity)
@@ -457,12 +476,16 @@ export function CheckoutForm({
                   )
                 })}
               </ul>
-              <div className="flex items-center justify-between border-t border-border pt-3 text-lg font-bold">
-                <span>Total</span>
-                <span className="tabular-nums">{formatPrice(total)}</span>
+              <div className="flex items-baseline justify-between border-t border-border pt-3">
+                <span className="text-sm text-muted-foreground">Total</span>
+                <span className="font-serif text-2xl font-bold tabular-nums">{formatPrice(total)}</span>
               </div>
               {slot && <p className="mt-3 text-sm">Entrega: <span className="font-medium">{deliveryDate.split("-").reverse().join("/")} · {DELIVERY_SLOT_LABEL[slot]} · {deliveryWindow(schedule,slot)}</span></p>}
-              <Button type="submit" size="lg" className="mt-4 w-full" disabled={loading}>
+              <Button
+                type="submit"
+                className="mt-4 hidden h-12 w-full rounded-xl text-base font-semibold lg:inline-flex"
+                disabled={loading}
+              >
                 {loading ? "Enviando..." : "Confirmar pedido"}
               </Button>
               <p className="mt-2 text-center text-xs text-muted-foreground">
@@ -472,6 +495,19 @@ export function CheckoutForm({
               </p>
             </div>
           </aside>
+
+          {/* En el celular el botón queda siempre a mano, con el total. */}
+          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 pt-3 shadow-raised backdrop-blur pb-safe lg:hidden">
+            <div className="mx-auto flex max-w-5xl items-center gap-3">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="font-serif text-xl font-bold leading-tight tabular-nums">{formatPrice(total)}</p>
+              </div>
+              <Button type="submit" className="ml-auto h-12 flex-1 rounded-xl text-base font-semibold" disabled={loading}>
+                {loading ? "Enviando..." : "Confirmar pedido"}
+              </Button>
+            </div>
+          </div>
         </form>
       )}
     </div>

@@ -18,7 +18,7 @@ export function OrderCard({ order }: { order: OrderSummary }) {
   })
 
   return (
-    <li className="rounded-xl border border-border bg-card p-5">
+    <li className="rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="font-semibold">Pedido #{formatOrderNumber(order.id)}</p>
@@ -42,7 +42,11 @@ export function OrderCard({ order }: { order: OrderSummary }) {
       <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
         <span className="text-base font-bold tabular-nums">{formatPrice(order.total)}</span>
         {awaitingTransfer ? (
-          <Button render={<Link href={`/pedido/${order.publicToken}`} />} nativeButton={false} size="sm">
+          <Button
+            render={<Link href={`/pedido/${order.publicToken}`} />}
+            nativeButton={false}
+            className="h-11 rounded-full px-4 font-semibold"
+          >
             <Landmark className="size-3.5" /> Ver alias y enviar comprobante
           </Button>
         ) : (
@@ -50,7 +54,7 @@ export function OrderCard({ order }: { order: OrderSummary }) {
             render={<Link href={`/pedido/${order.publicToken}`} />}
             nativeButton={false}
             variant="outline"
-            size="sm"
+            className="h-11 rounded-full px-4"
           >
             Ver detalle <ChevronRight className="size-3.5" />
           </Button>

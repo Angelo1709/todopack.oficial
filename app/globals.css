@@ -9,6 +9,9 @@
   /* Los títulos usan la clase font-serif: ahora es Rubik (sans geométrica de e-commerce). */
   --font-serif: var(--font-heading);
   --font-heading: var(--font-heading);
+  /* Verde de WhatsApp: el botón del comprobante se reconoce al toque (texto oscuro, contraste 9:1). */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-foreground: #052e16;
   --shadow-card: 0 1px 2px rgb(28 25 23 / 0.05), 0 2px 8px -2px rgb(28 25 23 / 0.08);
   --shadow-raised: 0 4px 12px -2px rgb(28 25 23 / 0.12), 0 2px 4px -2px rgb(28 25 23 / 0.06);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -142,6 +145,22 @@
   select {
     cursor: pointer;
   }
+}
+
+/* Formularios de la tienda (checkout, ingresar, registrarse): campos de 44px, cómodos con el dedo.
+   Sin @layer a propósito: tiene que ganarle a las utilidades del componente (h-8). El panel admin
+   no usa .store-form y mantiene los campos compactos. */
+.store-form [data-slot="input"],
+.store-form select {
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background-color: var(--card);
+  padding-inline: 0.875rem;
+}
+.store-form [data-slot="textarea"] {
+  border-radius: 0.75rem;
+  background-color: var(--card);
+  padding: 0.625rem 0.875rem;
 }
 
 /* Movimiento reducido: sin animaciones ni transiciones decorativas. */

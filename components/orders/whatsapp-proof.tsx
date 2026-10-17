@@ -33,9 +33,12 @@ export function WhatsappProofButton({
       render={<a href={url} target="_blank" rel="noreferrer" />}
       nativeButton={false}
       size="lg"
-      className={cn("h-11 w-full gap-2 text-base", className)}
+      className={cn(
+        "h-12 w-full gap-2 rounded-xl bg-whatsapp text-base font-semibold text-whatsapp-foreground hover:bg-whatsapp/90",
+        className,
+      )}
     >
-      <MessageCircle className="size-5" />
+      <MessageCircle aria-hidden="true" className="size-5" />
       Enviar comprobante por WhatsApp
     </Button>
   )

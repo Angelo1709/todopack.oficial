@@ -82,18 +82,17 @@ export function PendingTransferNotice({ signedIn }: { signedIn: boolean }) {
         <Button
           render={<Link href={single ? `/pedido/${single.publicToken}` : "/mis-pedidos"} />}
           nativeButton={false}
-          size="sm"
-          className="shrink-0"
+          className="h-10 shrink-0 rounded-full px-4 font-semibold"
         >
           {single ? "Ver alias" : "Ver pedidos"}
         </Button>
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           onClick={dismiss}
           aria-label="Cerrar aviso"
-          className="shrink-0 text-muted-foreground hover:text-foreground"
+          className="size-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
         >
           <X className="size-4" />
         </Button>
