@@ -41,7 +41,8 @@ try {
   reset();state.changed={...DELIVERY_SETTINGS_DEFAULTS,deliveryLeadMinutes:"120"};result=await createOrder(input);assert.equal(result.ok,false,"Configuración actualizada durante el cálculo");assert.equal(state.writes.length,0)
   reset();result=await createOrder({...input,deliveryWindow:"13:00–15:00"});assert.equal(result.ok,false,"Horario mostrado distinto del actual");assert.equal(state.writes.length,0)
   reset();result=await createOrder({...input,deliveryDate:"2026-02-31"});assert.equal(result.ok,false);assert.equal(state.writes.length,0)
-  reset();result=await createOrder(input);assert.equal(result.ok,true);assert.equal(result.order.deliveryWindow,"12:00–15:00");assert.equal(result.order.total,23200)
+  reset();result=await createOrder({...input,expectedTotal:1});assert.equal(result.ok,false);assert.equal(result.field,"items");assert.equal(state.writes.length,0)
+  reset();result=await createOrder({...input,expectedTotal:23200});assert.equal(result.ok,true);assert.equal(result.order.deliveryWindow,"12:00–15:00");assert.equal(result.order.total,23200)
   assert.equal(state.writes[0].values.deliveryWindow,"12:00–15:00")
   console.log("OK: permisos admin, guardado de 5 ajustes, lectura pública limitada, franja cerrada, cruce de límite, configuración obsoleta y horario conservado en pedidos.")
 } finally {Date.now=realNow;hooks.deregister();delete globalThis.__deliveryActionChecks}

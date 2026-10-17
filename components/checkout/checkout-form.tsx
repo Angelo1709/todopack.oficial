@@ -82,7 +82,7 @@ export function CheckoutForm({
   serverNow:number
 }) {
   const router = useRouter()
-  const { items, total, clear, remove } = useCart()
+  const { items, total, clear, remove, refresh } = useCart()
   const [mounted, setMounted] = useState(false)
   const [method, setMethod] = useState<PaymentMethod>("efectivo")
   const {values:schedule,now,refreshBooking}=useDeliveryBooking(deliverySettings,serverNow)
@@ -163,6 +163,7 @@ export function CheckoutForm({
     setLoading(true)
     try {
       const res = await createOrder({
+        expectedTotal: total,
         items: items.map((i) => ({ id: i.id, quantity: i.quantity })),
         ...values,
         deliverySlot: slot,
@@ -170,6 +171,7 @@ export function CheckoutForm({
         paymentMethod: method,
       })
       if (!res.ok) {
+        if (res.field === "items") await refresh()
         if (res.field==="deliverySlot") await refreshBooking()
         res.unavailableIds?.forEach((id) => remove(id))
         if (res.field && res.field !== "items") showErrors({ [res.field]: res.error })

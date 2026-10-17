@@ -78,6 +78,7 @@ export const products = pgTable(
     id: serial("id").primaryKey(),
     name: text("name").notNull().unique(),
     price: integer("price").notNull(), // pesos enteros, precio de la presentación completa
+    offer: jsonb("offer").$type<import("../offers").Offer>(),
     category: text("category").notNull().default("Otros"),
     imageUrl: text("image_url"),
     active: boolean("active").notNull().default(true),

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { importMissingProductImages } from "@/app/actions/catalog"
+import { OffersDialog } from "@/components/admin/offers-dialog"
 import { ImportProducts } from "@/components/admin/import-products"
 import { ProductDialog } from "@/components/admin/product-dialog"
 import { Button } from "@/components/ui/button"
@@ -61,6 +62,7 @@ export function CatalogToolbar() {
       <Button className="gap-2" onClick={() => setCreating(true)}>
         <Plus className="size-4" /> Nuevo producto
       </Button>
+      <OffersDialog />
       <ImportProducts />
       <Button variant="outline" className="gap-2" onClick={importImages} disabled={pending}>
         <ImageDown className="size-4" /> {pending ? "Buscando..." : "Buscar imágenes"}

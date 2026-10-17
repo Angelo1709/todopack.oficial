@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react"
+import { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from "react"
+import { refreshCartArticles } from "@/app/actions/orders"
 import { normalizeTiers, priceFor, snapUnits, type Tier } from "@/lib/pricing"
 
 /**
@@ -30,6 +31,7 @@ type CartContextValue = {
   setQty: (id: number, units: number) => void
   remove: (id: number) => void
   clear: () => void
+  refresh: () => Promise<void>
   quantityOf: (id: number) => number
 }
 
@@ -94,6 +96,27 @@ export function lineTotal(item: CartItem): number {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [hydrated, setHydrated] = useState(false)
+  const itemsRef = useRef(items)
+  itemsRef.current = items
+  const refresh = useCallback(async () => {
+    const ids = itemsRef.current.map((item) => item.id)
+    if (!ids.length) return
+    const fresh = await refreshCartArticles(ids)
+    const byId = new Map(fresh.map((article) => [article.id, article]))
+    setItems((prev) => prev.flatMap((item) => {
+      if (!ids.includes(item.id)) return [item]
+      const article = byId.get(item.id)
+      return article ? [{ ...item, ...article }] : []
+    }))
+  }, [])
+  useEffect(() => {
+    if (!hydrated) return
+    const update = () => { if (document.visibilityState === "visible") void refresh().catch(() => {}) }
+    update()
+    window.addEventListener("focus", update)
+    const timer = setInterval(update, 60000)
+    return () => { window.removeEventListener("focus", update); clearInterval(timer) }
+  }, [hydrated, refresh])
 
   useEffect(() => {
     try {
@@ -148,8 +171,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const total = useMemo(() => items.reduce((sum, i) => sum + lineTotal(i), 0), [items])
 
   const value = useMemo(
-    () => ({ items, count: items.length, total, add, setQty, remove, clear, quantityOf }),
-    [items, total, add, setQty, remove, clear, quantityOf],
+    () => ({ items, count: items.length, total, add, setQty, remove, clear, refresh, quantityOf }),
+    [items, total, add, setQty, remove, clear, refresh, quantityOf],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

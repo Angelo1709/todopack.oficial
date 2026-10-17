@@ -10,6 +10,7 @@ const memory=new PGlite()
 await memory.exec(readFileSync(new URL('../lib/db/migrations/0001_init.sql',import.meta.url),'utf8'))
 await memory.exec(readFileSync(new URL('../lib/db/migrations/0013_stock_gestion.sql',import.meta.url),'utf8'))
 await memory.exec(readFileSync(new URL('../lib/db/migrations/0009_portal_fotos.sql',import.meta.url),'utf8'))
+await memory.exec(readFileSync(new URL('../lib/db/migrations/0015_ofertas.sql',import.meta.url),'utf8'))
 const state=globalThis.__presentationLinkChecks={db:drizzle(memory),admin:false,uploads:0,paths:[]}
 const stub=code=>`data:text/javascript,${encodeURIComponent(code)}`
 const mocks={
