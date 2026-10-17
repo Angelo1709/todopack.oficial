@@ -41,7 +41,10 @@ function CatalogSearch({ initial, className }: { initial: string; className?: st
         e.preventDefault()
         go(value)
       }}
-      className={cn("flex h-10 items-center rounded-full bg-background pl-4 pr-1 text-foreground", className)}
+      className={cn(
+        "flex h-11 items-center rounded-full bg-background pl-4 pr-1 text-foreground shadow-sm ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-sidebar-primary",
+        className,
+      )}
     >
       <input
         value={value}
@@ -50,7 +53,7 @@ function CatalogSearch({ initial, className }: { initial: string; className?: st
         aria-label="Buscar productos"
         maxLength={100}
         enterKeyHint="search"
-        className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-sm"
       />
       {value && (
         <button
@@ -67,7 +70,7 @@ function CatalogSearch({ initial, className }: { initial: string; className?: st
       )}
       <button
         type="submit"
-        className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
+        className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
         aria-label="Buscar"
       >
         <Search className="size-4" />
@@ -91,7 +94,7 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
 
   return (
     <>
-    <header className="sticky top-0 z-40 border-b border-border bg-sidebar text-sidebar-foreground">
+    <header className="sticky top-0 z-40 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
@@ -99,7 +102,7 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
             alt="TodoPack Alcorta"
             width={40}
             height={40}
-            className="size-10 rounded-full ring-1 ring-primary/40"
+            className="size-10 rounded-full ring-2 ring-sidebar-primary/40"
           />
           <div className="hidden sm:block leading-tight">
             <span className="block font-serif text-lg font-bold">TodoPack Alcorta</span>
@@ -113,11 +116,11 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
 
         <div className="ml-auto flex items-center gap-2">
           <CartSheet>
-            <Button variant="secondary" className="relative gap-2" aria-label="Carrito">
+            <Button variant="secondary" className="relative h-11 min-w-11 gap-2 rounded-full px-3" aria-label="Carrito">
               <ShoppingCart className="size-4" />
               <span className="hidden tabular-nums sm:inline">{count > 0 ? formatPrice(total) : "Carrito"}</span>
               {count > 0 && (
-                <span className="absolute -right-2 -top-2 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground ring-2 ring-sidebar">
                   {count > 99 ? "99+" : count}
                 </span>
               )}
@@ -128,7 +131,7 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
-                  <Button variant="ghost" size="icon" className="rounded-full text-sidebar-foreground" />
+                  <Button variant="ghost" size="icon" className="size-11 rounded-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground" />
                 }
               >
                 <UserIcon className="size-5" />
@@ -161,12 +164,17 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
                 nativeButton={false}
                 variant="ghost"
                 aria-label="Mis pedidos"
-                className="gap-2 text-sidebar-foreground"
+                className="h-11 min-w-11 gap-2 rounded-full px-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
               >
                 <ReceiptText className="size-4" />
                 <span className="hidden sm:inline">Mis pedidos</span>
               </Button>
-              <Button render={<Link href="/sign-in" />} nativeButton={false} variant="default">
+              <Button
+                render={<Link href="/sign-in" />}
+                nativeButton={false}
+                variant="default"
+                className="h-11 rounded-full px-4 font-semibold"
+              >
                 Ingresar
               </Button>
             </>
@@ -174,7 +182,7 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
         </div>
       </div>
       {search && (
-        <div className="mx-auto flex h-12 max-w-7xl items-start px-4 sm:hidden">
+        <div className="mx-auto flex h-14 max-w-7xl items-start px-4 sm:hidden">
           <CatalogSearch initial={query} className="w-full" />
         </div>
       )}
