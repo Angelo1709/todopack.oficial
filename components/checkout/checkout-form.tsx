@@ -465,7 +465,7 @@ export function CheckoutForm({
                   return (
                     <li key={i.id} className="flex justify-between gap-2 text-sm">
                       <span className="min-w-0">
-                        <span className="line-clamp-1">{i.name}</span>
+                        <span className="block wrap-anywhere">{i.name}</span>
                         <span className="block text-xs text-muted-foreground tabular-nums">
                           {describeQuantity(i.tiers, i.quantity)}
                           {breakdown && breakdown.lines.length > 1 ? ` · ${describeBreakdown(breakdown)}` : null}

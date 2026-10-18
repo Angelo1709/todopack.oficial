@@ -62,7 +62,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                       className="size-16 shrink-0 rounded-xl bg-white object-contain p-1 ring-1 ring-border"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-sm font-semibold leading-tight">{item.name}</p>
+                      <p className="text-sm font-semibold leading-tight wrap-anywhere">{item.name}</p>
                       <TierPrices tiers={item.tiers} className="mt-1" />
                     </div>
                     <button

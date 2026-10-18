@@ -99,7 +99,9 @@ export function ProductCard({ article, className }: { article: StoreArticle; cla
           <h3
             title={article.name}
             className={cn(
-              "mt-0.5 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-tight wrap-anywhere",
+              // Nombre completo (lleva medida y presentación): sin recortar. El alto mínimo es
+              // exactamente 2 líneas para que los nombres cortos no desalineen la grilla.
+              "mt-0.5 min-h-[2.5em] text-sm font-semibold leading-tight wrap-anywhere",
               soldOut && "text-muted-foreground",
             )}
           >
