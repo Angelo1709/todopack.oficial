@@ -4,7 +4,7 @@
 
 Tienda online de la distribuidora TODO PACK (bebidas, almacén, limpieza, descartables). Los clientes arman un carrito (sin necesidad de cuenta), eligen fecha y franja de entrega y medio de pago; el administrador gestiona pedidos, entregas y el catálogo. La interfaz y los mensajes al usuario están en **español (Argentina)**. Se despliega en **Railway**.
 
-**Diseño:** antes de tocar cualquier UI leé la skill `.claude/skills/todopack-design/SKILL.md`.
+**Diseño:** rediseño con la skill `ui-ux-pro-max` (paleta "warm amber + link blue" con el carbón del logo, Rubik para títulos/precios y Nunito Sans para texto, tokens en `app/globals.css`). Mobile primero: controles de 44px, barras fijas con `pb-safe`, formularios de la tienda con `.store-form`. La skill `.claude/skills/todopack-design/SKILL.md` quedó desactualizada en tipografía y paleta.
 
 ## Stack
 

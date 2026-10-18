@@ -39,7 +39,7 @@ export function GuestOrders() {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 sm:flex-row sm:items-center">
+      <section className="flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70 sm:flex-row sm:items-center">
         <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
           <UserRound className="size-4" />
         </span>
@@ -50,10 +50,19 @@ export function GuestOrders() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button render={<Link href="/sign-in?next=/mis-pedidos" />} nativeButton={false}>
+          <Button
+            render={<Link href="/sign-in?next=/mis-pedidos" />}
+            nativeButton={false}
+            className="h-11 rounded-full px-5 font-semibold"
+          >
             Ingresar
           </Button>
-          <Button render={<Link href="/sign-up?next=/mis-pedidos" />} nativeButton={false} variant="outline">
+          <Button
+            render={<Link href="/sign-up?next=/mis-pedidos" />}
+            nativeButton={false}
+            variant="outline"
+            className="h-11 rounded-full px-5"
+          >
             Crear cuenta
           </Button>
         </div>

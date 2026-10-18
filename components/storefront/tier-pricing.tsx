@@ -28,12 +28,12 @@ export function TierPrices({ tiers, className }: { tiers: Tier[]; className?: st
       {base.offer?.active && <p className="text-xs text-muted-foreground">{base.offer.kind === "percent" && <del className="mr-1 tabular-nums">{formatPrice(base.originalPrice)}</del>}{offerTerms(base.offer, base.label)}</p>}
       {base.packSize === 1 ? (
         <p className="leading-tight">
-          <span className="text-base font-bold tabular-nums">{formatPrice(base.price)}</span>{" "}
+          <span className="font-serif text-lg font-bold tabular-nums">{formatPrice(base.price)}</span>{" "}
           <span className="text-xs text-muted-foreground">c/u</span>
         </p>
       ) : (
         <div className="leading-tight">
-          <p className="text-base font-bold tabular-nums">{formatPrice(base.price)}</p>
+          <p className="font-serif text-lg font-bold tabular-nums">{formatPrice(base.price)}</p>
           <p className="text-xs text-muted-foreground tabular-nums">
             {base.label} · ≈ {formatPrice(Math.round(unitPriceOf(base)))} c/u
           </p>
@@ -44,9 +44,9 @@ export function TierPrices({ tiers, className }: { tiers: Tier[]; className?: st
         return (
           <p
             key={t.productId}
-            className="flex max-w-full items-start gap-1 rounded-lg bg-primary/15 px-2 py-0.5 text-[11px] font-medium leading-tight tabular-nums text-foreground"
+            className="flex max-w-full items-start gap-1.5 rounded-lg bg-primary/12 px-2 py-1 text-xs font-medium leading-tight tabular-nums text-foreground ring-1 ring-primary/20"
           >
-            <TrendingDown className="mt-0.5 size-3 shrink-0 text-primary" />
+            <TrendingDown aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 text-primary" />
             <span className="min-w-0 wrap-anywhere">
               {t.offer?.active && <span className="block font-bold">{offerLabel(t.offer)} · {offerTerms(t.offer, t.label)}{t.offer.kind === "percent" && <del className="ml-1">{formatPrice(t.originalPrice)}</del>}</span>}
               <span className="block">{t.label}: {formatPrice(t.price)}</span>
@@ -82,16 +82,20 @@ export function QuantityStepper({
     onChange(n)
   }
 
-  const button = size === "sm" ? "size-7" : "size-8"
+  // Botones de 44px (mínimo táctil); en el carrito, un poco más compactos.
+  const button = size === "sm" ? "size-10" : "size-11"
   return (
-    <div className="flex items-center rounded-lg border border-border bg-background">
+    <div className="flex items-center overflow-hidden rounded-xl border border-border bg-background">
       <button
         type="button"
         onClick={() => onChange(value - step)}
-        className={cn("grid shrink-0 place-items-center text-muted-foreground hover:text-foreground", button)}
+        className={cn(
+          "grid shrink-0 place-items-center text-foreground transition-colors hover:bg-muted active:bg-muted",
+          button,
+        )}
         aria-label={`Restar ${step === 1 ? "una unidad" : `${step} unidades`} de ${name}`}
       >
-        <Minus className="size-3.5" />
+        <Minus aria-hidden="true" className="size-4" />
       </button>
       <input
         value={draft}
@@ -100,15 +104,18 @@ export function QuantityStepper({
         onKeyDown={(e) => e.key === "Enter" && (e.currentTarget.blur(), e.preventDefault())}
         inputMode="numeric"
         aria-label={`Unidades de ${name}`}
-        className="w-10 min-w-0 flex-1 bg-transparent text-center text-sm font-semibold tabular-nums outline-none"
+        className="w-10 min-w-0 flex-1 bg-transparent text-center font-serif text-base font-semibold tabular-nums outline-none"
       />
       <button
         type="button"
         onClick={() => onChange(value + step)}
-        className={cn("grid shrink-0 place-items-center text-muted-foreground hover:text-foreground", button)}
+        className={cn(
+          "grid shrink-0 place-items-center bg-primary text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80",
+          button,
+        )}
         aria-label={`Sumar ${step === 1 ? "una unidad" : `${step} unidades`} de ${name}`}
       >
-        <Plus className="size-3.5" />
+        <Plus aria-hidden="true" className="size-4" />
       </button>
     </div>
   )
@@ -127,7 +134,7 @@ export function TierSummary({ tiers, units, compact = false }: { tiers: Tier[]; 
     <div className="flex flex-col gap-0.5 text-xs">
       <p className="flex flex-wrap items-baseline justify-between gap-x-2">
         <span className="text-muted-foreground">{describeQuantity(tiers, units)}</span>
-        <span className="text-sm font-bold tabular-nums text-foreground">{formatPrice(breakdown.total)}</span>
+        <span className="font-serif text-sm font-bold tabular-nums text-foreground">{formatPrice(breakdown.total)}</span>
       </p>
       {regular && regular.total > breakdown.total && <p className="font-medium text-foreground">Ahorrás {formatPrice(regular.total - breakdown.total)} con la oferta</p>}
       {hasOffer && tiers.filter((t) => t.offer?.active).map((t) => <p key={t.productId} className="text-muted-foreground">{offerLabel(t.offer!)} · {offerTerms(t.offer!, t.label)}</p>)}

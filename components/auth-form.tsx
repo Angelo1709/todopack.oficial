@@ -110,19 +110,24 @@ export function AuthForm({ mode, next = "/" }: { mode: "sign-in" | "sign-up"; ne
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-10">
+    <div className="relative mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-10">
+      {/* Brillo ámbar decorativo de fondo, como en la portada. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 mx-auto h-64 max-w-md rounded-full bg-primary/20 blur-3xl"
+      />
       <Link href="/" className="mb-6 flex flex-col items-center gap-3">
         <Image
           src="/logo-todopack.jpg"
           alt="TodoPack Alcorta"
           width={72}
           height={72}
-          className="size-18 rounded-full ring-1 ring-primary/40"
+          className="size-18 rounded-full shadow-raised ring-2 ring-primary/40"
         />
         <span className="font-serif text-xl font-bold">TodoPack Alcorta</span>
       </Link>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="rounded-3xl bg-card p-6 shadow-raised ring-1 ring-border/70 sm:p-8">
         <h1 className="font-serif text-2xl font-bold">{isSignUp ? "Crear cuenta" : "Ingresar"}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {isSignUp
@@ -136,7 +141,7 @@ export function AuthForm({ mode, next = "/" }: { mode: "sign-in" | "sign-up"; ne
         )}
 
         {/* key: remonta los campos cuando llega la precarga para que tomen los valores. */}
-        <form key={prefill ? "prefill" : "empty"} onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
+        <form key={prefill ? "prefill" : "empty"} onSubmit={onSubmit} className="store-form mt-6 flex flex-col gap-4">
           {isSignUp && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Nombre y apellido</Label>
@@ -203,7 +208,7 @@ export function AuthForm({ mode, next = "/" }: { mode: "sign-in" | "sign-up"; ne
               </div>
             </>
           )}
-          <Button type="submit" size="lg" disabled={loading} className="mt-2">
+          <Button type="submit" disabled={loading} className="mt-2 h-12 rounded-xl text-base font-semibold">
             {loading ? (isSignUp ? "Creando cuenta..." : "Ingresando...") : isSignUp ? "Crear cuenta" : "Ingresar"}
           </Button>
         </form>

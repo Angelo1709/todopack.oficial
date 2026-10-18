@@ -13,9 +13,9 @@ export const dynamic = "force-dynamic"
 const PAGE_SIZE = 24
 
 const BENEFITS = [
-  { icon: Truck, title: "Entrega a domicilio", text: "Elegí el día y la franja horaria." },
-  { icon: Tags, title: "Precio mayorista", text: "Llevando por pack o caja pagás menos." },
-  { icon: Banknote, title: "Pagá como quieras", text: "Efectivo al recibir o transferencia." },
+  { icon: Truck, title: "Entrega a domicilio" },
+  { icon: Tags, title: "Precio mayorista por pack" },
+  { icon: Banknote, title: "Efectivo o transferencia" },
 ]
 
 export default async function HomePage({
@@ -75,34 +75,38 @@ export default async function HomePage({
       <SiteHeader search query={query} />
       {/* La portada sólo en el inicio: buscando o filtrando se va directo a los productos. */}
       {!offersOnly && !query && category === "Todos" && safePage === 1 && (
-        <>
-          <section className="border-b border-border bg-sidebar text-sidebar-foreground">
-            <div className="mx-auto max-w-7xl px-4 py-8">
-              <h1 className="font-serif text-3xl font-bold sm:text-4xl">
-                Distribuidora <span className="text-primary">TodoPack Alcorta</span>
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm text-sidebar-foreground/70">
-                Bebidas, almacén, limpieza y packaging. Elegí tus productos, sumá al carrito y coordiná la
-                entrega. Ventas por mayor y menor.
-              </p>
-            </div>
-          </section>
-          <section className="border-b border-border bg-card" aria-label="Cómo comprar">
-            <ul className="mx-auto grid max-w-7xl gap-x-6 gap-y-3 px-4 py-4 sm:grid-cols-3">
-              {BENEFITS.map(({ icon: Icon, title, text }) => (
-                <li key={title} className="flex items-center gap-3">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="text-sm leading-tight">
-                    <span className="block font-semibold">{title}</span>
-                    <span className="block text-muted-foreground">{text}</span>
-                  </span>
+        <section className="relative overflow-hidden bg-sidebar text-sidebar-foreground">
+          {/* Brillo ámbar decorativo, como el borde de la tapita del logo. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-20 -top-28 size-72 rounded-full bg-primary/30 blur-3xl"
+          />
+          <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-5 sm:pb-12 sm:pt-12">
+            <p className="text-xs font-semibold uppercase tracking-widest text-sidebar-primary">
+              Distribuidora TodoPack Alcorta
+            </p>
+            <h1 className="mt-1.5 max-w-2xl font-serif text-[1.65rem] font-bold leading-tight sm:text-5xl">
+              Bebidas, almacén y limpieza con <span className="text-sidebar-primary">precio mayorista</span>
+            </h1>
+            <p className="mt-2 max-w-xl text-sm text-sidebar-foreground/75 sm:text-base">
+              Armá tu pedido, elegí día y franja, y te lo llevamos. Ventas por mayor y menor.
+            </p>
+            <ul
+              aria-label="Cómo comprar"
+              className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 scrollbar-none sm:mx-0 sm:mt-6 sm:flex-wrap sm:px-0"
+            >
+              {BENEFITS.map(({ icon: Icon, title }) => (
+                <li
+                  key={title}
+                  className="flex shrink-0 items-center gap-2 rounded-full border border-sidebar-border bg-sidebar-accent px-3.5 py-2 text-xs font-semibold sm:text-sm"
+                >
+                  <Icon aria-hidden="true" className="size-4 text-sidebar-primary" />
+                  {title}
                 </li>
               ))}
             </ul>
-          </section>
-        </>
+          </div>
+        </section>
       )}
       <Storefront
         articles={articles}

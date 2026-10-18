@@ -18,7 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Trash2, ShoppingCart } from "lucide-react"
+import { ArrowRight, Trash2, ShoppingCart } from "lucide-react"
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -27,47 +27,55 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger render={children as React.ReactElement} />
-      <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
-        <SheetHeader className="border-b border-border">
-          <SheetTitle className="flex items-center gap-2">
-            <ShoppingCart className="size-5" /> Tu carrito
+      <SheetContent className="flex flex-col gap-0 bg-background p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
+        <SheetHeader className="border-b border-border bg-card">
+          <SheetTitle className="flex items-center gap-2 font-serif text-lg">
+            <ShoppingCart aria-hidden="true" className="size-5 text-primary" /> Tu carrito
           </SheetTitle>
           <SheetDescription>
             {count > 0 ? `${count} artículo${count === 1 ? "" : "s"}` : "Todavía no agregaste productos"}
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
           {items.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-              <ShoppingCart className="size-10 opacity-30" />
-              <p className="text-sm">Explorá el catálogo y sumá productos.</p>
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+              <span className="grid size-16 place-items-center rounded-full bg-muted">
+                <ShoppingCart aria-hidden="true" className="size-7 text-muted-foreground" />
+              </span>
+              <p className="font-serif text-base font-semibold">Tu carrito está vacío</p>
+              <p className="max-w-56 text-sm text-muted-foreground">Explorá el catálogo y agregá productos.</p>
+              <Button variant="outline" className="mt-1 h-11 rounded-full px-5" onClick={() => setOpen(false)}>
+                Seguir comprando
+              </Button>
             </div>
           ) : (
             <ul className="flex flex-col gap-3">
               {items.map((item) => (
-                <li key={item.id} className="flex flex-col gap-2 rounded-lg border border-border p-3">
+                <li key={item.id} className="flex flex-col gap-3 rounded-2xl bg-card p-3 shadow-card ring-1 ring-border/70">
                   <div className="flex items-start gap-3">
                     <Image
                       src={item.imageUrl || categoryImage(item.category)}
                       alt=""
-                      width={48}
-                      height={48}
-                      className="size-12 shrink-0 rounded-lg border border-border bg-muted object-cover"
+                      width={64}
+                      height={64}
+                      className="size-16 shrink-0 rounded-xl bg-white object-contain p-1 ring-1 ring-border"
                     />
-                    <p className="line-clamp-2 min-w-0 flex-1 text-sm font-medium leading-tight">{item.name}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold leading-tight wrap-anywhere">{item.name}</p>
+                      <TierPrices tiers={item.tiers} className="mt-1" />
+                    </div>
                     <button
                       type="button"
                       onClick={() => remove(item.id)}
-                      className="shrink-0 text-muted-foreground hover:text-destructive"
+                      className="-mr-1 -mt-1 grid size-10 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       aria-label={`Quitar ${item.name} del carrito`}
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 aria-hidden="true" className="size-4" />
                     </button>
                   </div>
-                  <div className="flex items-end justify-between gap-3">
-                    <TierPrices tiers={item.tiers} className="min-w-0" />
-                    <div className="w-32 shrink-0">
+                  <div className="flex flex-col gap-2 border-t border-border/70 pt-3">
+                    <div className="w-40">
                       <QuantityStepper
                         value={item.quantity}
                         step={stepUnits(item.tiers)}
@@ -76,8 +84,6 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                         onChange={(n) => setQty(item.id, n)}
                       />
                     </div>
-                  </div>
-                  <div className="border-t border-border pt-2">
                     <TierSummary tiers={item.tiers} units={item.quantity} />
                   </div>
                 </li>
@@ -87,19 +93,18 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
         </div>
 
         {items.length > 0 && (
-          <SheetFooter className="border-t border-border">
-            <div className="mb-2 flex items-center justify-between text-base font-bold">
-              <span>Total</span>
-              <span className="tabular-nums">{formatPrice(total)}</span>
+          <SheetFooter className="gap-3 border-t border-border bg-card pb-safe">
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="font-serif text-2xl font-bold tabular-nums">{formatPrice(total)}</span>
             </div>
             <Button
-                render={<Link href="/checkout" />}
-                nativeButton={false}
-              size="lg"
-              className="w-full"
+              render={<Link href="/checkout" />}
+              nativeButton={false}
+              className="h-12 w-full gap-2 rounded-xl text-base font-semibold"
               onClick={() => setOpen(false)}
             >
-              Finalizar pedido
+              Finalizar pedido <ArrowRight aria-hidden="true" className="size-4" />
             </Button>
           </SheetFooter>
         )}

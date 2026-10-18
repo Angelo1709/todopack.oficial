@@ -8,7 +8,7 @@ import { savingsPercent, stepUnits, type Tier } from "@/lib/pricing"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { offerLabel } from "@/lib/offers"
-import { Plus } from "lucide-react"
+import { Check, Plus } from "lucide-react"
 
 /** Un artículo del catálogo con sus presentaciones (tramos de precio). Ver lib/catalog.ts. */
 export type StoreArticle = {
@@ -22,12 +22,16 @@ export type StoreArticle = {
   available: boolean
 }
 
-export function ProductCard({ article }: { article: StoreArticle }) {
+export function ProductCard({ article, className }: { article: StoreArticle; className?: string }) {
   const { add, setQty, quantityOf } = useCart()
   const units = quantityOf(article.baseId)
   const step = stepUnits(article.tiers)
   const soldOut = !article.available
+  const inCart = !soldOut && units > 0
   const bestSaving = Math.max(0, ...article.tiers.map((t) => savingsPercent(article.tiers, t)))
+  const offers = article.tiers.filter((t) => t.offer?.active)
+  const offerBadges = [...new Set(offers.map((t) => offerLabel(t.offer!)))]
+  const offerTitles = [...new Set(offers.map((t) => t.offer!.title))]
   const cartArticle = {
     id: article.baseId,
     name: article.name,
@@ -37,31 +41,47 @@ export function ProductCard({ article }: { article: StoreArticle }) {
   }
 
   return (
-    <div
+    <article
       className={cn(
-        "group flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow",
-        !soldOut && "hover:shadow-md",
-        !soldOut && units > 0 && "border-primary ring-1 ring-primary/40",
+        "group relative flex min-w-0 flex-col overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/70 transition-shadow duration-200",
+        !soldOut && "hover:shadow-raised",
+        inCart && "ring-2 ring-primary",
+        className,
       )}
     >
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <div className="relative aspect-square overflow-hidden bg-white">
         <Image
           src={article.imageUrl || categoryImage(article.category)}
           alt={article.name}
           fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px"
           className={cn(
-            "object-cover transition-transform duration-300",
-            soldOut ? "opacity-50 grayscale" : "group-hover:scale-105",
+            "object-contain p-2 transition-transform duration-300",
+            soldOut ? "opacity-50 grayscale" : "group-hover:scale-[1.03]",
           )}
         />
-        {!soldOut && article.tiers.some((t) => t.offer?.active) && <span className="absolute bottom-2 left-2 rounded-lg bg-primary px-3 py-1.5 text-lg font-bold text-primary-foreground shadow-sm">{[...new Set(article.tiers.filter((t) => t.offer?.active).map((t) => offerLabel(t.offer!)))].join(" · ")}</span>}
-        <span className="absolute left-2 top-2 rounded-full bg-background/85 px-2 py-0.5 text-[10px] font-medium text-muted-foreground backdrop-blur">
-          {article.category}
-        </span>
-        {!soldOut && bestSaving > 0 && (
-          <span className="absolute right-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold tabular-nums text-primary-foreground">
-            Hasta -{bestSaving}%
+        {/* Insignias en una sola esquina, apiladas: nunca se pisan. */}
+        {!soldOut && (offerBadges.length > 0 || bestSaving > 0) && (
+          <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+            {offerBadges.map((label) => (
+              <span
+                key={label}
+                className="rounded-lg bg-primary px-2 py-1 font-serif text-xs font-bold leading-none text-primary-foreground shadow-sm"
+              >
+                {label}
+              </span>
+            ))}
+            {bestSaving > 0 && (
+              <span className="rounded-lg bg-sidebar px-2 py-1 text-[11px] font-bold leading-none tabular-nums text-sidebar-foreground">
+                Hasta -{bestSaving}%
+              </span>
+            )}
+          </div>
+        )}
+        {inCart && (
+          <span className="absolute bottom-2 right-2 grid size-7 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm ring-2 ring-white">
+            <Check aria-hidden="true" className="size-4" />
+            <span className="sr-only">En el carrito</span>
           </span>
         )}
         {soldOut && (
@@ -70,30 +90,47 @@ export function ProductCard({ article }: { article: StoreArticle }) {
           </span>
         )}
       </div>
+
       <div className="flex min-w-0 flex-1 flex-col gap-2 p-3">
-        <p className={cn("min-h-[2.5rem] wrap-anywhere text-sm font-medium leading-snug", soldOut && "text-muted-foreground")}>
-          {article.name}
-        </p>
-        {article.tiers.some((t) => t.offer?.active) && <p className="text-xs font-semibold text-foreground">{[...new Set(article.tiers.filter((t) => t.offer?.active).map((t) => t.offer!.title))].join(" · ")}</p>}
+        <div className="min-w-0">
+          <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {article.category}
+          </p>
+          <h3
+            title={article.name}
+            className={cn(
+              // Nombre completo (lleva medida y presentación): sin recortar. El alto mínimo es
+              // exactamente 2 líneas para que los nombres cortos no desalineen la grilla.
+              "mt-0.5 min-h-[2.5em] text-sm font-semibold leading-tight wrap-anywhere",
+              soldOut && "text-muted-foreground",
+            )}
+          >
+            {article.name}
+          </h3>
+          {offerTitles.length > 0 && (
+            <p className="mt-1 line-clamp-1 text-xs font-semibold text-foreground">{offerTitles.join(" · ")}</p>
+          )}
+        </div>
+
         <TierPrices tiers={article.tiers} className={cn(soldOut && "opacity-60")} />
 
         <div className="mt-auto flex flex-col gap-2 pt-1">
           {soldOut ? (
             <>
-              <Button size="sm" variant="outline" disabled className="h-8 w-full">
-                Sin stock disponible
+              <Button variant="outline" disabled className="h-11 w-full rounded-xl">
+                Sin stock
               </Button>
               {units > 0 && (
                 <button
                   type="button"
                   onClick={() => setQty(article.baseId, 0)}
-                  className="text-xs text-muted-foreground underline hover:text-foreground"
+                  className="min-h-11 text-xs text-muted-foreground underline hover:text-foreground"
                 >
                   Quitar del carrito
                 </button>
               )}
             </>
-          ) : units > 0 ? (
+          ) : inCart ? (
             <>
               <QuantityStepper
                 value={units}
@@ -105,16 +142,15 @@ export function ProductCard({ article }: { article: StoreArticle }) {
             </>
           ) : (
             <Button
-              size="sm"
               onClick={() => add(cartArticle)}
-              className="h-8 w-full gap-1"
-              aria-label={`Sumar ${article.name} al carrito`}
+              className="h-11 w-full gap-1.5 rounded-xl text-sm font-semibold active:scale-[0.98]"
+              aria-label={`Agregar ${article.name} al carrito`}
             >
-              <Plus className="size-4" /> Sumar
+              <Plus aria-hidden="true" className="size-4" /> Agregar
             </Button>
           )}
         </div>
       </div>
-    </div>
+    </article>
   )
 }

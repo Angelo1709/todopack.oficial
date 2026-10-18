@@ -91,7 +91,7 @@ export default async function OrderPage({
         </Link>
 
         {isNew && (
-          <div className="mb-6 rounded-xl border border-border bg-card p-5 text-center">
+          <div className="mb-6 rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70 text-center">
             <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-primary/15 text-primary">
               <Check className="size-6" />
             </div>
@@ -115,7 +115,7 @@ export default async function OrderPage({
         </div>
 
         {showProof && settings && (
-          <section className="mt-6 rounded-xl border border-primary bg-primary/5 p-5">
+          <section className="mt-6 rounded-2xl bg-primary/10 p-5 ring-2 ring-primary/60">
             <h2 className="flex items-center gap-2 font-semibold">
               <Landmark className="size-5 text-primary" /> Falta tu transferencia
             </h2>
@@ -137,14 +137,14 @@ export default async function OrderPage({
           </section>
         )}
 
-        <section className="mt-6 rounded-xl border border-border bg-card p-5">
+        <section className="mt-6 rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
           <h2 className="mb-4 font-semibold">Estado del pedido</h2>
           <OrderProgress method={method} status={status} />
           <p className="mt-4 text-sm text-muted-foreground">{orderStatusHint(method, status)}</p>
         </section>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-          <section className="rounded-xl border border-border bg-card p-5">
+          <section className="rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
             <h2 className="mb-3 font-semibold">Productos</h2>
             <ul className="divide-y divide-border border-y border-border">
               {items.map((it) => {
@@ -170,7 +170,7 @@ export default async function OrderPage({
           </section>
 
           <aside className="lg:sticky lg:top-20 lg:self-start">
-            <section className="rounded-xl border border-border bg-card p-5">
+            <section className="rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
               <h2 className="mb-3 font-semibold">Entrega y pago</h2>
               <ul className="flex flex-col gap-2.5 text-sm">
                 <li className="flex items-start gap-2">

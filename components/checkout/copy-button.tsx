@@ -30,12 +30,16 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
     <Button
       type="button"
       variant="ghost"
-      size="icon-sm"
+      size="icon"
       onClick={copy}
       aria-label={`Copiar ${label}`}
-      className="shrink-0 text-muted-foreground hover:text-foreground"
+      className="size-10 shrink-0 rounded-full text-muted-foreground hover:bg-card hover:text-foreground"
     >
-      {copied ? <Check className="size-3.5 text-primary" /> : <Copy className="size-3.5" />}
+      {copied ? (
+        <Check aria-hidden="true" className="size-4 text-primary" />
+      ) : (
+        <Copy aria-hidden="true" className="size-4" />
+      )}
     </Button>
   )
 }
