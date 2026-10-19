@@ -87,8 +87,8 @@ Cómo leerlo:
 | Vuelven a comprar | Retention → evento `order_completed` |
 
 **Ventas cerradas de verdad:** `order_completed` es el pedido confirmado en la tienda. Que después
-se haya pagado (transferencia validada o efectivo cobrado) está en el panel admin. El panel de
-métricas propio (próxima etapa) va a cruzar las dos cosas.
+se haya pagado (transferencia validada o efectivo cobrado) está en el panel admin. La pestaña
+Métricas del panel (sección 6) muestra las dos cosas juntas.
 
 ## 5. Medir campañas (Instagram, WhatsApp, volantes)
 
@@ -103,8 +103,35 @@ https://todopackoficial-production.up.railway.app/?utm_source=volante&utm_medium
 Después, en el embudo o en Trends de `order_completed`, desglosar por `utm_source` / `utm_campaign`.
 Para los volantes, generar un QR con el link con UTM.
 
-## 6. Próxima etapa: panel propio en el admin
+## 6. Pestaña Métricas en el panel admin
 
-Una pestaña "Métricas" en `/admin` que combine los eventos de PostHog (vía su API) con los pedidos
-de la base: embudo, facturación pagada, ticket promedio, productos estrella y lo buscado sin
-resultados, sin salir del panel.
+`/admin/metricas` (cualquier admin) junta todo en una pantalla, con períodos Hoy / 7 / 30 / 90 días:
+
+- **Ventas** (de la base, siempre disponible): pedidos, facturación, ticket promedio y cobrado vs.
+  por cobrar, comparados con el período anterior; pedidos por día, productos más vendidos, medio de
+  pago y franja. Incluye los pedidos manuales y no cuenta los cancelados (`lib/metrics.ts`).
+- **Visitas a la tienda** (de PostHog): visitantes, embudo, conversión, carritos sin terminar,
+  visitantes por día, celular vs. compu, de dónde llegan y lo buscado sin resultados
+  (`lib/posthog-api.ts`). Se consulta desde el servidor y se guarda 10 minutos en memoria.
+
+Para que aparezca la parte de visitas hay que darle al servidor permiso de lectura en PostHog:
+
+1. PostHog → **Settings → Personal API keys → Create key**. Nombre: "Panel TodoPack". Permiso
+   (scope): **Query → Read**, nada más. Acceso: sólo el proyecto TodoPack. Copiar la clave
+   (empieza con `phx_`; PostHog la muestra una sola vez).
+2. Railway → servicio de la app → **Variables**:
+
+   | Variable | Valor |
+   |---|---|
+   | `POSTHOG_PERSONAL_API_KEY` | la clave `phx_...` (secreta: nunca en el código ni en el chat) |
+   | `POSTHOG_PROJECT_ID` | el número de proyecto (está en la URL de PostHog: `/project/674051/...`) |
+
+3. Railway vuelve a desplegar solo. Estas variables se leen en el servidor al pedir la página: no
+   hace falta recompilar nada más.
+
+Sin esas variables la pestaña muestra igual las ventas, y en la parte de visitas explica qué falta
+(los pasos técnicos sólo los ve el superadmin). Si la clave está mal o PostHog no responde, se ve el
+aviso y el resto del panel sigue funcionando.
+
+Las cifras pueden no coincidir: **Ventas** cuenta todos los pedidos de la base; el embudo de PostHog
+no ve a los admins, a quien bloquea el seguimiento ni los pedidos manuales.
