@@ -1,5 +1,5 @@
 import "server-only"
-import { FUNNEL_EVENTS, EVENTS } from "@/lib/analytics-events"
+import { CART_FUNNEL_EVENTS, FUNNEL_EVENTS, EVENTS } from "@/lib/analytics-events"
 import { isIsoDate } from "@/lib/dates"
 
 // Visitas y embudo de la tienda para el panel de métricas, leídos con la API de consultas de PostHog
@@ -11,6 +11,8 @@ export type TrafficItem = { label: string; value: number }
 export type Traffic = {
   /** Personas distintas por paso del embudo: visitó, agregó al carrito, inició el checkout, confirmó. */
   funnel: number[]
+  /** Personas por paso del embudo de carritos: agregó, abrió el carrito, fue al checkout, tocó Confirmar, confirmó. */
+  cartFunnel: number[]
   /** Visitantes únicos por día ("yyyy-mm-dd"). */
   perDay: Record<string, number>
   devices: TrafficItem[]
@@ -18,6 +20,8 @@ export type Traffic = {
   origins: TrafficItem[]
   /** Búsquedas con 0 resultados y cuántas veces se hicieron. */
   emptySearches: TrafficItem[]
+  /** Campos del checkout que no pasaron la validación: personas distintas por campo. */
+  checkoutErrors: TrafficItem[]
 }
 
 export type TrafficResult = { ok: true; data: Traffic; fetchedAt: number } | { ok: false; error: string }
@@ -75,10 +79,10 @@ async function runQuery(cfg: Config, name: string, query: object): Promise<unkno
   return ((await res.json()) as { results?: unknown }).results
 }
 
-function funnelQuery(from: string, to: string) {
+function funnelQuery(events: readonly string[], from: string, to: string) {
   return {
     kind: "FunnelsQuery",
-    series: FUNNEL_EVENTS.map((event) => ({ kind: "EventsNode", event })),
+    series: events.map((event) => ({ kind: "EventsNode", event })),
     dateRange: { date_from: from, date_to: to },
     properties: [HOST_FILTER],
     funnelsFilter: { funnelOrderType: "ordered", funnelWindowInterval: 1, funnelWindowIntervalUnit: "day" },
@@ -86,7 +90,7 @@ function funnelQuery(from: string, to: string) {
   }
 }
 
-/** Una sola consulta para visitantes por día, dispositivo, origen y búsquedas sin resultados. */
+/** Una sola consulta para visitantes por día, dispositivo, origen, búsquedas sin resultados y errores del checkout. */
 function breakdownQuery(from: string, to: string, days: number) {
   // `timestamp >= now() - N` aprovecha el índice; `toDate(timestamp)` (zona del proyecto) recorta exacto.
   const range = `timestamp >= now() - INTERVAL ${days + 2} DAY AND toDate(timestamp) >= toDate('${from}') AND toDate(timestamp) <= toDate('${to}')`
@@ -110,16 +114,21 @@ function breakdownQuery(from: string, to: string, days: number) {
       FROM events
       WHERE event = '${EVENTS.productsSearched}' AND ${range} AND ${HOGQL_NOT_LOCAL} AND toInt(properties.results) = 0
       GROUP BY label
+      UNION ALL
+      SELECT 'error' AS kind, coalesce(properties.field, '') AS label, uniq(person_id) AS total
+      FROM events
+      WHERE event = '${EVENTS.checkoutError}' AND ${range} AND ${HOGQL_NOT_LOCAL}
+      GROUP BY label
       ORDER BY kind, total DESC
       LIMIT 500`,
   }
 }
 
-function parseFunnel(results: unknown): number[] {
+function parseFunnel(results: unknown, length: number): number[] {
   // Sin desglose: un paso por elemento, con `order` y `count`. Con desglose vendría un nivel más.
   const steps = Array.isArray(results) && Array.isArray(results[0]) ? results[0] : results
-  if (!Array.isArray(steps)) return FUNNEL_EVENTS.map(() => 0)
-  const counts = FUNNEL_EVENTS.map(() => 0)
+  const counts: number[] = Array(length).fill(0)
+  if (!Array.isArray(steps)) return counts
   steps.forEach((step: { order?: unknown; count?: unknown }, index) => {
     const order = typeof step?.order === "number" ? step.order : index
     if (order >= 0 && order < counts.length) counts[order] = Number(step?.count) || 0
@@ -127,8 +136,8 @@ function parseFunnel(results: unknown): number[] {
   return counts
 }
 
-function parseBreakdowns(results: unknown): Omit<Traffic, "funnel"> {
-  const traffic: Omit<Traffic, "funnel"> = { perDay: {}, devices: [], origins: [], emptySearches: [] }
+function parseBreakdowns(results: unknown): Omit<Traffic, "funnel" | "cartFunnel"> {
+  const traffic: Omit<Traffic, "funnel" | "cartFunnel"> = { perDay: {}, devices: [], origins: [], emptySearches: [], checkoutErrors: [] }
   if (!Array.isArray(results)) return traffic
   for (const row of results) {
     if (!Array.isArray(row)) continue
@@ -139,17 +148,24 @@ function parseBreakdowns(results: unknown): Omit<Traffic, "funnel"> {
     else if (kind === "dispositivo") traffic.devices.push({ label, value })
     else if (kind === "origen") traffic.origins.push({ label, value })
     else if (kind === "busqueda" && label) traffic.emptySearches.push({ label, value })
+    else if (kind === "error" && label) traffic.checkoutErrors.push({ label, value })
   }
   return traffic
 }
 
 async function loadTraffic(cfg: Config, from: string, to: string, days: number): Promise<TrafficResult> {
   try {
-    const [funnel, breakdowns] = await Promise.all([
-      runQuery(cfg, "todopack-admin-embudo", funnelQuery(from, to)),
+    const [funnel, cartFunnel, breakdowns] = await Promise.all([
+      runQuery(cfg, "todopack-admin-embudo", funnelQuery(FUNNEL_EVENTS, from, to)),
+      runQuery(cfg, "todopack-admin-embudo-carritos", funnelQuery(CART_FUNNEL_EVENTS, from, to)),
       runQuery(cfg, "todopack-admin-visitas", breakdownQuery(from, to, days)),
     ])
-    return { ok: true, data: { funnel: parseFunnel(funnel), ...parseBreakdowns(breakdowns) }, fetchedAt: Date.now() }
+    const data: Traffic = {
+      funnel: parseFunnel(funnel, FUNNEL_EVENTS.length),
+      cartFunnel: parseFunnel(cartFunnel, CART_FUNNEL_EVENTS.length),
+      ...parseBreakdowns(breakdowns),
+    }
+    return { ok: true, data, fetchedAt: Date.now() }
   } catch (err) {
     if (!(err instanceof PostHogApiError)) console.error("Métricas PostHog:", err)
     return { ok: false, error: err instanceof PostHogApiError ? err.message : "No se pudieron leer las métricas de PostHog." }

@@ -13,8 +13,11 @@ export const EVENTS = {
   offersViewed: "offers_viewed",
   /** Abrió el checkout con productos en el carrito. */
   checkoutStarted: "checkout_started",
+  /** Tocó "Confirmar pedido" (antes de validar): separa al que abandona el formulario del que lo intenta y falla. */
+  checkoutSubmitted: "checkout_submitted",
   paymentMethodSelected: "payment_method_selected",
   deliverySlotSelected: "delivery_slot_selected",
+  /** Un campo no pasó la validación (`source`: "formulario" en el navegador, "servidor" al confirmar). */
   checkoutError: "checkout_error",
   /** Pedido confirmado (venta cerrada desde la tienda). Lleva el monto en `revenue`. */
   orderCompleted: "order_completed",
@@ -28,3 +31,12 @@ export type EventName = (typeof EVENTS)[keyof typeof EVENTS]
 
 /** Pasos del embudo de ventas, en orden (mismo embudo que el tablero de PostHog). */
 export const FUNNEL_EVENTS = ["$pageview", EVENTS.productAdded, EVENTS.checkoutStarted, EVENTS.orderCompleted] as const
+
+/** Embudo de carritos: de agregar un producto a confirmar, para ver en qué paso se pierden los carritos. */
+export const CART_FUNNEL_EVENTS = [
+  EVENTS.productAdded,
+  EVENTS.cartViewed,
+  EVENTS.checkoutStarted,
+  EVENTS.checkoutSubmitted,
+  EVENTS.orderCompleted,
+] as const

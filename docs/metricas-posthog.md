@@ -34,7 +34,8 @@ de publicidad los cortan mucho menos que si fueran directo a PostHog.
 | `cart_viewed` | abre el carrito | `items_count`, `value` |
 | `checkout_started` | entra a finalizar pedido con productos | `value`, `items_count`, `units` |
 | `delivery_slot_selected` / `payment_method_selected` | elige franja / medio de pago | `slot` / `method` |
-| `checkout_error` | el pedido no se pudo confirmar | `field`, `error` |
+| `checkout_submitted` | toca "Confirmar pedido" (antes de validar) | `value`, `items_count`, `payment_method`, `delivery_slot` |
+| `checkout_error` | un dato no pasó la validación (uno por campo) | `field`, `error`, `source` (`formulario` o `servidor`) |
 | `order_completed` | **venta cerrada** | `order_id`, `revenue` (ARS), `payment_method`, `delivery_slot`, `items_count`, `units`, `is_guest` |
 | `payment_detail_copied` | copia alias/CBU/monto | `field` |
 | `whatsapp_proof_clicked` | toca "Enviar comprobante por WhatsApp" | `order_id` |
@@ -110,8 +111,11 @@ Para los volantes, generar un QR con el link con UTM.
 - **Ventas** (de la base, siempre disponible): pedidos, facturación, ticket promedio y cobrado vs.
   por cobrar, comparados con el período anterior; pedidos por día, productos más vendidos, medio de
   pago y franja. Incluye los pedidos manuales y no cuenta los cancelados (`lib/metrics.ts`).
-- **Visitas a la tienda** (de PostHog): visitantes, embudo, conversión, carritos sin terminar,
-  visitantes por día, celular vs. compu, de dónde llegan y lo buscado sin resultados
+- **Visitas a la tienda** (de PostHog): visitantes, % que usa el carrito, % que cierra la compra
+  (de los que agregaron), conversión total, embudo de ventas, embudo de carritos sin terminar
+  (`product_added` → `cart_viewed` → `checkout_started` → `checkout_submitted` → `order_completed`,
+  marca el paso donde más gente se va), en qué dato del formulario se traban, visitantes por día,
+  celular vs. compu, de dónde llegan y lo buscado sin resultados
   (`lib/posthog-api.ts`). Se consulta desde el servidor y se guarda 10 minutos en memoria.
 
 Para que aparezca la parte de visitas hay que darle al servidor permiso de lectura en PostHog:
