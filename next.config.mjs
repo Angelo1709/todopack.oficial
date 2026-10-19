@@ -20,7 +20,7 @@ const nextConfig = {
     localPatterns: [
       { pathname: "/api/fotos-productos/**", search: "" },
       { pathname: "/categories/**", search: "" },
-      { pathname: "/logo-todopack.jpg", search: "" },
+      { pathname: "/logo-todopack.png", search: "" },
     ],
     formats: ["image/webp"],
     qualities: [75],

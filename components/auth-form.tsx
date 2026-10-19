@@ -121,11 +121,11 @@ export function AuthForm({ mode, next = "/" }: { mode: "sign-in" | "sign-up"; ne
       />
       <Link href="/" className="mb-6 flex flex-col items-center gap-3">
         <Image
-          src="/logo-todopack.jpg"
+          src="/logo-todopack.png"
           alt="TodoPack Alcorta"
-          width={72}
-          height={72}
-          className="size-18 rounded-full shadow-raised ring-2 ring-primary/40"
+          width={80}
+          height={80}
+          className="size-20 drop-shadow-lg"
         />
         <span className="font-serif text-xl font-bold">TodoPack Alcorta</span>
       </Link>

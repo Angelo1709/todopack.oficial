@@ -5,7 +5,7 @@ description: Sistema de diseño de la tienda TODO PACK (TodoPack Alcorta). Usar 
 
 # Diseño TODO PACK
 
-La identidad sale del logo (`public/logo-todopack.jpg`): una **tapita de botella** carbón con borde ámbar/crema y un toque azul acero, tipografía serif clásica y la bajada "VENTAS POR MAYOR Y MENOR". El resultado es un almacén/distribuidora cálido y confiable, no una tienda genérica. Todo lo nuevo tiene que verse como si siempre hubiera estado ahí.
+La identidad sale del logo (`public/logo-todopack.png`, tapita recortada con fondo transparente; mostrarla sin marco circular): una **tapita de botella** carbón con borde dorado y un toque azul acero, tipografía serif clásica y la bajada "VENTAS POR MAYOR Y MENOR". El resultado es un almacén/distribuidora cálido y confiable, no una tienda genérica. Todo lo nuevo tiene que verse como si siempre hubiera estado ahí.
 
 ## 1. Tokens (no inventar colores)
 

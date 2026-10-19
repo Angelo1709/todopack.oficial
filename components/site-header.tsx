@@ -105,11 +105,11 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/logo-todopack.jpg"
+            src="/logo-todopack.png"
             alt="TodoPack Alcorta"
-            width={40}
-            height={40}
-            className="size-10 rounded-full ring-2 ring-sidebar-primary/40"
+            width={44}
+            height={44}
+            className="size-11 drop-shadow-md"
           />
           <div className="hidden sm:block leading-tight">
             <span className="block font-serif text-lg font-bold">TodoPack Alcorta</span>
