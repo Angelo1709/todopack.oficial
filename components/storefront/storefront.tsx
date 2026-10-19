@@ -93,7 +93,7 @@ export function Storefront({
                 className="group flex w-[76px] shrink-0 snap-start flex-col items-center gap-1.5 text-center sm:w-24"
               >
                 <span className="relative block size-16 overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border transition group-hover:ring-2 group-hover:ring-primary sm:size-20">
-                  <Image src={categoryImage(c)} alt="" fill sizes="80px" className="object-cover" />
+                  <Image src={categoryImage(c)} alt="" fill sizes="80px" loading="eager" className="object-cover" />
                 </span>
                 <span className="line-clamp-2 text-xs font-medium leading-tight text-muted-foreground group-hover:text-foreground">
                   {c}
@@ -123,10 +123,11 @@ export function Storefront({
           </div>
           {/* En el celular se deslizan de costado; en pantallas grandes, grilla. */}
           <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 scrollbar-none sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-4 xl:grid-cols-5">
-            {featured.map((article) => (
+            {featured.map((article, i) => (
               <ProductCard
                 key={article.key}
                 article={article}
+                priority={i < 4}
                 className="w-[46%] shrink-0 snap-start sm:w-auto"
               />
             ))}
@@ -236,8 +237,9 @@ export function Storefront({
                   pending && "opacity-60",
                 )}
               >
-                {remaining.map((a) => (
-                  <ProductCard key={a.key} article={a} />
+                {remaining.map((a, i) => (
+                  // Sin ofertas arriba (búsqueda, categoría, página 2...), la grilla es lo primero que se ve.
+                  <ProductCard key={a.key} article={a} priority={featured.length === 0 && i < 4} />
                 ))}
               </div>
               {totalPages > 1 && (

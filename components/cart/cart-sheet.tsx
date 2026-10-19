@@ -7,6 +7,7 @@ import { useCart } from "@/components/cart/cart-provider"
 import { QuantityStepper, TierPrices, TierSummary } from "@/components/storefront/tier-pricing"
 import { stepUnits } from "@/lib/pricing"
 import { categoryImage } from "@/lib/categories"
+import { isOptimizableImage } from "@/lib/images"
 import { formatPrice } from "@/lib/format"
 import {
   Sheet,
@@ -59,6 +60,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                       alt=""
                       width={64}
                       height={64}
+                      unoptimized={!isOptimizableImage(item.imageUrl || categoryImage(item.category))}
                       className="size-16 shrink-0 rounded-xl bg-white object-contain p-1 ring-1 ring-border"
                     />
                     <div className="min-w-0 flex-1">

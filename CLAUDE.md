@@ -12,7 +12,7 @@ Tienda online de la distribuidora TODO PACK (bebidas, almacén, limpieza, descar
 - **Tailwind CSS v4** + componentes **shadcn/ui** (`components/ui/`, config en `components.json`).
 - **PostgreSQL** con **Drizzle ORM** (`lib/db/`), driver `pg`.
 - **Better Auth** (email + contraseña) en `lib/auth.ts`; ruta `app/api/auth/[...all]`. La cuenta es opcional para comprar.
-- Imágenes de productos: se guarda la URL (`lib/storage.ts`); Vercel Blob solo si hay `BLOB_READ_WRITE_TOKEN`.
+- Imágenes de productos: se guarda la URL (`lib/storage.ts`); Vercel Blob solo si hay `BLOB_READ_WRITE_TOKEN`. Las fotos propias (`/api/fotos-productos/[id]`, guardadas en la base, inmutables por id → `Cache-Control: immutable`) y las de `public/` las optimiza `next/image` (WebP al tamaño de cada pantalla, `images.localPatterns` en `next.config.mjs`); las URLs externas se muestran sin optimizar (`lib/images.ts`, `isOptimizableImage`).
 - Deploy: **Railway** (`railway.json`: build `pnpm build`, start `pnpm start` = migraciones + `next start`, healthcheck `/api/health`). El `preDeployCommand` de Railway no se ejecutaba: por eso las migraciones corren al arrancar.
 - Gestor de paquetes: **pnpm** (versión fijada en `packageManager`; si no está instalado: `npx pnpm@12.3.4 ...`). Node 24.
 
