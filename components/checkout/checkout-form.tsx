@@ -166,6 +166,7 @@ export function CheckoutForm({
       return
     }
 
+    track(EVENTS.checkoutSubmitted, { value: total, items_count: items.length, payment_method: method, delivery_slot: slot })
     const fd = new FormData(e.currentTarget)
     const values = {
       customerName: String(fd.get("customerName") ?? "").trim(),
@@ -188,6 +189,11 @@ export function CheckoutForm({
     else if (!canBookDelivery(schedule,values.deliveryDate,slot,now)) next.deliverySlot=closedDeliveryMessage(schedule,values.deliveryDate,slot,now)
     if (!values.address) next.address = "Completá la dirección de entrega"
     if (Object.keys(next).length > 0 || !slot) {
+      // Un evento por campo: en PostHog se ve qué dato frena a la gente. Sólo el nombre del campo y el
+      // mensaje fijo, nunca lo que escribió.
+      for (const field of Object.keys(next) as CheckoutField[]) {
+        track(EVENTS.checkoutError, { field, error: next[field], source: "formulario" })
+      }
       showErrors(next)
       return
     }
@@ -203,7 +209,7 @@ export function CheckoutForm({
         paymentMethod: method,
       })
       if (!res.ok) {
-        track(EVENTS.checkoutError, { field: res.field ?? "general", error: res.error })
+        track(EVENTS.checkoutError, { field: res.field ?? "general", error: res.error, source: "servidor" })
         if (res.field === "items") await refresh()
         if (res.field==="deliverySlot") await refreshBooking()
         res.unavailableIds?.forEach((id) => remove(id))

@@ -182,63 +182,62 @@ function TrafficSection({
     )
   }
 
-  const { funnel, perDay, devices, origins, emptySearches } = traffic.data
-  const [visitors, added, checkout, ordered] = funnel
-  const steps = [
-    { label: "Entraron a la tienda", value: visitors },
-    { label: "Agregaron algo al carrito", value: added },
-    { label: "Fueron a finalizar el pedido", value: checkout },
-    { label: "Confirmaron el pedido", value: ordered },
-  ]
+  const { funnel, cartFunnel, perDay, devices, origins, emptySearches, checkoutErrors } = traffic.data
+  const [visitors, added, , ordered] = funnel
+  const salesSteps = [
+    "Entraron a la tienda",
+    "Agregaron algo al carrito",
+    "Fueron a finalizar el pedido",
+    "Confirmaron el pedido",
+  ].map((label, i) => ({ label, value: funnel[i] ?? 0 }))
+  const cartSteps = [
+    "Agregaron algo al carrito",
+    "Abrieron el carrito",
+    "Fueron a finalizar el pedido",
+    "Tocaron «Confirmar pedido»",
+    "El pedido se confirmó",
+  ].map((label, i) => ({ label, value: cartFunnel[i] ?? 0 }))
+  const cartBuyers = cartFunnel[cartFunnel.length - 1] ?? 0
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Kpi label="Visitantes" value={formatNumber(visitors)} hint="Personas distintas" />
-        <Kpi label="Agregaron al carrito" value={formatNumber(added)} hint={visitors ? `${percentFmt.format(ratio(added, visitors))} de los visitantes` : undefined} />
-        <Kpi label="Conversión" value={visitors ? percentFmt.format(ratio(ordered, visitors)) : "—"} hint="Visitantes que confirmaron un pedido" />
         <Kpi
-          label="Carritos sin terminar"
-          value={formatNumber(Math.max(0, added - ordered))}
-          hint="Agregaron productos y no confirmaron"
+          label="Usan el carrito"
+          value={visitors ? percentFmt.format(ratio(added, visitors)) : "—"}
+          hint={`${formatNumber(added)} de ${formatNumber(visitors)} visitantes agregaron algo`}
         />
+        <Kpi
+          label="Cierran la compra"
+          value={cartFunnel[0] ? percentFmt.format(ratio(cartBuyers, cartFunnel[0])) : "—"}
+          hint="De los que agregaron al carrito, cuántos confirmaron"
+        />
+        <Kpi label="Conversión total" value={visitors ? percentFmt.format(ratio(ordered, visitors)) : "—"} hint="Visitantes que confirmaron un pedido" />
+        <div className="col-span-2 lg:col-span-1">
+          <Kpi
+            label="Carritos sin terminar"
+            value={formatNumber(Math.max(0, (cartFunnel[0] ?? 0) - cartBuyers))}
+            hint="Agregaron productos y no confirmaron"
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Embudo de ventas" subtitle="De la visita al pedido confirmado, en el mismo día.">
-          <ol className="flex flex-col gap-3">
-            {steps.map((step, i) => {
-              const lost = i > 0 ? steps[i - 1].value - step.value : 0
-              return (
-                <li key={step.label}>
-                  {i > 0 && lost > 0 && (
-                    <p className="mb-1 text-xs text-muted-foreground">
-                      Se fueron {formatNumber(lost)} ({percentFmt.format(ratio(lost, steps[i - 1].value))})
-                    </p>
-                  )}
-                  <div className="flex items-baseline justify-between gap-3 text-sm">
-                    <span className="font-medium">
-                      {i + 1}. {step.label}
-                    </span>
-                    <span className="shrink-0 tabular-nums">
-                      <b>{formatNumber(step.value)}</b>
-                      {i > 0 && visitors > 0 && (
-                        <span className="text-muted-foreground"> · {percentFmt.format(ratio(step.value, visitors))}</span>
-                      )}
-                    </span>
-                  </div>
-                  <Bar fraction={ratio(step.value, visitors)} colorClass="bg-chart-2" />
-                </li>
-              )
-            })}
-          </ol>
+          <FunnelSteps steps={salesSteps} />
         </Card>
+        <Card title="Carritos sin terminar: dónde se van" subtitle="De agregar un producto a confirmar el pedido, en el mismo día.">
+          <FunnelSteps steps={cartSteps} />
+        </Card>
+      </div>
 
+      <div className="grid gap-4 lg:grid-cols-2">
         {period.days > 1 && (
           <Card title="Visitantes por día">
             <DayBars
               days={periodDays(period).map((day) => ({
-              day,
+                day,
                 value: perDay[day] ?? 0,
                 title: `${formatDateAR(day)}: ${formatNumber(perDay[day] ?? 0)} visitantes`,
               }))}
@@ -248,6 +247,18 @@ function TrafficSection({
             />
           </Card>
         )}
+        <Card title="Dónde se traban al confirmar" subtitle="Datos del formulario que no pasaron la validación (personas distintas).">
+          {checkoutErrors.length ? (
+            <RankBars
+              items={mergeItems(checkoutErrors, checkoutFieldLabel).map((e) => ({
+                ...e,
+                detail: `${formatNumber(e.value)} ${e.value === 1 ? "persona" : "personas"}`,
+              }))}
+            />
+          ) : (
+            <Empty>Nadie tuvo errores al confirmar.</Empty>
+          )}
+        </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -286,6 +297,42 @@ function TrafficSection({
         {posthogUrl && <PostHogLink href={posthogUrl} inline />}
       </p>
     </>
+  )
+}
+
+/** Pasos de un embudo: % sobre el primero y sobre el anterior, y aviso en el paso donde más gente se va. */
+function FunnelSteps({ steps }: { steps: { label: string; value: number }[] }) {
+  const first = steps[0]?.value ?? 0
+  if (!first) return <Empty>Sin datos en este período.</Empty>
+  const drops = steps.map((step, i) => (i > 0 ? steps[i - 1].value - step.value : 0))
+  const worst = drops.reduce((best, d, i) => (d > drops[best] ? i : best), 0)
+  return (
+    <ol className="flex flex-col gap-3">
+      {steps.map((step, i) => {
+        const lost = drops[i]
+        const previous = i > 0 ? steps[i - 1].value : 0
+        return (
+          <li key={step.label}>
+            {i > 0 && lost > 0 && (
+              <p className={cn("mb-1 text-xs", i === worst ? "font-semibold text-destructive" : "text-muted-foreground")}>
+                Se fueron {formatNumber(lost)} ({percentFmt.format(ratio(lost, previous))} del paso anterior)
+                {i === worst && " · acá se pierde más gente"}
+              </p>
+            )}
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="font-medium">
+                {i + 1}. {step.label}
+              </span>
+              <span className="shrink-0 tabular-nums">
+                <b>{formatNumber(step.value)}</b>
+                {i > 0 && <span className="text-muted-foreground"> · {percentFmt.format(ratio(step.value, first))}</span>}
+              </span>
+            </div>
+            <Bar fraction={ratio(step.value, first)} colorClass="bg-chart-2" />
+          </li>
+        )
+      })}
+    </ol>
   )
 }
 
@@ -483,6 +530,23 @@ function mergeItems(items: TrafficItem[], label: (raw: string) => string): Traff
   const merged = new Map<string, number>()
   for (const item of items) merged.set(label(item.label), (merged.get(label(item.label)) ?? 0) + item.value)
   return [...merged].map(([l, value]) => ({ label: l, value })).sort((a, b) => b.value - a.value)
+}
+
+const CHECKOUT_FIELD_LABEL: Record<string, string> = {
+  customerName: "Nombre y apellido",
+  phone: "Teléfono",
+  email: "Email",
+  address: "Dirección",
+  deliveryDate: "Fecha de entrega",
+  deliverySlot: "Franja de entrega (cerrada o sin elegir)",
+  paymentMethod: "Medio de pago",
+  notes: "Notas",
+  items: "Productos (sin stock o cambió el precio)",
+  general: "Otro error al confirmar",
+}
+
+function checkoutFieldLabel(raw: string): string {
+  return CHECKOUT_FIELD_LABEL[raw] ?? raw
 }
 
 function deviceLabel(raw: string): string {
