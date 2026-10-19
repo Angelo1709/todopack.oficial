@@ -1,10 +1,9 @@
 import { betterAuth } from "better-auth"
 import { pool } from "@/lib/db"
+import { getSiteUrl } from "@/lib/site"
 
 // URL pública: BETTER_AUTH_URL o, en Railway, el dominio que asigna la plataforma.
-const baseURL =
-  process.env.BETTER_AUTH_URL ??
-  (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : undefined)
+const baseURL = getSiteUrl()
 
 function emailList(value: string | undefined) {
   return new Set(

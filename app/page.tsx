@@ -1,12 +1,15 @@
+import type { Metadata } from "next"
 import { db } from "@/lib/db"
 import { products } from "@/lib/db/schema"
 import { and, eq, ilike, sql } from "drizzle-orm"
 import { SiteHeader } from "@/components/site-header"
 import { Storefront } from "@/components/storefront/storefront"
-import { CATEGORY_ORDER } from "@/lib/categorize"
+import { CATEGORY_ORDER, isCategory } from "@/lib/categorize"
 import { Banknote, Tags, Truck } from "lucide-react"
 import { articleKey, availableColumn, loadArticles, offerArticleCondition, storefrontCondition } from "@/lib/catalog"
 import { isSortOption } from "@/lib/sort-options"
+import { getBusinessJsonLd, jsonLdScript } from "@/lib/seo"
+import { SITE_NAME } from "@/lib/site"
 
 export const dynamic = "force-dynamic"
 
@@ -18,11 +21,25 @@ const BENEFITS = [
   { icon: Banknote, title: "Efectivo o transferencia" },
 ]
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string; q?: string; category?: string; orden?: string; offers?: string }>
-}) {
+type HomeSearchParams = Promise<{ page?: string; q?: string; category?: string; orden?: string; offers?: string }>
+
+// Dirección "oficial" de cada vista para Google: categoría y página cuentan; orden y ofertas no
+// (es el mismo contenido reordenado). Las búsquedas no se indexan: son infinitas y repetidas.
+export async function generateMetadata({ searchParams }: { searchParams: HomeSearchParams }): Promise<Metadata> {
+  const params = await searchParams
+  const category = params.category?.trim() ?? ""
+  const page = Number.parseInt(params.page ?? "1", 10) || 1
+  const canonical = new URLSearchParams()
+  if (isCategory(category)) canonical.set("category", category)
+  if (page > 1) canonical.set("page", String(page))
+  return {
+    ...(isCategory(category) ? { title: `${category} — ${SITE_NAME}` } : {}),
+    alternates: { canonical: canonical.size ? `/?${canonical}` : "/" },
+    ...(params.q?.trim() ? { robots: { index: false, follow: true } } : {}),
+  }
+}
+
+export default async function HomePage({ searchParams }: { searchParams: HomeSearchParams }) {
   const params = await searchParams
   const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1)
   const query = params.q?.trim().slice(0, 100) ?? ""
@@ -39,9 +56,10 @@ export default async function HomePage({
   )
 
   // Conteo de artículos (no de filas) y categorías con productos visibles.
-  const [[{ total }], categoryRows] = await Promise.all([
+  const [[{ total }], categoryRows, businessJsonLd] = await Promise.all([
     db.select({ total: sql<number>`count(distinct ${articleKey})::int` }).from(products).where(where),
     db.selectDistinct({ category: products.category }).from(products).where(visible),
+    getBusinessJsonLd(),
   ])
   const totalArticles = Number(total)
   const totalPages = Math.max(1, Math.ceil(totalArticles / PAGE_SIZE))
@@ -72,6 +90,8 @@ export default async function HomePage({
 
   return (
     <main className="min-h-dvh bg-background">
+      {/* Datos del negocio para Google (lib/seo.ts). */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(businessJsonLd) }} />
       <SiteHeader search query={query} />
       {/* La portada sólo en el inicio: buscando o filtrando se va directo a los productos. */}
       {!offersOnly && !query && category === "Todos" && safePage === 1 && (
