@@ -8,6 +8,7 @@ import { QuantityStepper, TierPrices, TierSummary } from "@/components/storefron
 import { stepUnits } from "@/lib/pricing"
 import { categoryImage } from "@/lib/categories"
 import { isOptimizableImage } from "@/lib/images"
+import { EVENTS, track } from "@/lib/analytics"
 import { formatPrice } from "@/lib/format"
 import {
   Sheet,
@@ -26,7 +27,13 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
   const { items, total, count, setQty, remove } = useCart()
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (next) track(EVENTS.cartViewed, { items_count: count, value: total })
+      }}
+    >
       <SheetTrigger render={children as React.ReactElement} />
       <SheetContent className="flex flex-col gap-0 bg-background p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
         <SheetHeader className="border-b border-border bg-card">

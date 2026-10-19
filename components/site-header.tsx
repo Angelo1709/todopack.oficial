@@ -22,6 +22,7 @@ import {
 import { LogOut, ReceiptText, Search, ShieldCheck, ShoppingCart, User as UserIcon, X } from "lucide-react"
 import { isAdminRole } from "@/lib/roles"
 import { PendingTransferNotice } from "@/components/orders/pending-transfer-notice"
+import { identifyUser, resetAnalytics } from "@/lib/analytics"
 
 /** Buscador del catálogo: lleva a la tienda con `?q=`. */
 function CatalogSearch({ initial, className }: { initial: string; className?: string }) {
@@ -84,10 +85,16 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
   const { data: session, isPending } = useSession()
   const router = useRouter()
   const { count, total } = useCart()
-  const user = session?.user as { name?: string; role?: string } | undefined
+  const user = session?.user as { id?: string; name?: string; role?: string } | undefined
+
+  // Métricas: los eventos de esta sesión quedan asociados a la cuenta (sólo el id, sin datos personales).
+  useEffect(() => {
+    if (user?.id) identifyUser({ id: user.id, role: user.role })
+  }, [user?.id, user?.role])
 
   async function handleSignOut() {
     await authClient.signOut()
+    resetAnalytics()
     router.push("/")
     router.refresh()
   }
@@ -139,7 +146,7 @@ export function SiteHeader({ search = false, query = "" }: { search?: boolean; q
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel className="truncate">{user.name}</DropdownMenuLabel>
+                  <DropdownMenuLabel className="ph-no-capture truncate">{user.name}</DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem render={<Link href="/mis-pedidos" />}>

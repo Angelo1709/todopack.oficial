@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { authClient } from "@/lib/auth-client"
 import { claimOrders } from "@/app/actions/orders"
+import { EVENTS, track } from "@/lib/analytics"
 import {
   clearSignUpPrefill,
   forgetOrderTokens,
@@ -95,10 +96,12 @@ export function AuthForm({ mode, next = "/" }: { mode: "sign-in" | "sign-up"; ne
           ...(address ? { address } : {}),
         } as Parameters<typeof authClient.signUp.email>[0])
         if (error) throw new Error(error.code)
+        track(EVENTS.signedUp)
         clearSignUpPrefill()
       } else {
         const { error } = await authClient.signIn.email({ email, password })
         if (error) throw new Error(error.code)
+        track(EVENTS.signedIn)
       }
       await claimGuestOrders()
       router.push(next)

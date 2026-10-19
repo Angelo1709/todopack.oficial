@@ -1,7 +1,10 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { formatOrderNumber } from "@/lib/format"
 import { transferProofWhatsappUrl } from "@/lib/order-messages"
 import { cn } from "@/lib/utils"
+import { EVENTS, track } from "@/lib/analytics"
 import { MessageCircle } from "lucide-react"
 
 /**
@@ -30,7 +33,14 @@ export function WhatsappProofButton({
 
   return (
     <Button
-      render={<a href={url} target="_blank" rel="noreferrer" />}
+      render={
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => track(EVENTS.whatsappProofClicked, { order_id: order.id })}
+        />
+      }
       nativeButton={false}
       size="lg"
       className={cn(

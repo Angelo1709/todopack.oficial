@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { useEffect, useRef, useTransition } from "react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useCart } from "@/components/cart/cart-provider"
@@ -12,6 +12,7 @@ import { formatPrice } from "@/lib/format"
 import { SORT_OPTIONS, type SortOption } from "@/lib/sort-options"
 import { ArrowDownUp, ChevronLeft, ChevronRight, Flame, PackageSearch, ShoppingCart, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { EVENTS, track } from "@/lib/analytics"
 
 /** Primera, última y las vecinas de la actual: 1 … 4 5 6 … 20. */
 function pageList(page: number, total: number): (number | "gap")[] {
@@ -51,7 +52,20 @@ export function Storefront({
   const featuredKeys = new Set(featured.map((article) => article.key))
   const remaining = articles.filter((article) => !featuredKeys.has(article.key))
 
+  // Cada búsqueda con su cantidad de resultados: las de 0 son productos que la gente pide y no hay.
+  const lastSearch = useRef("")
+  useEffect(() => {
+    const key = `${query}|${totalArticles}`
+    if (!query || lastSearch.current === key) return
+    lastSearch.current = key
+    track(EVENTS.productsSearched, { query: query.toLowerCase(), results: totalArticles })
+  }, [query, totalArticles])
+
   function navigate(next: { page?: number; q?: string; category?: string; sort?: SortOption; offers?: boolean }) {
+    if (next.category && next.category !== category && next.category !== "Todos") {
+      track(EVENTS.categorySelected, { category: next.category })
+    }
+    if (next.offers && !offersOnly) track(EVENTS.offersViewed)
     const params = new URLSearchParams()
     const nextQuery = next.q ?? query
     const nextCategory = next.category ?? category

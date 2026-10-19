@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { lineTotal, useCart } from "@/components/cart/cart-provider"
@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TransferInstructions } from "@/components/orders/transfer-instructions"
 import { rememberOrderToken, saveSignUpPrefill } from "@/lib/guest-orders"
+import { EVENTS, track } from "@/lib/analytics"
 import { describeBreakdown, describeQuantity, priceFor } from "@/lib/pricing"
 import {
   DELIVERY_SLOTS,
@@ -115,6 +116,18 @@ export function CheckoutForm({
 
   // El carrito se lee de localStorage al montar: evitamos mostrar "carrito vacío" antes de tiempo.
   useEffect(() => setMounted(true), [])
+
+  // Inicio del checkout (paso del embudo): una vez por visita, cuando ya se leyó el carrito.
+  const checkoutTracked = useRef(false)
+  useEffect(() => {
+    if (!mounted || checkoutTracked.current || items.length === 0) return
+    checkoutTracked.current = true
+    track(EVENTS.checkoutStarted, {
+      value: total,
+      items_count: items.length,
+      units: items.reduce((sum, i) => sum + i.quantity, 0),
+    })
+  }, [mounted, items, total])
   useEffect(()=>{
     if (slot && !canBookDelivery(schedule,deliveryDate,slot,now)) {
       setSlotNotice(closedDeliveryMessage(schedule,deliveryDate,slot,now))
@@ -190,6 +203,7 @@ export function CheckoutForm({
         paymentMethod: method,
       })
       if (!res.ok) {
+        track(EVENTS.checkoutError, { field: res.field ?? "general", error: res.error })
         if (res.field === "items") await refresh()
         if (res.field==="deliverySlot") await refreshBooking()
         res.unavailableIds?.forEach((id) => remove(id))
@@ -204,6 +218,18 @@ export function CheckoutForm({
         // Para precargar el registro si acepta crear cuenta (sessionStorage, nunca por URL).
         saveSignUpPrefill({ name: values.customerName, phone: values.phone, email: values.email, address: values.address })
       }
+      // Venta cerrada desde la tienda: último paso del embudo, con el monto para medir facturación.
+      track(EVENTS.orderCompleted, {
+        order_id: res.order.id,
+        revenue: res.order.total,
+        value: res.order.total,
+        currency: "ARS",
+        payment_method: res.order.paymentMethod,
+        delivery_slot: res.order.deliverySlot,
+        items_count: items.length,
+        units: items.reduce((sum, i) => sum + i.quantity, 0),
+        is_guest: isGuest,
+      })
       setPlaced(true)
       clear()
       // La confirmación es la página del pedido: si recarga, cierra o vuelve más tarde,
@@ -382,6 +408,7 @@ export function CheckoutForm({
                             setSlot(value)
                             setSlotNotice("")
                             clearError("deliverySlot")
+                            track(EVENTS.deliverySlotSelected, { slot: value })
                           }}
                           className={cn(optionClass(active, Boolean(errors.deliverySlot)), "min-w-0 items-start gap-2 p-3 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground")}
                         >
@@ -432,7 +459,10 @@ export function CheckoutForm({
                     type="button"
                     role="radio"
                     aria-checked={method === opt.value}
-                    onClick={() => setMethod(opt.value)}
+                    onClick={() => {
+                      setMethod(opt.value)
+                      track(EVENTS.paymentMethodSelected, { method: opt.value })
+                    }}
                     className={optionClass(method === opt.value)}
                   >
                     <opt.icon className="size-5 shrink-0 text-primary" />

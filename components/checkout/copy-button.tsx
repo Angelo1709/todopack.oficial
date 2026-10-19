@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { EVENTS, track } from "@/lib/analytics"
 import { Check, Copy } from "lucide-react"
 
 /** Botón chico para copiar un dato (alias, CBU) al portapapeles. `label` en minúscula salvo siglas. */
@@ -15,6 +16,8 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
   }, [])
 
   async function copy() {
+    // Se registra la intención (quiso copiar el alias/CBU), aunque el navegador no deje copiar.
+    track(EVENTS.paymentDetailCopied, { field: label })
     try {
       await navigator.clipboard.writeText(value)
       setCopied(true)
