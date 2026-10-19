@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { refreshCartArticles } from "@/app/actions/orders"
 import { normalizeTiers, priceFor, snapUnits, type Tier } from "@/lib/pricing"
+import { EVENTS, track } from "@/lib/analytics"
 
 /**
  * Un artículo en el carrito. `quantity` son unidades; el precio sale de sus presentaciones
@@ -136,9 +137,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, hydrated])
 
+  // Las métricas se calculan con el carrito actual (itemsRef), fuera de setItems: React puede ejecutar
+  // dos veces la función que actualiza el estado y no queremos eventos duplicados.
   const add = useCallback((article: CartArticle, units?: number) => {
     const tiers = normalizeTiers(article.tiers)
     if (!tiers.length) return
+    const before = itemsRef.current.find((i) => i.id === article.id)?.quantity ?? 0
+    const quantity = snapUnits(tiers, before + (units ?? tiers[0].packSize))
+    track(before > 0 ? EVENTS.cartUpdated : EVENTS.productAdded, {
+      product_id: article.id,
+      product_name: article.name,
+      category: article.category,
+      quantity,
+      previous_quantity: before,
+      price: tiers[0].price,
+      value: priceFor(tiers, quantity)?.total ?? null,
+    })
     setItems((prev) => {
       const existing = prev.find((i) => i.id === article.id)
       const quantity = snapUnits(tiers, (existing?.quantity ?? 0) + (units ?? tiers[0].packSize))
@@ -151,6 +165,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const setQty = useCallback((id: number, units: number) => {
+    const item = itemsRef.current.find((i) => i.id === id)
+    if (item) {
+      const quantity = snapUnits(item.tiers, units)
+      if (quantity !== item.quantity) {
+        track(quantity > 0 ? EVENTS.cartUpdated : EVENTS.productRemoved, {
+          product_id: id,
+          product_name: item.name,
+          category: item.category,
+          quantity,
+          previous_quantity: item.quantity,
+          value: quantity > 0 ? (priceFor(item.tiers, quantity)?.total ?? null) : 0,
+        })
+      }
+    }
     setItems((prev) =>
       prev.flatMap((i) => {
         if (i.id !== id) return [i]
@@ -161,6 +189,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const remove = useCallback((id: number) => {
+    const item = itemsRef.current.find((i) => i.id === id)
+    if (item) {
+      track(EVENTS.productRemoved, {
+        product_id: id,
+        product_name: item.name,
+        category: item.category,
+        quantity: 0,
+        previous_quantity: item.quantity,
+        value: 0,
+      })
+    }
     setItems((prev) => prev.filter((i) => i.id !== id))
   }, [])
 

@@ -50,6 +50,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 - `app/admin/` — panel (layout con guard de rol + `AdminNav`): `/admin` pedidos, `/admin/productos` catálogo, `/admin/configuracion` WhatsApp, datos bancarios y salida/llegada del recorrido, `/admin/usuarios` (solo superadmin). Componentes en `components/admin/`.
 - `app/actions/` — server actions: `orders.ts` (cliente; `createOrder` acepta invitados), `admin-orders.ts` (pedidos y alta de pedidos manuales, `requireAdmin()`), `catalog.ts` (productos, importación Excel, imágenes, `requireAdmin()`), `users.ts` (usuarios, `requireSuperadmin()`), `reparto.ts` (recorrido: buscar ubicaciones, corregir la de un pedido, salida/llegada; `requireAdmin()`). Ojo: un archivo `route.ts` dentro de `app/` es un Route Handler, no usar ese nombre para acciones.
 - `app/api/health` — healthcheck de Railway (hace `SELECT 1`).
+- **Métricas (PostHog):** `instrumentation-client.ts` inicializa `posthog-js` sólo si hay `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` (proxy `/ingest` en `next.config.mjs`). Eventos sólo con `track()` y el catálogo `EVENTS` de `lib/analytics.ts` (embudo: `$pageview` → `product_added` → `checkout_started` → `order_completed`). Nunca datos personales; los admins se excluyen (`identifyUser`). Guía y KPIs: `docs/metricas-posthog.md`.
 - `components/cart/` — carrito en el cliente (context provider + sheet).
 - `lib/db/schema.ts` — tablas: `user`, `session`, `account`, `verification` (Better Auth, columnas camelCase obligatorias) y `products`, `orders`, `order_items`, `settings`.
 - `lib/order-status.ts` — estados, franjas, medios de pago, etiquetas y transiciones permitidas. Único lugar donde se definen.
@@ -84,7 +85,7 @@ No hay tests ni drizzle-kit. **Migraciones:** en `lib/db/migrations/`, orden alf
 
 ## Variables de entorno
 
-Ver `.env.example`. Mínimo: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (en Railway se puede omitir: usa `RAILWAY_PUBLIC_DOMAIN`), `SUPERADMIN_EMAILS` (y opcional `ADMIN_EMAILS`). `BLOB_READ_WRITE_TOKEN` es opcional. Nunca commitear `.env*` (salvo `.env.example`).
+Ver `.env.example`. Mínimo: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (en Railway se puede omitir: usa `RAILWAY_PUBLIC_DOMAIN`), `SUPERADMIN_EMAILS` (y opcional `ADMIN_EMAILS`). `BLOB_READ_WRITE_TOKEN` es opcional. Métricas opcionales: `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` y `NEXT_PUBLIC_POSTHOG_REGION` (se leen al compilar). Nunca commitear `.env*` (salvo `.env.example`).
 
 ## Convenciones
 

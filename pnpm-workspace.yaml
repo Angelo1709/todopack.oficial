@@ -5,4 +5,6 @@ minimumReleaseAgeExclude:
   - next
 
 allowBuilds:
+  # Dependencia de posthog-js: su script de instalación solo muestra un mensaje, no hace falta.
+  core-js: false
   sharp: true
