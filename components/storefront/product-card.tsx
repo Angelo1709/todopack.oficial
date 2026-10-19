@@ -1,9 +1,11 @@
 "use client"
 
 import Image from "next/image"
+import { useState } from "react"
 import { useCart } from "@/components/cart/cart-provider"
 import { QuantityStepper, TierPrices, TierSummary } from "@/components/storefront/tier-pricing"
 import { categoryImage } from "@/lib/categories"
+import { isOptimizableImage } from "@/lib/images"
 import { savingsPercent, stepUnits, type Tier } from "@/lib/pricing"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -22,8 +24,19 @@ export type StoreArticle = {
   available: boolean
 }
 
-export function ProductCard({ article, className }: { article: StoreArticle; className?: string }) {
+export function ProductCard({
+  article,
+  className,
+  priority = false,
+}: {
+  article: StoreArticle
+  className?: string
+  /** Las primeras tarjetas que se ven al abrir: su foto se pide primero, sin esperar al scroll. */
+  priority?: boolean
+}) {
   const { add, setQty, quantityOf } = useCart()
+  const [imageReady, setImageReady] = useState(false)
+  const imageSrc = article.imageUrl || categoryImage(article.category)
   const units = quantityOf(article.baseId)
   const step = stepUnits(article.tiers)
   const soldOut = !article.available
@@ -50,14 +63,23 @@ export function ProductCard({ article, className }: { article: StoreArticle; cla
       )}
     >
       <div className="relative aspect-square overflow-hidden bg-white">
+        {/* Mientras llega la foto: fondo suave animado en lugar de un recuadro en blanco. */}
+        {!imageReady && <div aria-hidden="true" className="absolute inset-3 animate-pulse rounded-xl bg-muted" />}
         <Image
-          src={article.imageUrl || categoryImage(article.category)}
+          src={imageSrc}
           alt={article.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px"
+          unoptimized={!isOptimizableImage(imageSrc)}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          onLoad={() => setImageReady(true)}
+          onError={() => setImageReady(true)}
           className={cn(
-            "object-contain p-2 transition-transform duration-300",
-            soldOut ? "opacity-50 grayscale" : "group-hover:scale-[1.03]",
+            "object-contain p-2 transition duration-300",
+            imageReady ? "opacity-100" : "opacity-0",
+            soldOut ? "grayscale" : "group-hover:scale-[1.03]",
+            soldOut && imageReady && "opacity-50",
           )}
         />
         {/* Insignias en una sola esquina, apiladas: nunca se pisan. */}

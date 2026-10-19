@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { useEffect, useRef, useTransition } from "react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useCart } from "@/components/cart/cart-provider"
@@ -12,6 +12,7 @@ import { formatPrice } from "@/lib/format"
 import { SORT_OPTIONS, type SortOption } from "@/lib/sort-options"
 import { ArrowDownUp, ChevronLeft, ChevronRight, Flame, PackageSearch, ShoppingCart, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { EVENTS, track } from "@/lib/analytics"
 
 /** Primera, última y las vecinas de la actual: 1 … 4 5 6 … 20. */
 function pageList(page: number, total: number): (number | "gap")[] {
@@ -51,7 +52,20 @@ export function Storefront({
   const featuredKeys = new Set(featured.map((article) => article.key))
   const remaining = articles.filter((article) => !featuredKeys.has(article.key))
 
+  // Cada búsqueda con su cantidad de resultados: las de 0 son productos que la gente pide y no hay.
+  const lastSearch = useRef("")
+  useEffect(() => {
+    const key = `${query}|${totalArticles}`
+    if (!query || lastSearch.current === key) return
+    lastSearch.current = key
+    track(EVENTS.productsSearched, { query: query.toLowerCase(), results: totalArticles })
+  }, [query, totalArticles])
+
   function navigate(next: { page?: number; q?: string; category?: string; sort?: SortOption; offers?: boolean }) {
+    if (next.category && next.category !== category && next.category !== "Todos") {
+      track(EVENTS.categorySelected, { category: next.category })
+    }
+    if (next.offers && !offersOnly) track(EVENTS.offersViewed)
     const params = new URLSearchParams()
     const nextQuery = next.q ?? query
     const nextCategory = next.category ?? category
@@ -93,7 +107,7 @@ export function Storefront({
                 className="group flex w-[76px] shrink-0 snap-start flex-col items-center gap-1.5 text-center sm:w-24"
               >
                 <span className="relative block size-16 overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border transition group-hover:ring-2 group-hover:ring-primary sm:size-20">
-                  <Image src={categoryImage(c)} alt="" fill sizes="80px" className="object-cover" />
+                  <Image src={categoryImage(c)} alt="" fill sizes="80px" loading="eager" className="object-cover" />
                 </span>
                 <span className="line-clamp-2 text-xs font-medium leading-tight text-muted-foreground group-hover:text-foreground">
                   {c}
@@ -123,10 +137,11 @@ export function Storefront({
           </div>
           {/* En el celular se deslizan de costado; en pantallas grandes, grilla. */}
           <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 scrollbar-none sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-4 xl:grid-cols-5">
-            {featured.map((article) => (
+            {featured.map((article, i) => (
               <ProductCard
                 key={article.key}
                 article={article}
+                priority={i < 4}
                 className="w-[46%] shrink-0 snap-start sm:w-auto"
               />
             ))}
@@ -236,8 +251,9 @@ export function Storefront({
                   pending && "opacity-60",
                 )}
               >
-                {remaining.map((a) => (
-                  <ProductCard key={a.key} article={a} />
+                {remaining.map((a, i) => (
+                  // Sin ofertas arriba (búsqueda, categoría, página 2...), la grilla es lo primero que se ve.
+                  <ProductCard key={a.key} article={a} priority={featured.length === 0 && i < 4} />
                 ))}
               </div>
               {totalPages > 1 && (

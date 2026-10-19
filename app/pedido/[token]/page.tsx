@@ -172,7 +172,8 @@ export default async function OrderPage({
           <aside className="lg:sticky lg:top-20 lg:self-start">
             <section className="rounded-2xl bg-card p-5 shadow-card ring-1 ring-border/70">
               <h2 className="mb-3 font-semibold">Entrega y pago</h2>
-              <ul className="flex flex-col gap-2.5 text-sm">
+              {/* ph-no-capture: dirección, nombre y teléfono nunca van a las métricas ni a las grabaciones. */}
+              <ul className="ph-no-capture flex flex-col gap-2.5 text-sm">
                 <li className="flex items-start gap-2">
                   <CalendarDays className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <span>

@@ -7,6 +7,8 @@ import { useCart } from "@/components/cart/cart-provider"
 import { QuantityStepper, TierPrices, TierSummary } from "@/components/storefront/tier-pricing"
 import { stepUnits } from "@/lib/pricing"
 import { categoryImage } from "@/lib/categories"
+import { isOptimizableImage } from "@/lib/images"
+import { EVENTS, track } from "@/lib/analytics"
 import { formatPrice } from "@/lib/format"
 import {
   Sheet,
@@ -25,7 +27,13 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
   const { items, total, count, setQty, remove } = useCart()
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (next) track(EVENTS.cartViewed, { items_count: count, value: total })
+      }}
+    >
       <SheetTrigger render={children as React.ReactElement} />
       <SheetContent className="flex flex-col gap-0 bg-background p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md">
         <SheetHeader className="border-b border-border bg-card">
@@ -59,6 +67,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                       alt=""
                       width={64}
                       height={64}
+                      unoptimized={!isOptimizableImage(item.imageUrl || categoryImage(item.category))}
                       className="size-16 shrink-0 rounded-xl bg-white object-contain p-1 ring-1 ring-border"
                     />
                     <div className="min-w-0 flex-1">
