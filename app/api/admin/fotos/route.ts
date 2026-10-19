@@ -1,13 +1,14 @@
 import { photoReview } from "@/lib/photo-review"
 import { MAX_PHOTO_BYTES, PhotoReviewError, isPhotoId } from "@/lib/photo-review-store"
 import { requireAdmin } from "@/lib/session"
+import { getSiteUrl } from "@/lib/site"
 import { revalidatePath } from "next/cache"
 
 export const runtime = "nodejs"
 
 function sameOrigin(request: Request) {
   const origin = request.headers.get("origin")
-  const publicUrl = process.env.BETTER_AUTH_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : request.url)
+  const publicUrl = getSiteUrl() ?? request.url
   return !!origin && origin === new URL(publicUrl).origin
 }
 function errorResponse(error: unknown) {
