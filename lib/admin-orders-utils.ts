@@ -40,6 +40,9 @@ export type AdminOrder = {
   paymentMethod: PaymentMethod
   status: OrderStatus
   total: number
+  /** Descuento web aplicado (%, 0 = sin descuento) y pesos descontados. */
+  webDiscountPercent: number
+  webDiscountAmount: number
   notes: string | null
   /** Ubicación de la entrega para el recorrido (null si no se buscó o no se encontró). */
   location: LatLng | null

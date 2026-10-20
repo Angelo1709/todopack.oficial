@@ -44,6 +44,8 @@ export type SalesSummary = {
   customers: number
   /** Clientes del período con al menos otro pedido (antes o en el período). */
   repeatCustomers: number
+  /** Pesos descontados por el descuento web (lib/promo.ts) en pedidos no cancelados. */
+  webDiscount: number
 }
 
 export type SalesDay = { day: string; orders: number; revenue: number }
@@ -71,7 +73,7 @@ const CUSTOMER = `coalesce(nullif(regexp_replace(o.phone, '\\D', '', 'g'), ''), 
 async function summary(from: string, to: string): Promise<SalesSummary> {
   const { rows } = await pool.query(
     `WITH o AS (
-      SELECT o.status, o.total, o.origin, ${CUSTOMER} AS customer, ${DAY} AS day
+      SELECT o.status, o.total, o.origin, o.web_discount_amount, ${CUSTOMER} AS customer, ${DAY} AS day
       FROM orders o
       WHERE ${DAY} <= $2::date
     ),
@@ -88,7 +90,8 @@ async function summary(from: string, to: string): Promise<SalesSummary> {
       count(DISTINCT customer) FILTER (WHERE status <> $5)::int AS customers,
       count(DISTINCT customer) FILTER (
         WHERE status <> $5 AND customer IN (SELECT customer FROM history WHERE n > 1)
-      )::int AS repeat_customers
+      )::int AS repeat_customers,
+      coalesce(sum(web_discount_amount) FILTER (WHERE status <> $5), 0)::float8 AS web_discount
     FROM period`,
     [from, to, COLLECTED, PENDING, CANCELLED],
   )
@@ -103,6 +106,7 @@ async function summary(from: string, to: string): Promise<SalesSummary> {
     manualOrders: r.manual_orders,
     customers: r.customers,
     repeatCustomers: r.repeat_customers,
+    webDiscount: r.web_discount,
   }
 }
 

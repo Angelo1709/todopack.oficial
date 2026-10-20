@@ -10,10 +10,13 @@ import {
   doublePrecision,
   jsonb,
   uuid,
+  customType,
 } from "drizzle-orm/pg-core"
 import type { StreetGraph } from "../street-graph"
 
 // Cualquier cambio acá necesita su migración SQL en lib/db/migrations/.
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => "bytea" })
 
 // ---- Better Auth tables (camelCase columns are required by Better Auth) ----
 
@@ -143,6 +146,9 @@ export const orders = pgTable(
     origin: text("origin").notNull().default("web"),
     // Admin que cargó el pedido manual (null en los de la web).
     createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    // Descuento web (lib/promo.ts) aplicado al pedido: porcentaje y pesos descontados (0 = sin descuento).
+    webDiscountPercent: integer("web_discount_percent").notNull().default(0),
+    webDiscountAmount: integer("web_discount_amount").notNull().default(0),
     paidAt: timestamp("paid_at", { withTimezone: true }),
     deliveredAt: timestamp("delivered_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -168,6 +174,22 @@ export const orderItems = pgTable("order_items", {
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+})
+
+/** Banners de la portada que sube el admin (lib/banners.ts). Imágenes fijas: para cambiarlas se sube otro. */
+export const banners = pgTable("banners", {
+  id: uuid("id").primaryKey(),
+  title: text("title").notNull().default(""), // qué dice la imagen (texto alternativo)
+  link: text("link").notNull().default(""), // a dónde lleva al tocarlo ('' = a ningún lado)
+  active: boolean("active").notNull().default(true),
+  position: integer("position").notNull().default(0),
+  mobileMime: text("mobile_mime"),
+  mobileData: bytea("mobile_data"),
+  desktopMime: text("desktop_mime"),
+  desktopData: bytea("desktop_data"),
+  createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
 

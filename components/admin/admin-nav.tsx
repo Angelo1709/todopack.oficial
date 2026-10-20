@@ -2,13 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChartColumn, ClipboardList, Package, Settings, Users, Images } from "lucide-react"
+import { BadgePercent, ChartColumn, ClipboardList, Package, Settings, Users, Images } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
   { href: "/admin", label: "Pedidos", icon: ClipboardList },
   { href: "/admin/metricas", label: "Métricas", icon: ChartColumn },
   { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/promociones", label: "Promociones", icon: BadgePercent },
   { href: "/admin/stock", label: "Stock", icon: Package },
   { href: "/admin/fotos", label: "Fotos", icon: Images },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings },

@@ -9,7 +9,7 @@ import { isOptimizableImage } from "@/lib/images"
 import { savingsPercent, stepUnits, type Tier } from "@/lib/pricing"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { offerLabel } from "@/lib/offers"
+import { offerLabel, visibleOffer } from "@/lib/offers"
 import { Check, Plus } from "lucide-react"
 
 /** Un artículo del catálogo con sus presentaciones (tramos de precio). Ver lib/catalog.ts. */
@@ -42,9 +42,10 @@ export function ProductCard({
   const soldOut = !article.available
   const inCart = !soldOut && units > 0
   const bestSaving = Math.max(0, ...article.tiers.map((t) => savingsPercent(article.tiers, t)))
-  const offers = article.tiers.filter((t) => t.offer?.active)
-  const offerBadges = [...new Set(offers.map((t) => offerLabel(t.offer!)))]
-  const offerTitles = [...new Set(offers.map((t) => t.offer!.title))]
+  // Una oferta porcentual que no supera al descuento web queda tapada: no se anuncia.
+  const offers = article.tiers.flatMap((t) => visibleOffer(t.offer, t.webDiscount) ?? [])
+  const offerBadges = [...new Set(offers.map(offerLabel))]
+  const offerTitles = [...new Set(offers.map((o) => o.title))]
   const cartArticle = {
     id: article.baseId,
     name: article.name,

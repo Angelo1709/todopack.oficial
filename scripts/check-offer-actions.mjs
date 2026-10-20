@@ -56,6 +56,10 @@ try {
  assert.notEqual(keys[0].key,"sin-oferta","Ofertas antes del artículo que sería primero alfabéticamente")
  const filtered=await state.db.select({key:articleKey}).from(products).where(offerArticleCondition()).groupBy(articleKey)
  assert.ok(!filtered.some(r=>r.key==="sin-oferta"))
+ // Con 25% de descuento web, la oferta del 20% queda tapada y no cuenta como oferta.
+ assert.ok(!(await state.db.select({key:articleKey}).from(products).where(offerArticleCondition(25)).groupBy(articleKey)).some(r=>r.key==="promo-10"))
+ assert.ok((await state.db.select({key:articleKey}).from(products).where(offerArticleCondition(10)).groupBy(articleKey)).some(r=>r.key==="promo-10"))
+ assert.ok((await state.db.select({key:articleKey}).from(products).where(offerArticleCondition(25)).groupBy(articleKey)).some(r=>r.key==="galletitas"),"El 2x1 sigue siendo oferta")
  await memory.exec("UPDATE products SET stock_quantity=0 WHERE id=20")
  const after=await state.db.select({key:articleKey}).from(products).where(offerArticleCondition()).groupBy(articleKey)
  assert.ok(!after.some(r=>r.key==="promo-10"),"Una oferta agotada no anuncia un descuento en otra presentación disponible")

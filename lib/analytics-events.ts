@@ -11,6 +11,8 @@ export const EVENTS = {
   productsSearched: "products_searched",
   categorySelected: "category_selected",
   offersViewed: "offers_viewed",
+  /** Tocó un banner de la portada con link (`position` 1, 2...; `banner_id`, nunca datos personales). */
+  bannerClicked: "banner_clicked",
   /** Abrió el checkout con productos en el carrito. */
   checkoutStarted: "checkout_started",
   /** Tocó "Confirmar pedido" (antes de validar): separa al que abandona el formulario del que lo intenta y falla. */

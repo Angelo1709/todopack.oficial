@@ -2,6 +2,7 @@ import { getSessionUser } from "@/lib/session"
 import { getDeliverySettings, getSettings } from "@/lib/settings"
 import { todayAR } from "@/lib/dates"
 import { SiteHeader } from "@/components/site-header"
+import { PromoBar } from "@/components/storefront/promo-bar"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 
 export const dynamic = "force-dynamic"
@@ -12,6 +13,7 @@ export default async function CheckoutPage() {
 
   return (
     <main className="min-h-dvh bg-background">
+      <PromoBar />
       <SiteHeader />
       <CheckoutForm
         defaults={{

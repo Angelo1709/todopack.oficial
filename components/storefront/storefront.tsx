@@ -13,6 +13,7 @@ import { SORT_OPTIONS, type SortOption } from "@/lib/sort-options"
 import { ArrowDownUp, ChevronLeft, ChevronRight, Flame, PackageSearch, ShoppingCart, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { EVENTS, track } from "@/lib/analytics"
+import { visibleOffer } from "@/lib/offers"
 
 /** Primera, última y las vecinas de la actual: 1 … 4 5 6 … 20. */
 function pageList(page: number, total: number): (number | "gap")[] {
@@ -48,7 +49,7 @@ export function Storefront({
   const category = selectedCategory
   const tabs = ["Todos", ...categories]
   const isHome = category === "Todos" && !query && page === 1 && !offersOnly
-  const featured = isHome ? articles.filter((article) => article.available && article.tiers.some((tier) => tier.offer?.active)).slice(0, 8) : []
+  const featured = isHome ? articles.filter((article) => article.available && article.tiers.some((tier) => visibleOffer(tier.offer, tier.webDiscount))).slice(0, 8) : []
   const featuredKeys = new Set(featured.map((article) => article.key))
   const remaining = articles.filter((article) => !featuredKeys.has(article.key))
 

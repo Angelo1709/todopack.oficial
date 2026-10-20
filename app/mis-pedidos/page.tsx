@@ -2,6 +2,7 @@ import Link from "next/link"
 import { getSessionUser } from "@/lib/session"
 import { getMyOrders } from "@/app/actions/orders"
 import { SiteHeader } from "@/components/site-header"
+import { PromoBar } from "@/components/storefront/promo-bar"
 import { Button } from "@/components/ui/button"
 import { OrderCard } from "@/components/orders/order-card"
 import { GuestOrders } from "@/components/orders/guest-orders"
@@ -16,6 +17,7 @@ export default async function MyOrdersPage() {
 
   return (
     <main className="min-h-dvh bg-background">
+      <PromoBar />
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-4 py-6">
         <h1 className="mb-6 font-serif text-2xl font-bold">Mis pedidos</h1>

@@ -23,7 +23,7 @@ const mocks = {
   "next/cache": stub("export function revalidatePath(path){globalThis.__stockChecks.paths.push(path)}"),
   "server-only": stub(""),
   "@/lib/session": stub("export async function getSessionUser(){return null};export async function requireUser(){throw Error('Unauthorized')}"),
-  "@/lib/settings": stub("export async function getDeliverySettings(){return globalThis.__stockChecks.deliverySettings}"),
+  "@/lib/settings": stub("export async function getDeliverySettings(){return globalThis.__stockChecks.deliverySettings};export async function getPromoSettings(){return globalThis.__stockChecks.promo??{webDiscountActive:false,webDiscountPercent:10,announcementActive:false,announcementText:''}}"),
   "@/lib/order-location": stub("export async function locateOrder(){}"),
   "next/server": stub("export function after(){}"),
 }
