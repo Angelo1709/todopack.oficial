@@ -7,11 +7,16 @@
 // La presentación más chica marca el paso: si solo hay "Pack x6", se compran múltiplos de 6.
 // Lo usan el catálogo y el carrito (navegador) y createOrder (servidor, que recalcula siempre).
 // Dependencias puras: funciona igual en navegador y servidor.
+//
+// Descuentos: la oferta de cada presentación (lib/offers.ts) y el descuento web general (lib/promo.ts,
+// `webDiscount`) no se suman; cada presentación paga el mayor y el optimizador elige lo más barato.
 
-import { effectivePrice, type Offer } from "./offers.ts"
+import { effectivePrice, visibleOffer, type Offer } from "./offers.ts"
 
 export type Tier = {
   offer?: Offer | null
+  /** Descuento web (%) vigente cuando se armó el artículo; 0 o ausente = sin descuento. */
+  webDiscount?: number
   /** Producto (fila de products) de esta presentación. */
   productId: number
   /** Nombre tal cual la lista de precios, ej. "7UP 1.5 LT DESCARTABLE PACK X6". */
@@ -36,6 +41,20 @@ export type Breakdown = {
 /** Tope de unidades por artículo en un pedido. */
 export const MAX_UNITS = 5000
 
+/** Precio que se paga por la presentación (con su oferta porcentual o el descuento web, el mayor). */
+export function tierPrice(tier: Tier): number {
+  return effectivePrice(tier.price, tier.offer, tier.webDiscount)
+}
+
+/**
+ * Las mismas presentaciones sin el descuento web, para saber cuánto se ahorra con él. Tampoco llevan
+ * las ofertas que el descuento tapa (un 5% con 10% web no se anuncia): el ahorro coincide con lo que
+ * ve el cliente, precio de lista tachado contra precio con descuento.
+ */
+export function withoutWebDiscount(tiers: Tier[]): Tier[] {
+  return tiers.map((t) => ({ ...t, offer: visibleOffer(t.offer, t.webDiscount), webDiscount: 0 }))
+}
+
 /** Conserva el precio más bajo por tamaño y las ofertas alternativas para comparar combos. */
 export function normalizeTiers(tiers: Tier[]): Tier[] {
   const bySize = new Map<number, Tier>()
@@ -43,7 +62,7 @@ export function normalizeTiers(tiers: Tier[]): Tier[] {
     const size = Math.max(1, Math.floor(t.packSize || 1))
     if (!(t.price > 0)) continue
     const current = bySize.get(size)
-    if (!current || effectivePrice(t.price, t.offer) < effectivePrice(current.price, current.offer)) bySize.set(size, { ...t, packSize: size })
+    if (!current || tierPrice(t) < tierPrice(current)) bySize.set(size, { ...t, packSize: size })
   }
   const selected = [...bySize.values()]
   const selectedIds = new Set(selected.map((t) => t.productId))
@@ -53,7 +72,7 @@ export function normalizeTiers(tiers: Tier[]): Tier[] {
       selectedIds.add(tier.productId)
     }
   }
-  return selected.sort((a, b) => a.packSize - b.packSize || effectivePrice(a.price, a.offer) - effectivePrice(b.price, b.offer))
+  return selected.sort((a, b) => a.packSize - b.packSize || tierPrice(a) - tierPrice(b))
 }
 
 /** De a cuántas unidades se compra (tamaño de la presentación más chica). */
@@ -82,12 +101,13 @@ export function priceFor(tiers: Tier[], units: number): Breakdown | null {
   if (!sorted.length || !(n > 0) || n > MAX_UNITS) return null
 
   // Mochila sin límite, costo mínimo con suma exacta. En empate gana la presentación más grande.
+  // Las líneas guardan el precio ya pagado (sin webDiscount, para no volver a descontarlo).
   const desc = [...sorted].reverse().flatMap((tier) => {
-    const price = effectivePrice(tier.price, tier.offer)
-    const paidTier = { ...tier, price }
-    const regular = { tier: paidTier, units: tier.packSize, cost: price, paid: 1, free: 0 }
+    const price = tierPrice(tier)
+    const regular = { tier: { ...tier, price, webDiscount: 0 }, units: tier.packSize, cost: price, paid: 1, free: 0 }
     if (!tier.offer?.active || tier.offer.kind !== "bundle") return [regular]
-    return [{ tier: paidTier, units: tier.packSize * tier.offer.buy, cost: price * tier.offer.pay,
+    // El combo va a precio de lista: no se suma al descuento web (la compra suelta ya lo tiene).
+    return [{ tier: { ...tier, webDiscount: 0 }, units: tier.packSize * tier.offer.buy, cost: tier.price * tier.offer.pay,
       paid: tier.offer.pay, free: tier.offer.buy - tier.offer.pay }, regular]
   })
   const cost = new Array<number>(n + 1).fill(Infinity)

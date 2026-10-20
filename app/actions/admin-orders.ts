@@ -70,6 +70,8 @@ export async function getAdminOrdersForDate(date: string): Promise<AdminOrder[]>
     paymentMethod: o.paymentMethod as PaymentMethod,
     status: o.status as OrderStatus,
     total: o.total,
+    webDiscountPercent: o.webDiscountPercent,
+    webDiscountAmount: o.webDiscountAmount,
     notes: o.notes,
     location: o.lat !== null && o.lng !== null ? { lat: o.lat, lng: o.lng } : null,
     locationStatus: isLocationStatus(o.locationStatus) ? o.locationStatus : null,

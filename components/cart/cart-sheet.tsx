@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import { WebDiscountSavings } from "@/components/cart/web-discount-savings"
 import { ArrowRight, Trash2, ShoppingCart } from "lucide-react"
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
@@ -103,6 +104,7 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
 
         {items.length > 0 && (
           <SheetFooter className="gap-3 border-t border-border bg-card pb-safe">
+            <WebDiscountSavings />
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-muted-foreground">Total</span>
               <span className="font-serif text-2xl font-bold tabular-nums">{formatPrice(total)}</span>

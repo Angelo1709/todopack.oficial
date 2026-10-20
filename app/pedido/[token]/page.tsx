@@ -17,6 +17,7 @@ import {
   type PaymentMethod,
 } from "@/lib/order-status"
 import { SiteHeader } from "@/components/site-header"
+import { PromoBar } from "@/components/storefront/promo-bar"
 import { Button } from "@/components/ui/button"
 import { OrderProgress } from "@/components/orders/order-progress"
 import { OrderStatusBadge, PaymentMethodLabel } from "@/components/orders/order-meta"
@@ -81,6 +82,7 @@ export default async function OrderPage({
 
   return (
     <main className="min-h-dvh bg-background">
+      <PromoBar />
       <SiteHeader />
       <div className="mx-auto max-w-4xl px-4 py-6">
         <Link
@@ -167,6 +169,11 @@ export default async function OrderPage({
               <span>Total</span>
               <span className="tabular-nums">{formatPrice(order.total)}</span>
             </div>
+            {order.webDiscountAmount > 0 && (
+              <p className="mt-1 text-right text-sm font-semibold">
+                Ahorraste {formatPrice(order.webDiscountAmount)} con el {order.webDiscountPercent}% OFF por comprar en la web
+              </p>
+            )}
           </section>
 
           <aside className="lg:sticky lg:top-20 lg:self-start">

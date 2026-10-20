@@ -18,7 +18,7 @@ import { randomBytes } from "node:crypto"
 import { isIsoDate, todayAR } from "@/lib/dates"
 import { isOrderToken, MAX_REMEMBERED_ORDERS } from "@/lib/guest-orders"
 import { loadArticlesForProducts, type Article } from "@/lib/catalog"
-import { MAX_UNITS, priceFor, stepUnits } from "@/lib/pricing"
+import { MAX_UNITS, priceFor, stepUnits, withoutWebDiscount } from "@/lib/pricing"
 import { locateOrder } from "@/lib/order-location"
 import { getDeliverySettings } from "@/lib/settings"
 import { canBookDelivery,closedDeliveryMessage,deliveryWindow,validDeliveryDate,validateDeliverySettings } from "@/lib/delivery-schedule"
@@ -165,7 +165,11 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
 
   // Precio por tramos: se cobra la combinación más barata de presentaciones y se guarda desglosada
   // ("1 × PACK X6" + "1 × UNIDAD"), que es lo que se arma en el depósito.
+  // El descuento web ya viene en las presentaciones (lib/catalog.ts): los ítems guardan el precio
+  // pagado y el pedido, el porcentaje y cuánto se descontó frente al mismo carrito sin descuento.
   let total = 0
+  let totalWithoutWebDiscount = 0
+  let webDiscountPercent = 0
   const lineItems: { productId: number; name: string; price: number; packSize: number; quantity: number }[] = []
   for (const { article, units } of unitsByArticle.values()) {
     if (units > MAX_UNITS) return fail(`Cantidad demasiado grande de ${article.name} (máx. ${MAX_UNITS} u.)`, "items")
@@ -174,10 +178,15 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       return fail(`${article.name} se vende de a ${stepUnits(article.tiers)} unidades: revisá la cantidad`, "items")
     }
     total += breakdown.total
+    totalWithoutWebDiscount += priceFor(withoutWebDiscount(article.tiers), units)?.total ?? breakdown.total
+    webDiscountPercent = Math.max(webDiscountPercent, ...article.tiers.map((t) => t.webDiscount ?? 0))
     for (const { tier, count } of breakdown.lines) {
       lineItems.push({ productId: tier.productId, name: tier.name, price: tier.price, packSize: tier.packSize, quantity: count })
     }
   }
+
+  const webDiscountAmount = Math.max(0, totalWithoutWebDiscount - total)
+  if (!webDiscountAmount) webDiscountPercent = 0
 
   if (input.expectedTotal !== undefined && input.expectedTotal !== total) {
     return fail("Los precios u ofertas cambiaron. Actualizamos tu carrito: revisá el total y confirmá de nuevo.", "items")
@@ -205,6 +214,8 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
       paymentMethod: input.paymentMethod,
       status: initialStatus(input.paymentMethod),
       total,
+      webDiscountPercent,
+      webDiscountAmount,
       notes: notes || null,
     })
     .returning({ id: orders.id, publicToken: orders.publicToken })

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { refreshCartArticles } from "@/app/actions/orders"
-import { normalizeTiers, priceFor, snapUnits, type Tier } from "@/lib/pricing"
+import { normalizeTiers, priceFor, snapUnits, withoutWebDiscount, type Tier } from "@/lib/pricing"
 import { EVENTS, track } from "@/lib/analytics"
 
 /**
@@ -26,6 +26,9 @@ type CartContextValue = {
   /** Cantidad de artículos distintos. */
   count: number
   total: number
+  /** Descuento web vigente (%) y cuánto se ahorra con él en este carrito (0 = sin descuento). */
+  webDiscount: number
+  webSavings: number
   /** Suma unidades (se ajusta al paso del artículo: si se vende por pack x6, de a 6). */
   add: (article: CartArticle, units?: number) => void
   /** Fija las unidades de un artículo (0 lo saca). */
@@ -208,10 +211,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const quantityOf = useCallback((id: number) => items.find((i) => i.id === id)?.quantity ?? 0, [items])
 
   const total = useMemo(() => items.reduce((sum, i) => sum + lineTotal(i), 0), [items])
+  const { webDiscount, webSavings } = useMemo(() => {
+    const webDiscount = Math.max(0, ...items.flatMap((i) => i.tiers.map((t) => t.webDiscount ?? 0)))
+    if (!webDiscount) return { webDiscount: 0, webSavings: 0 }
+    const regular = items.reduce((sum, i) => sum + (priceFor(withoutWebDiscount(i.tiers), i.quantity)?.total ?? lineTotal(i)), 0)
+    return { webDiscount, webSavings: Math.max(0, regular - total) }
+  }, [items, total])
 
   const value = useMemo(
-    () => ({ items, count: items.length, total, add, setQty, remove, clear, refresh, quantityOf }),
-    [items, total, add, setQty, remove, clear, refresh, quantityOf],
+    () => ({ items, count: items.length, total, webDiscount, webSavings, add, setQty, remove, clear, refresh, quantityOf }),
+    [items, total, webDiscount, webSavings, add, setQty, remove, clear, refresh, quantityOf],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

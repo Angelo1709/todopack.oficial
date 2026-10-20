@@ -83,6 +83,7 @@ export function MetricsPanel({
               current.repeatCustomers ? ` (${formatNumber(current.repeatCustomers)} ya habían comprado)` : ""
             }`,
             `${formatNumber(current.cancelled)} ${current.cancelled === 1 ? "cancelado" : "cancelados"}`,
+            ...(current.webDiscount > 0 ? [`${formatPrice(current.webDiscount)} de descuento web`] : []),
           ].join(" · ")}
         </p>
 

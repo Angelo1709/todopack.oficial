@@ -13,7 +13,7 @@ const mocks={
   "@/lib/dates":stub(`export {isIsoDate,addDays,formatDateAR} from ${JSON.stringify(new URL("../lib/dates.ts",import.meta.url).href)};export function todayAR(){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires'}).format(new Date(globalThis.__deliveryActionChecks.clock))}`),
   "@/lib/db/schema":stub(`export const orders={name:'orders',id:'id',publicToken:'publicToken'};export const orderItems={name:'order_items'};export const settings={name:'settings',key:'key'};`),
   "@/lib/db":stub(`export const db={insert(table){return {values(values){const s=globalThis.__deliveryActionChecks;s.writes.push({table:table.name,values});return {async returning(){return [{id:1,publicToken:'test-token'}]},async onConflictDoUpdate(){for(const v of values)s.values[v.key]=v.value}}}}}}`),
-  "@/lib/catalog":stub(`export async function loadArticlesForProducts(){const s=globalThis.__deliveryActionChecks;s.clock+=s.shift;if(s.changed)s.values=s.changed;return new Map([[2,{key:'9oro',name:'9 DE ORO',baseId:2,tiers:[{productId:2,name:'UNIDAD',label:'Unidad',packSize:1,price:1200},{productId:692,name:'PACK X20',label:'Pack x20',packSize:20,price:22000}]}]])}`),
+  "@/lib/catalog":stub(`export async function loadArticlesForProducts(){const s=globalThis.__deliveryActionChecks;s.clock+=s.shift;if(s.changed)s.values=s.changed;const w=s.webDiscount?{webDiscount:s.webDiscount}:{};return new Map([[2,{key:'9oro',name:'9 DE ORO',baseId:2,tiers:[{productId:2,name:'UNIDAD',label:'Unidad',packSize:1,price:1200,...w},{productId:692,name:'PACK X20',label:'Pack x20',packSize:20,price:22000,...w}]}]])}`),
   "@/lib/order-location":stub(`export async function locateOrder(){}`),
   "next/cache":stub(`export function revalidatePath(path){globalThis.__deliveryActionChecks.paths.push(path)}`),
   "next/server":stub(`export function after(){}`),
@@ -25,7 +25,7 @@ const hooks=registerHooks({resolve(specifier,context,next){
   return next(specifier,context)
 }})
 Date.now=()=>state.clock
-const reset=()=>{state.writes=[];state.paths=[];state.values={...DELIVERY_SETTINGS_DEFAULTS};state.clock=deliveryInstant("2026-10-07","10:59");state.shift=0;state.changed=null}
+const reset=()=>{state.writes=[];state.paths=[];state.values={...DELIVERY_SETTINGS_DEFAULTS};state.clock=deliveryInstant("2026-10-07","10:59");state.shift=0;state.changed=null;state.webDiscount=0}
 const input={items:[{id:2,quantity:21}],customerName:"Cliente de prueba",phone:"3415550000",address:"Dirección de prueba",deliveryDate:"2026-10-07",deliverySlot:"mediodia",deliveryWindow:"12:00–15:00",paymentMethod:"efectivo"}
 try {
   const {createOrder}=await import("../app/actions/orders.ts")
@@ -44,5 +44,11 @@ try {
   reset();result=await createOrder({...input,expectedTotal:1});assert.equal(result.ok,false);assert.equal(result.field,"items");assert.equal(state.writes.length,0)
   reset();result=await createOrder({...input,expectedTotal:23200});assert.equal(result.ok,true);assert.equal(result.order.deliveryWindow,"12:00–15:00");assert.equal(result.order.total,23200)
   assert.equal(state.writes[0].values.deliveryWindow,"12:00–15:00")
+  assert.equal(state.writes[0].values.webDiscountPercent,0);assert.equal(state.writes[0].values.webDiscountAmount,0)
+  // Descuento web del 10%: pack x20 $22.000 → $19.800 y unidad $1.200 → $1.080; se guarda lo descontado.
+  reset();state.webDiscount=10;result=await createOrder({...input,expectedTotal:23200});assert.equal(result.ok,false,"Un total sin el descuento nuevo pide confirmar otra vez")
+  reset();state.webDiscount=10;result=await createOrder({...input,expectedTotal:20880});assert.equal(result.ok,true);assert.equal(result.order.total,20880)
+  assert.equal(state.writes[0].values.webDiscountPercent,10);assert.equal(state.writes[0].values.webDiscountAmount,2320)
+  assert.deepEqual(state.writes[1].values.map(i=>[i.price,i.quantity]),[[19800,1],[1080,1]],"Los ítems guardan el precio pagado")
   console.log("OK: permisos admin, guardado de 5 ajustes, lectura pública limitada, franja cerrada, cruce de límite, configuración obsoleta y horario conservado en pedidos.")
 } finally {Date.now=realNow;hooks.deregister();delete globalThis.__deliveryActionChecks}

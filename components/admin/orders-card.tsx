@@ -43,6 +43,11 @@ export function OrdersCard({ order, position }: { order: AdminOrder; position: n
                 Manual
               </Badge>
             )}
+            {order.webDiscountAmount > 0 && (
+              <Badge variant="outline" title={`Descuento web: ${formatPrice(order.webDiscountAmount)} menos que a precio de lista`}>
+                -{order.webDiscountPercent}% web
+              </Badge>
+            )}
           </div>
           <p className="mt-0.5 text-xs text-muted-foreground">
             <span className="font-medium text-foreground tabular-nums">{orderLabel(order.id)}</span> ·{" "}

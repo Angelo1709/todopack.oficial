@@ -5,6 +5,8 @@ import { and, eq, inArray, sql } from "drizzle-orm"
 import { parsePresentation, presentationLabel } from "@/lib/pack"
 import { normalizeTiers, type Tier } from "@/lib/pricing"
 import { stockAvailableCondition, stockVisibleCondition } from "@/lib/stock-availability"
+import { getPromoSettings } from "@/lib/settings"
+import { activeWebDiscount } from "@/lib/promo"
 
 // Un artículo = productos activos con el mismo group_key (sus presentaciones = tramos de precio).
 // Un producto sin group_key es un artículo solo.
@@ -24,11 +26,15 @@ export function availableColumn() {
   return sql<boolean>`coalesce(${stockAvailableCondition()}, false)`
 }
 
-/** El filtro y el orden consideran la misma oferta que puede mostrarse y comprarse. */
-export function offerArticleCondition() {
+/**
+ * El filtro y el orden consideran la misma oferta que puede mostrarse y comprarse. Con descuento web,
+ * una oferta porcentual que no lo supera queda tapada y no cuenta (como visibleOffer en lib/offers.ts).
+ */
+export function offerArticleCondition(webDiscount = 0) {
   const keys = db.select({ key: articleKey }).from(products).where(and(
     storefrontCondition(), availableColumn(), sql`${products.price} > 0`,
     sql`${products.offer}->>'active' = 'true'`,
+    webDiscount > 0 ? sql`(${products.offer}->>'kind' <> 'percent' or (${products.offer}->>'percent')::int > ${webDiscount})` : undefined,
   ))
   return sql<boolean>`${articleKey} in (${keys})`
 }
@@ -70,7 +76,7 @@ const articleColumns = () => ({
   available: availableColumn(),
 })
 
-function buildArticle(key: string, rows: ArticleRow[]): Article | null {
+function buildArticle(key: string, rows: ArticleRow[], webDiscount: number): Article | null {
   // Una presentación agotada no participa del precio por tramos mientras quede otra con stock.
   const inStock = rows.filter((r) => r.available)
   const tiers = normalizeTiers(
@@ -81,6 +87,7 @@ function buildArticle(key: string, rows: ArticleRow[]): Article | null {
       packSize: r.packSize,
       price: r.price,
       offer: r.offer,
+      ...(webDiscount ? { webDiscount } : {}),
     })),
   )
   if (!tiers.length) return null
@@ -100,17 +107,21 @@ function buildArticle(key: string, rows: ArticleRow[]): Article | null {
   }
 }
 
-/** Artículos que muestra la tienda (disponibles y agotados) para las claves pedidas, en el mismo orden. */
+/**
+ * Artículos que muestra la tienda (disponibles y agotados) para las claves pedidas, en el mismo orden.
+ * Sus presentaciones llevan el descuento web vigente: catálogo, carrito y createOrder cobran lo mismo.
+ */
 export async function loadArticles(keys: string[]): Promise<Article[]> {
   if (!keys.length) return []
-  const rows = await db
-    .select(articleColumns())
-    .from(products)
-    .where(and(storefrontCondition(), inArray(articleKey, keys)))
+  const [rows, promo] = await Promise.all([
+    db.select(articleColumns()).from(products).where(and(storefrontCondition(), inArray(articleKey, keys))),
+    getPromoSettings(),
+  ])
+  const webDiscount = activeWebDiscount(promo)
   const byKey = new Map<string, ArticleRow[]>()
   for (const row of rows) byKey.set(row.key, [...(byKey.get(row.key) ?? []), row])
   return keys.flatMap((k) => {
-    const article = byKey.has(k) ? buildArticle(k, byKey.get(k)!) : null
+    const article = byKey.has(k) ? buildArticle(k, byKey.get(k)!, webDiscount) : null
     return article ? [article] : []
   })
 }

@@ -29,6 +29,7 @@ de publicidad los cortan mucho menos que si fueran directo a PostHog.
 | `$pageview` | cada página vista (automático) | URL, origen (referrer), UTM, dispositivo |
 | `products_searched` | una búsqueda | `query`, `results` (0 = lo piden y no lo tenés) |
 | `category_selected` / `offers_viewed` | filtros del catálogo | `category` |
+| `banner_clicked` | tocó un banner de la portada con link | `banner_id`, `position` |
 | `product_added` | agrega un artículo al carrito | `product_id`, `product_name`, `category`, `quantity`, `price`, `value` |
 | `cart_updated` / `product_removed` | cambia cantidades o saca | igual que arriba + `previous_quantity` |
 | `cart_viewed` | abre el carrito | `items_count`, `value` |

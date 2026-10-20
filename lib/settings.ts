@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { settings } from "@/lib/db/schema"
 import { isRouteEnd, isRoutePlace, parseLatLng, type RouteConfig } from "@/lib/route"
 import { DELIVERY_SETTINGS_DEFAULTS, DELIVERY_SETTING_KEYS, type DeliverySettings, type DeliverySettingKey } from "@/lib/delivery-schedule"
+import { PROMO_DEFAULTS, type PromoSettings } from "@/lib/promo"
 
 // Valores por defecto hasta que el admin los cargue en /admin/configuracion.
 export const SETTINGS_DEFAULTS = {
@@ -73,4 +74,20 @@ function routeConfigFrom(values: RouteSettingsValues): RouteConfig {
 
 export async function getRouteConfig(): Promise<RouteConfig> {
   return routeConfigFrom(await getRouteSettings())
+}
+
+// ---- Promociones (Admin → Promociones): descuento web y barra de anuncio. Ver lib/promo.ts ----
+
+export const PROMO_SETTING_KEYS = ["webDiscountActive", "webDiscountPercent", "announcementActive", "announcementText"] as const
+
+export async function getPromoSettings(): Promise<PromoSettings> {
+  const rows = await db.select().from(settings).where(inArray(settings.key, [...PROMO_SETTING_KEYS]))
+  const values = new Map(rows.map((r) => [r.key, r.value]))
+  const percent = Number(values.get("webDiscountPercent"))
+  return {
+    webDiscountActive: values.get("webDiscountActive") === "true",
+    webDiscountPercent: Number.isInteger(percent) ? percent : PROMO_DEFAULTS.webDiscountPercent,
+    announcementActive: values.get("announcementActive") === "true",
+    announcementText: values.get("announcementText") ?? PROMO_DEFAULTS.announcementText,
+  }
 }

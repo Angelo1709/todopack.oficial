@@ -10,22 +10,38 @@ import {
   normalizeTiers,
   priceFor,
   savingsPercent,
+  tierPrice,
   unitPriceOf,
+  withoutWebDiscount,
   type Tier,
 } from "@/lib/pricing"
-import { effectivePrice, offerLabel, offerTerms } from "@/lib/offers"
+import { offerLabel, offerTerms, visibleOffer } from "@/lib/offers"
 import { cn } from "@/lib/utils"
 import { Minus, Plus, TrendingDown } from "lucide-react"
 
+/** "-10% web" cuando el precio rebajado sale del descuento web y no de la oferta del producto. */
+function WebDiscountTag({ tier }: { tier: Tier }) {
+  const pct = tier.webDiscount ?? 0
+  const offer = visibleOffer(tier.offer, pct)
+  if (!pct || offer?.kind === "percent") return null
+  return <span className="mr-1 font-bold text-foreground">-{pct}% web</span>
+}
+
 /** Precio base y, si hay, los tramos mayoristas: "x6 · $ 1.000 c/u · -9%". */
 export function TierPrices({ tiers, className }: { tiers: Tier[]; className?: string }) {
-  const sorted = normalizeTiers(tiers).map((t) => ({ ...t, originalPrice: t.price, price: effectivePrice(t.price, t.offer) }))
+  const sorted = normalizeTiers(tiers).map((t) => ({ ...t, originalPrice: t.price, price: tierPrice(t), shownOffer: visibleOffer(t.offer, t.webDiscount) }))
   const [base, ...rest] = sorted
   if (!base) return null
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      {base.offer?.active && <p className="text-xs text-muted-foreground">{base.offer.kind === "percent" && <del className="mr-1 tabular-nums">{formatPrice(base.originalPrice)}</del>}{offerTerms(base.offer, base.label)}</p>}
+      {(base.shownOffer || base.price < base.originalPrice) && (
+        <p className="text-xs text-muted-foreground">
+          {base.price < base.originalPrice && <del className="mr-1 tabular-nums">{formatPrice(base.originalPrice)}</del>}
+          <WebDiscountTag tier={base} />
+          {base.shownOffer && offerTerms(base.shownOffer, base.label)}
+        </p>
+      )}
       {base.packSize === 1 ? (
         <p className="leading-tight">
           <span className="font-serif text-lg font-bold tabular-nums">{formatPrice(base.price)}</span>{" "}
@@ -48,8 +64,11 @@ export function TierPrices({ tiers, className }: { tiers: Tier[]; className?: st
           >
             <TrendingDown aria-hidden="true" className="mt-0.5 size-3.5 shrink-0 text-primary" />
             <span className="min-w-0 wrap-anywhere">
-              {t.offer?.active && <span className="block font-bold">{offerLabel(t.offer)} · {offerTerms(t.offer, t.label)}{t.offer.kind === "percent" && <del className="ml-1">{formatPrice(t.originalPrice)}</del>}</span>}
-              <span className="block">{t.label}: {formatPrice(t.price)}</span>
+              {t.shownOffer && <span className="block font-bold">{offerLabel(t.shownOffer)} · {offerTerms(t.shownOffer, t.label)}</span>}
+              <span className="block">
+                {t.label}: {formatPrice(t.price)}
+                {t.price < t.originalPrice && <del className="ml-1 font-normal text-muted-foreground">{formatPrice(t.originalPrice)}</del>}
+              </span>
               <span className="block">≈ {formatPrice(Math.round(unitPriceOf(t)))} c/u{pct > 0 ? ` · -${pct}%` : ""}</span>
             </span>
           </p>
@@ -125,9 +144,16 @@ export function QuantityStepper({
 export function TierSummary({ tiers, units, compact = false }: { tiers: Tier[]; units: number; compact?: boolean }) {
   const breakdown = priceFor(tiers, units)
   if (!breakdown) return null
-  const hasOffer = tiers.some((t) => t.offer?.active)
-  const hint = hasOffer ? null : nextTierHint(tiers, units)
-  const regular = hasOffer ? priceFor(tiers.map((t) => ({ ...t, offer: null })), units) : null
+  const offers = tiers.flatMap((t) => {
+    const offer = visibleOffer(t.offer, t.webDiscount)
+    return offer ? [{ tier: t, offer }] : []
+  })
+  const webDiscount = Math.max(0, ...tiers.map((t) => t.webDiscount ?? 0))
+  const hint = offers.length ? null : nextTierHint(tiers, units)
+  const regular = offers.length || webDiscount ? priceFor(withoutWebDiscount(tiers).map((t) => ({ ...t, offer: null })), units) : null
+  // De dónde sale el ahorro: un 2x1 a precio de lista no usa el descuento web.
+  const webSaved = webDiscount ? (priceFor(withoutWebDiscount(tiers), units)?.total ?? breakdown.total) - breakdown.total : 0
+  const savedWith = offers.length ? (webSaved > 0 ? "con la oferta y el descuento web" : "con la oferta") : `con el ${webDiscount}% OFF web`
   const mixed = breakdown.lines.length > 1 || breakdown.lines[0].tier.packSize !== normalizeTiers(tiers)[0].packSize
 
   return (
@@ -136,8 +162,8 @@ export function TierSummary({ tiers, units, compact = false }: { tiers: Tier[]; 
         <span className="text-muted-foreground">{describeQuantity(tiers, units)}</span>
         <span className="font-serif text-sm font-bold tabular-nums text-foreground">{formatPrice(breakdown.total)}</span>
       </p>
-      {regular && regular.total > breakdown.total && <p className="font-medium text-foreground">Ahorrás {formatPrice(regular.total - breakdown.total)} con la oferta</p>}
-      {hasOffer && tiers.filter((t) => t.offer?.active).map((t) => <p key={t.productId} className="text-muted-foreground">{offerLabel(t.offer!)} · {offerTerms(t.offer!, t.label)}</p>)}
+      {regular && regular.total > breakdown.total && <p className="font-medium text-foreground">Ahorrás {formatPrice(regular.total - breakdown.total)} {savedWith}</p>}
+      {offers.map(({ tier, offer }) => <p key={tier.productId} className="text-muted-foreground">{offerLabel(offer)} · {offerTerms(offer, tier.label)}</p>)}
       {mixed && (
         <p className="text-muted-foreground">
           {describeBreakdown(breakdown)} · ≈ {formatPrice(averageUnitPrice(breakdown))} c/u
@@ -145,7 +171,7 @@ export function TierSummary({ tiers, units, compact = false }: { tiers: Tier[]; 
       )}
       {hint && !compact && (
         <p className="font-medium text-foreground">
-          Sumá {hint.missing} más y pagás {formatPrice(Math.round(unitPriceOf(hint.tier)))} c/u
+          Sumá {hint.missing} más y pagás {formatPrice(Math.round(tierPrice(hint.tier) / hint.tier.packSize))} c/u
         </p>
       )}
     </div>

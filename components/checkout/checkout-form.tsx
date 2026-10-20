@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { lineTotal, useCart } from "@/components/cart/cart-provider"
+import { WebDiscountSavings } from "@/components/cart/web-discount-savings"
 import { formatPrice } from "@/lib/format"
 import { createOrder, type CheckoutField } from "@/app/actions/orders"
 import { Button } from "@/components/ui/button"
@@ -102,7 +103,7 @@ export function CheckoutForm({
   serverNow:number
 }) {
   const router = useRouter()
-  const { items, total, clear, remove, refresh } = useCart()
+  const { items, total, webSavings, clear, remove, refresh } = useCart()
   const [mounted, setMounted] = useState(false)
   const [method, setMethod] = useState<PaymentMethod>("efectivo")
   const {values:schedule,now,refreshBooking}=useDeliveryBooking(deliverySettings,serverNow)
@@ -512,6 +513,7 @@ export function CheckoutForm({
                   )
                 })}
               </ul>
+              <WebDiscountSavings className="mb-3" />
               <div className="flex items-baseline justify-between border-t border-border pt-3">
                 <span className="text-sm text-muted-foreground">Total</span>
                 <span className="font-serif text-2xl font-bold tabular-nums">{formatPrice(total)}</span>
@@ -536,7 +538,9 @@ export function CheckoutForm({
           <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 pt-3 shadow-raised backdrop-blur pb-safe lg:hidden">
             <div className="mx-auto flex max-w-5xl items-center gap-3">
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-xs text-muted-foreground">
+                  Total{webSavings > 0 && <span className="font-semibold text-foreground"> · ahorrás {formatPrice(webSavings)}</span>}
+                </p>
                 <p className="font-serif text-xl font-bold leading-tight tabular-nums">{formatPrice(total)}</p>
               </div>
               <Button type="submit" className="ml-auto h-12 flex-1 rounded-xl text-base font-semibold" disabled={loading}>
